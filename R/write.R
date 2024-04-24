@@ -22,7 +22,7 @@
 #' write_tbl(hydrology_hyd, paste0(model_path, '/hydrology.hyd'), hydr_hyd_fmt)
 #' }
 #' @seealso \code{\link{read_tbl}}
-#' @keywords writing
+#' @keywords write
 
 write_tbl <- function(tbl, file_path, fmt) {
   tbl <- map2_df(tbl, fmt, ~ sprintf(.y, .x))

@@ -33,4 +33,4 @@ write_tbl(hydrology_hyd, paste0(model_path, '/hydrology.hyd'), hydr_hyd_fmt)
 \seealso{
 \code{\link{read_tbl}}
 }
-\keyword{writing}
+\keyword{write}

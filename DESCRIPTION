@@ -1,25 +1,23 @@
 Package: SWATtunR
 Type: Package
-Title: Soft-calibration, calibration, and validation package for SWAT+ models.
+Title: Soft & Hard Calibration, Validation Package for SWAT+ models
 Version: 0.0.1
-Author:  
-    c(person("Christoph", "Schuerz", 
-    email = "christoph.schuerz@ufz.de",
-    role = c("aut"),
-    comment = c(ORCID = '0000-0002-7204-5828')),
-    person("Svajunas", "Plunge", 
-    email = "svajunas_plunge@sggw.edu.pl",
-    role = c("aut", "cre"),
-    comment = c(ORCID = '0000-0001-8897-3349')),
-    person("Michel", "Strauch", 
-    email = "michael.strauch@ufz.de",
-    role = c("aut"),
-    comment = c(ORCID = '0000-0002-9872-6904')))
+Authors@R: c(
+    person("Svajunas", "Plunge", , "svajunas.plunge@gmail.com", role = c("aut", "cre"),
+        comment = c(ORCID = '0000-0001-8897-3349')),
+    person("Christoph", "Schuerz", , "christoph.schuerz@ufz.de", role = "aut",
+        comment = c(ORCID = "0000-0002-7204-5828")),
+    person("Michel", "Strauch", , "michael.strauch@ufz.de", role = "aut", 
+        comment = c(ORCID = "0000-0002-9872-6904")),
+    person("Mikołaj", "Piniewski", , "mikolaj_piniewski@sggw.edu.pl", role = "ctb", 
+        comment = c(ORCID = "0000-0001-7930-4549")))
 Maintainer: Svajunas Plunge <svajunas.plunge@gmail.com>
-Description: SWATtunR provides a comprehensive set of functions for soft and hard model calibration, validation steps, calculating performance metrics, plotting model output for user decision-making, and updating parameters in the model file. The scripted workflow and functionality of SWATtunR offer a guideline for in-depth model calibration and validation, ultimately enhancing the quality of model calibration and increasing reproducibility, transparency, and automation in the SWAT+ model setup process. SWATtunR adheres to the same data structure principles as other existing R packages in the SWAT-R modeling universe and can therefore be easily integrated with other SWAT R packages, such as SWATprepR, SWATbuildR, SWATdoctR, SWATrunR, and SWATmeasR.
+Description: SWATtunR provides a comprehensive set of functions for soft and hard model calibration, validation steps, calculating performance metrics, plotting model output for user decision-making, and updating parameters in the model file. 
 License: MIT + file LICENSE
 URL: https://github.com/biopsichas/SWATtunR
 BugReports: https://github.com/biopsichas/SWATtunR/issues
+Depends:
+    R (>= 4.2.0)
 Imports:
     data.table,
     dplyr,
@@ -28,10 +26,11 @@ Imports:
     readr, 
     stringr
 Suggests: 
+    knitr,
     testthat (>= 3.0.0)
-Config/testthat/edition: 3
-VignetteBuilder: 
+VignetteBuilder:
     knitr
+Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

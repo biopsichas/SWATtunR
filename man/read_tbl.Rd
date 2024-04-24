@@ -22,3 +22,4 @@ A tibble representing the SWAT+ input file.
 \description{
 This function reads a SWAT+ input file with a tabular structure into a tibble.
 }
+\keyword{read}

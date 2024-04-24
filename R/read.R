@@ -15,7 +15,7 @@
 #' @importFrom dplyr %>%
 #' @importFrom tibble add_column tibble
 #' @export
-#'
+#' @keywords read
 
 read_tbl <- function(file_path, col_names = NULL, n_skip = 1) {
   if (file.exists(file_path)) {
