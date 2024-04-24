@@ -1,0 +1,10 @@
+.gitignore
+^.*\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^test*
+^README\.Rmd$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^vignettes$
