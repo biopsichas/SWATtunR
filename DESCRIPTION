@@ -12,7 +12,7 @@ Authors@R: c(
     person("Mikołaj", "Piniewski", , "mikolaj_piniewski@sggw.edu.pl", role = "ctb", 
         comment = c(ORCID = "0000-0001-7930-4549")))
 Maintainer: Svajunas Plunge <svajunas.plunge@gmail.com>
-Description: SWATtunR provides a comprehensive set of functions for soft and hard model calibration, validation steps, calculating performance metrics, plotting model output for user decision-making, and updating parameters in the model file. 
+Description: Comprehensive set of tools for soft and hard model calibration, validation steps, calculating performance metrics, plotting model output for user decision-making, and updating parameters in the model files 
 License: MIT + file LICENSE
 URL: https://github.com/biopsichas/SWATtunR
 BugReports: https://github.com/biopsichas/SWATtunR/issues
