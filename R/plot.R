@@ -12,8 +12,13 @@
 #' @param yield_max (optional) The maximum observed yield values for each crop.
 #' Default \code{yield_max = NULL}
 #' @return A combined ggplot object showing boxplots for PHU fractions, yields, and biomass.
-#' @importFrom ggplot2 ggplot geom_boxplot geom_hline facet_grid scale_x_discrete scale_fill_manual labs theme_bw theme axis.text.x axis.title.x
-#' @importFrom dplyr filter select pivot_longer arrange enframe mutate left_join
+#' @importFrom ggplot2 ggplot geom_boxplot geom_hline facet_grid scale_x_discrete
+#' scale_fill_manual coord_cartesian labs theme_bw theme element_blank aes
+#' element_text vars
+#' @importFrom dplyr filter select arrange mutate left_join
+#' @importFrom tidyr pivot_longer
+#' @importFrom tibble enframe
+#' @importFrom lubridate year
 #' @export
 
 plot_phu_yld_bms <- function(sim_result, x_label, yield = NULL,

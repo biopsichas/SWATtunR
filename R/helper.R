@@ -28,7 +28,7 @@ add_suffix_to_duplicate <- function(col_name){
 #' @param file_version An optional version suffix to be appended to the filename.
 #' Default \code{file_version = NULL}, which adds '.bkp' to the filename.
 #' @return None
-#' @keywords internal
+#' @export
 
 copy_file_version <- function(model_path, file_name, file_version = NULL) {
   if (!is.null(file_version)) {

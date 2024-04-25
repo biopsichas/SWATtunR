@@ -1,65 +1,151 @@
 ---
-title: "Vignette Title"
-author: "Vignette Author"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+title: "Soft Calibration Workflow "
+output: html_document
+bibliography: ref.bib
 ---
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+## 1. Loading required packages
 
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+The SWATtunR package is essential for soft calibration, as it provides the necessary functions for the calibration process. Additional packages are required for data manipulation, visualization, SWAT+ model runs, etc.
 
-## Vignette Info
-
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
-
-## Styles
-
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
-
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
-
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
+```{r load_packages, message = FALSE, warning = FALSE}
+library(SWATtunR)
+library(SWATrunR)
+library(tidyverse)
 ```
 
-You can enable figure captions by `fig_caption: yes` in YAML:
+## 2. Defining settings 
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
+This step requires defining the SWAT+ model path, the path to the crop data file, and the observed water yield to precipitation ratio. 
 
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+For the crop yield soft calibration, it's essential to have accurate data on observed crop yields in dry weight. The data is typically sourced from a `'*.csv'` file, with columns specifying the plant names and their corresponding mean yields. If additional information is accessible, such as the minimum and maximum ranges for average annual observed yields, it's advisable to include them in the `'*.csv'` file as well, under the columns labeled yield_min and yield_max respectively. This ensures a comprehensive dataset for effective calibration and analysis.
 
-## More Examples
+```{r set_paths, message = FALSE, warning = FALSE}
+# Path to the SWAT+ model
+model_path <- '../test/my_dear_model'
 
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+# Path to the crop data file
+crop_data_path <- '../inst/extdata/crop.csv'
 
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
+# Observed water yield to precipitation ratio
+obs_wy_ratio <- 0.27
+
+# Set the path to save results of the soft calibration
+sc_res <- '../test/simulations'
 ```
 
-Also a quote using `>`:
+Crops observed yield data example is provided below.
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+```{r crop_data, message = FALSE, warning = FALSE}
+##
+crops_obs <- read_csv(crop_data_path, show_col_types = FALSE) %>% 
+  filter(!is.na(yield_mean))
+
+head(crops_obs, 3)
+```
+
+## 3. Days to maturity parameter changes
+
+After settings following step allows to define, which days to maturity changes 
+will be applied in soft-calibration. 
+
+### 3.1. Initialization
+
+Preparation of this step requires the conversion of observed yields information 
+into numeric vectors and initialization of `'plants.plt'` file.
+
+```{r init_dmat, message = FALSE, warning = FALSE}
+# Convert observed yields to numeric vectors
+for(i in c("yield_mean", "yield_min", "yield_max")){
+  if(i %in% colnames(crops_obs)){
+    assign(i, deframe(select(crops_obs, all_of(c("plant_name", i))))) 
+  } else {
+    assign(i, NULL)
+  }
+}
+
+## Initialize unmodified backup version of plants.plt
+if(!file.exists(paste0(model_path, '/plants.plt.bkp0'))) {
+  copy_file_version(model_path, 'plants.plt', file_version = 0)
+}
+```
+
+### 3.2. Days to maturity changes
+
+The following code generates a parameter input table with changes for required 
+for SWAT+ model run. The names are converted into [SWATrunR  syntax](https://chrisschuerz.github.io/SWATrunR/articles/par_sampl_calib.html) 
+for the days to maturity parameter. The code snippet also samples changes for 
+days to maturity, allowing users to define the crops to be used in soft calibration 
+and the initial values for days to maturity. 
+
+```{r dmat, message = FALSE, warning = FALSE}
+# Reading the plants.plt input file from the initial unchanged backup file
+plants_plt <- read_tbl(file_path = paste0(model_path, '/plants.plt.bkp0'))
+plants_plt <- select(plants_plt, - any_of('description'))
+
+# Define all crops which should be calibrated
+# Alternatively define a name vector (if you also want to consider crops 
+# which are not given in the observation input file).
+crops <- crops_obs$plant_name
+# crops <- c('crop1', 'crop2', 'crop3')
+
+# Get a vector with days_mat initial values for the selected crops
+dmat_init <- plants_plt %>%
+  filter(name %in% crops) %>% 
+  select(name, days_mat) %>%
+  mutate(days_mat = ifelse(days_mat == 0, 110, days_mat)) %>% 
+  ## if days_mat is 0, set it to 110 (as it is the default value)
+  deframe()
+
+# Sample changes for days to maturity. Depending on the number of cores you have 
+# available choose a reasonable interval for the days to maturity which you want 
+# to test. With an interval of 10 e.g. you have to do 12 simulations (3 rounds 
+# on 4 cores), with an interval of 5 its 23 simulations.
+dmat_step <- 10
+dmat_chg <- round(seq(-30, 100, dmat_step))
+
+# Generate the parameter input table with the changes for all crops and convert 
+# the names into SWATrunR syntax
+par_dmat <- map_df(dmat_init, ~ .x + dmat_chg) %>% 
+  set_names(., paste0('dmat_', names(.),
+                      '::days_mat.pdb | change = absval | name = ' , names(.)))
+
+```
+
+## 4. Run simulations
+
+Days to maturity parameter changes are applied to the SWAT+ model, and simulations 
+are run to analyze the PHU fractions, yields and biomass for the selected crops.
+[SWATrunR](https://chrisschuerz.github.io/SWATrunR/) package is used to run the
+simulations.
+
+```{r run_simulations, message = FALSE, warning = FALSE, eval = FALSE, echo = FALSE}
+# Set the number of cores. E.g. for 12 runs use 4 6, or 12 cores (if available)
+cores <- 2
+
+ylds_phu_dmat <- run_swatplus(project_path = model_path,
+                              output = list(yld = define_output(file = 'mgtout',
+                                                                variable = 'yld',
+                                                                name = crops),
+                                            bms = define_output(file = 'mgtout',
+                                                                variable = 'bioms',
+                                                                name = crops),
+                                            phu = define_output(file = 'mgtout',
+                                                                variable = 'phu',
+                                                                name = crops)
+                              ),
+                              parameter = par_dmat,
+                              start_date = '2015-01-01',
+                              end_date = '2020-12-31',
+                              years_skip = 2,
+                              n_thread = cores,
+                              time_out = Inf)
+
+# Optionally save the simulation runs.
+if(!dir.exists(sc_res)) dir.create(sc_res)
+saveRDS(ylds_phu_dmat, paste0(sc_res, "/ylds_phu_mat.rds"))
+```
