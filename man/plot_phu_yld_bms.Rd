@@ -33,3 +33,9 @@ A combined ggplot object showing boxplots for PHU fractions, yields, and biomass
 This function generates boxplots to visualize Plant Heat Units (PHU) fractions,
 yields, and biomass over changes in days to maturity.
 }
+\examples{
+\dontrun{
+plot_phu_yld_bms(ylds_phu_dmat, dmat_chg, yield_mean, yield_min, yield_max)
+}
+}
+\keyword{plot}

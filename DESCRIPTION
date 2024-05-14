@@ -21,12 +21,15 @@ Depends:
 Imports:
     data.table,
     dplyr,
+    gridExtra,
     ggplot2,
+    lhs,
     lubridate,
     tibble, 
     tidyr, 
     purrr, 
     readr, 
+    stats,
     stringr
 Suggests: 
     knitr,

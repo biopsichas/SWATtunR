@@ -1,0 +1,43 @@
+---
+title: "Introduction to SWATtunR"
+<!-- output: rmarkdown::html_vignette -->
+output: github_document
+vignette: >
+  %\VignetteIndexEntry{Introduction to SWATtunR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+development:
+  mode: auto
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/"
+)
+library(badger)
+```
+
+# SWATtunR
+
+`r badge_devel("biopsichas/SWATtunR", "blue")`
+`r badge_last_commit("biopsichas/SWATtunR", "green")`
+`r badge_lifecycle(stage = "stable")`
+`r badge_repostatus("active")`
+`r badge_code_size("biopsichas/SWATtunR")`
+`r badge_license("MIT")`
+
+Text text text
+
+## Installation
+
+Text text text
+
+``` r
+# If the package 'remotes' is not installed run first:
+install.packages("remotes")
+
+# The installation of `SWATprepR`.
+remotes::install_github("biopsichas/SWATtunR")
+```
