@@ -311,7 +311,7 @@ phu_yld_final <- run_swatplus(project_path = model_path,
 saveRDS(phu_yld_final, paste0(sc_res, "/phu_yld_final.rds"))
 ```
 
-14. Examine the final results {#scc_step14}
+## 14. Examine the final results {#scc_step14}
 
 Egamine the final results of the SWAT+ simulations. The simulation results should provide you model, which is soft calibrated for the selected crops.
 
