@@ -290,25 +290,39 @@ for (i in 1:ncol(par_bnd)) {
 write_tbl(plants_plt, paste0(model_path, '/plants.plt'), fmt = plants_plt_fmt)
 ```
 
-## 13. Check your final plants.plt parameter selection results {#scc_step13}
+## 13. Rerun final plants.plt parameter selection {#scc_step13}
 
 After updating the `plants.plt` file with the new parameter values, you can rerun the SWAT+ model to evaluate the impact of the parameter changes on the model output. The simulation results should provide you model, which is soft calibrated for the selected crops. 
 
 
 ```{r run_check, message = FALSE, warning = FALSE, eval = FALSE}
-
 phu_yld_final <- run_swatplus(project_path = model_path,
                               output = list(yld = define_output(file = 'mgtout',
                                                                 variable = 'yld',
-                                                                units = crops),
+                                                                unit = crops),
                                             bms = define_output(file = 'mgtout',
                                                                 variable = 'bioms',
-                                                                units = crops),
+                                                                unit = crops),
                                             phu = define_output(file = 'mgtout',
                                                                 variable = 'phu',
-                                                                units = crops)))
+                                                                unit = crops)))
 
-plot_phu_yld_bms(phu_yld_final, 0, yield_obs_mean, yield_obs_min, yield_obs_max)
+## Save the results to the file
+saveRDS(phu_yld_final, paste0(sc_res, "/phu_yld_final.rds"))
 ```
 
+14. Examine the final results {#scc_step14}
+
+Egamine the final results of the SWAT+ simulations. The simulation results should provide you model, which is soft calibrated for the selected crops.
+
+```{r plot_final_f, message = FALSE, warning = FALSE, eval = FALSE}
+plot_phu_yld_bms(phu_yld_final, 0, yield_mean, yield_min, yield_max)
+```
+```{r plot_final_t,  echo=FALSE, out.width='100%', fig.align = 'center'}
+## Read the saved simulation results, plot to object, save to file and display figure
+# phu_yld_final <- readRDS(paste0(sc_res, "/phu_yld_final.rds"))
+# p <- plot_phu_yld_bms(phu_yld_final, 0, yield_mean, yield_min, yield_max)
+# ggsave(p, file='figs/phu_yld_final.png', width=800, height=600, units = 'px', dpi = 100)
+knitr::include_graphics('figs/phu_yld_final.png')
+```
 For a more in-depth analysis, users can employ additional [SWATdoctR functions](https://git.ufz.de/schuerz/swatdoctr), like `plot_hru_pw_day()`. This function enables visualization of daily time series of variables from the output file `hru_pw_day.txt` related to hydrological response units , providing valuable insights into the model's performance and behavior. This might help understanding of the model's outputs and decide if crop yield soft calibration results are acceptable.
