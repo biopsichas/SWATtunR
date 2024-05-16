@@ -1,0 +1,15 @@
+---
+title: "Water Yield"
+subtitle: "Soft calibration workflow for water yield in SWAT+ models"
+output: html_document
+bibliography: ref.bib
+---
+
+## 2. Defining settings {#scc_step2}
+
+This step requires defining the SWAT+ model path the observed water yield to precipitation ratio. 
+
+```{r settings_wy, message = FALSE, warning = FALSE}
+# Observed water yield to precipitation ratio
+obs_wy_ratio <- 0.27
+```

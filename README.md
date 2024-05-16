@@ -3,7 +3,7 @@ Introduction to SWATtunR
 
 # SWATtunR
 
-[![](https://img.shields.io/badge/devel%20version-0.0.1-blue.svg)](https://github.com/biopsichas/SWATtunR)
+[![](https://img.shields.io/badge/devel%20version-0.0.1.9000-blue.svg)](https://github.com/biopsichas/SWATtunR)
 [![](https://img.shields.io/github/last-commit/biopsichas/SWATtunR.svg)](https://github.com/biopsichas/SWATtunR/commits/green)
 [![](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![Project Status: Active - The project has reached a stable, usable
@@ -26,3 +26,7 @@ install.packages("remotes")
 # The installation of `SWATprepR`.
 remotes::install_github("biopsichas/SWATtunR")
 ```
+
+Text text text
+
+<img src="man/figures/eu.png" title="EU LIFE+ logo" alt="eu logo" width="40%" align="left" style="display: block; margin: auto;" />

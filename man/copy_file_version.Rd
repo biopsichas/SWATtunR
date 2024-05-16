@@ -21,3 +21,4 @@ None
 This function copies a file from one location to another, with an optional
 version suffix appended to the filename.
 }
+\keyword{helper}

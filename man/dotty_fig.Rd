@@ -13,10 +13,10 @@ dotty_fig(sim_yield, yield = NULL, yield_min = NULL, yield_max = NULL)
 Default \code{yield = NULL}.}
 
 \item{yield_min}{(optional) The minimum observed yield values for each crop.
-Default \code{yield_min = NULL}}
+Default \code{yield_min = NULL}.}
 
 \item{yield_max}{(optional) The maximum observed yield values for each crop.
-Default \code{yield_max = NULL}}
+Default \code{yield_max = NULL}.}
 }
 \value{
 ggplot object for dotty plot
@@ -29,4 +29,5 @@ Make a dotty plot
 dotty_fig(sim_yield)
 }
 }
+\keyword{internal}
 \keyword{plot}

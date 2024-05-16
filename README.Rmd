@@ -41,3 +41,6 @@ install.packages("remotes")
 # The installation of `SWATprepR`.
 remotes::install_github("biopsichas/SWATtunR")
 ```
+Text text text
+
+<img src="man/figures/eu.png" title="EU LIFE+ logo" alt="eu logo" width="40%" align="left" style="display: block; margin: auto;" />

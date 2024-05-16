@@ -1,7 +1,7 @@
 Package: SWATtunR
 Type: Package
 Title: Soft & Hard Calibration, Validation Package for SWAT+ models
-Version: 0.0.1
+Version: 0.0.1.9000
 Authors@R: c(
     person("Svajunas", "Plunge", , "svajunas.plunge@gmail.com", role = c("aut", "cre"),
         comment = c(ORCID = '0000-0001-8897-3349')),
@@ -9,7 +9,7 @@ Authors@R: c(
         comment = c(ORCID = "0000-0002-7204-5828")),
     person("Michel", "Strauch", , "michael.strauch@ufz.de", role = "aut", 
         comment = c(ORCID = "0000-0002-9872-6904")),
-    person("Mikołaj", "Piniewski", , "mikolaj_piniewski@sggw.edu.pl", role = "ctb", 
+    person("Mikołaj", "Piniewski", , "mikolaj_piniewski@sggw.edu.pl", role = "aut", 
         comment = c(ORCID = "0000-0001-7930-4549")))
 Maintainer: Svajunas Plunge <svajunas.plunge@gmail.com>
 Description: Comprehensive set of tools for soft and hard model calibration, validation steps, calculating performance metrics, plotting model output for user decision-making, and updating parameters in the model files.
