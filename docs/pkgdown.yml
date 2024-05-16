@@ -1,0 +1,8 @@
+pandoc: 3.1.11
+pkgdown: 2.0.7
+pkgdown_sha: ~
+articles:
+  sc-crops: sc-crops.html
+  sc-wy: sc-wy.html
+last_built: 2024-05-16T14:31Z
+
