@@ -39,6 +39,7 @@ crop_data_path <- '../inst/extdata/crop2.csv'
 sc_res <- '../test/simulations'
 
 # Set the number of cores available for calculations.  
+# Number of cores for 12 runs use 3, 4, 6, or 12 cores (if available)
 cores <- 3
 ```
 
@@ -185,7 +186,7 @@ dmat_sel <- enframe(dmat_sel, value = 'days_mat_upd')
 
 Write the changes to the `plants.plt` file to update the days to maturity values for the selected crops and also backup the updated file to `plants.plt.bkp1` file. 
 
-```{r plants_plt_write, message = FALSE, warning = FALSE, echo = FALSE}
+```{r plants_plt_write, message = FALSE, warning = FALSE}
 # Update the days_mat values in plants.plt according to the changes defined above.
 plants_plt <- plants_plt %>%
   left_join(., dmat_sel, by = 'name') %>%
@@ -326,3 +327,5 @@ plot_phu_yld_bms(phu_yld_final, 0, yield_mean, yield_min, yield_max)
 knitr::include_graphics('figs/phu_yld_final.png')
 ```
 For a more in-depth analysis, users can employ additional [SWATdoctR functions](https://git.ufz.de/schuerz/swatdoctr), like `plot_hru_pw_day()`. This function enables visualization of daily time series of variables from the output file `hru_pw_day.txt` related to hydrological response units , providing valuable insights into the model's performance and behavior. This might help understanding of the model's outputs and decide if crop yield soft calibration results are acceptable.
+
+After completing the soft calibration process for crops proceed with [soft calibration for water yield](../articles/sc-wy.html) presented in an another page. 

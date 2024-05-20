@@ -278,9 +278,9 @@ dotty_fig <- function(sim_yield, yield = NULL, yield_min = NULL, yield_max = NUL
 #' @export
 #'
 #' @examples
-#' # Example usage:
+#' \dontrun{
 #' # plot_dotty(my_data, 'performance', y_label = 'y_label')
-#'
+#' }
 #' @keywords plot
 
 plot_dotty <- function(par, var, y_label = 'y', n_col = 3, y_lim = NULL,
@@ -388,3 +388,57 @@ plot_dotty <- function(par, var, y_label = 'y', n_col = 3, y_lim = NULL,
   # Return the ggplot object
   return(gg)
 }
+
+#' Plot ESCO Range
+#'
+#' This function creates a ggplot visualization of the ESCO range data,
+#' highlighting specific values and limits with horizontal and vertical lines.
+#'
+#' @param sim The simulation results water balance data. Including:
+#'   \describe{
+#'     \item{precip}{Variable out of 'basin_wb_day' output file.}
+#'     \item{surq_cha}{Variable out of 'basin_wb_day' output file.}
+#'     \item{surq_res}{Variable out of 'basin_wb_day' output file.}
+#'     \item{latq_cha}{Variable out of 'basin_wb_day' output file.}
+#'     \item{latq_res}{Variable out of 'basin_wb_day' output file.}
+#'     \item{qtile}{Variable out of 'basin_wb_day' output file.}
+#'     \item{flo}{Variable out of ''basin_aqu_day' output file.}
+#'   }
+#' @param obs_wy_ratio A numeric value representing the observed water yield ratio.
+#' @param rel_wyr_lim A numeric value specifying the relative range for acceptable error.
+#' @importFrom ggplot2 ggplot geom_line geom_vline geom_text
+#'
+#' @return A ggplot object.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' plot_esco_range(sim_esco, obs_wy_ratio)
+#' }
+
+plot_esco_range <- function(sim, obs_wy_ratio, rel_wyr_lim = 0.05) {
+  ## Calculate the water yield ratio
+  wyr_sim <- calculate_wyr(sim)
+  ## Get the esco parameter range and and the parameter value
+  esco_rng <- find_par_range(sim$parameter$values$esco, wyr_sim,
+                             obs_wy_ratio, rel_wyr_lim)
+  ## Create the ggplot object
+  ggplot() +
+    geom_line(aes(x = esco_rng$x, y = esco_rng$y)) +
+    geom_hline(yintercept = obs_wy_ratio, color = 'tomato3') +
+    geom_hline(yintercept = (1 + rel_wyr_lim)*obs_wy_ratio,
+               color = 'tomato3', linetype = 'dashed') +
+    geom_hline(yintercept = (1 - rel_wyr_lim)*obs_wy_ratio,
+               color = 'tomato3', linetype = 'dashed') +
+    geom_vline(xintercept = esco_rng$par_val, color = 'tomato3') +
+    geom_vline(xintercept = esco_rng$par_rng[1], color = 'tomato3', linetype = 'dashed') +
+    geom_vline(xintercept = esco_rng$par_rng[2], color = 'tomato3', linetype = 'dashed') +
+    geom_text(aes(x = c(esco_rng$par_val, esco_rng$par_rng[1], esco_rng$par_rng[2]),
+                  y = rep(obs_wy_ratio, 3),
+                  label = round(c(esco_rng$par_val, esco_rng$par_rng[1],
+                                  esco_rng$par_rng[2]), 2)),
+              vjust = - 0.5, hjust = -0.25) +
+    labs(x = 'esco', y = 'Water yield ratio') +
+    theme_bw()
+}
+

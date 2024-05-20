@@ -5,11 +5,91 @@ output: html_document
 bibliography: ref.bib
 ---
 
-## 2. Defining settings {#scc_step2}
+## 1. Loading required packages {#scw_step1}
+
+If those have not yet been loaded with [crop yields](../articles/sc-cy.html) soft calibration, please load following libraries. 
+
+```{r libraries, message = FALSE, warning = FALSE}
+## Required libraries to run workflow
+library(SWATtunR)
+library(SWATrunR)
+library(tidyverse)
+library(tibble)
+library(purrr)
+```
+
+## 2. Defining settings {#scw_step2}
 
 This step requires defining the SWAT+ model path the observed water yield to precipitation ratio. 
 
+
+
 ```{r settings_wy, message = FALSE, warning = FALSE}
+# Path to the SWAT+ model
+model_path <- '../test/my_dearest_model'
+
+# Set the path to save results of the soft calibration
+sc_res <- '../test/simulations'
+
 # Observed water yield to precipitation ratio
 obs_wy_ratio <- 0.27
+
+# Set the number of cores available for calculations.  
+# Number of cores for 12 runs use 3, 4, 6, or 12 cores (if available)
+cores <- 3
 ```
+
+## 3. Defining esco parameter range and running model {#scw_step3}
+
+The soil evaporation compensation factor (**esco**) is an important coefficient in modeling soil moisture dynamics. It allows users to adjust the depth distribution used to satisfy soil evaporative demand, accounting for factors such as capillary action, crusting, and cracks. By increasing the esco value, the model can draw more of the evaporative demand from deeper soil layers. This means that the model has reduced amount of water available for water yield. **esco** values range from 0.01 to 1. 
+
+
+
+```{r run_dmat, message = FALSE, warning = FALSE, eval = FALSE}
+# The esco parameter range is sampled.
+esco <- tibble('esco.hru | change = absval' = seq(0.05,0.95, length.out = max(cores, 4)))
+
+sim_esco <- run_swatplus(project_path = model_path,
+                         output = list(precip  =  define_output('basin_wb_day', 
+                                                                'precip', 
+                                                                1),
+                                       surq_cha = define_output(file = 'basin_wb_day',
+                                                                variable = 'surq_cha',
+                                                                unit = 1),
+                                       surq_res = define_output(file = 'basin_wb_day',
+                                                                variable = 'surq_res',
+                                                                unit = 1),
+                                       latq_cha = define_output(file = 'basin_wb_day',
+                                                                variable = 'latq_cha',
+                                                                unit = 1),
+                                       latq_res = define_output(file = 'basin_wb_day',
+                                                                variable = 'latq_res',
+                                                                unit = 1),
+                                       qtile =    define_output(file = 'basin_wb_day',
+                                                                variable = 'qtile',
+                                                                unit = 1),
+                                       flo =      define_output(file = 'basin_aqu_day',
+                                                                variable = 'flo',
+                                                                unit = 1)
+                         ),
+                         parameter = esco,
+                         n_thread = cores)
+## Save the results to the file
+saveRDS(sim_esco, paste0(sc_res, "/sim_esco.rds"))
+```
+## 4. Extracting and plotting water yield ratio vs esco parameter values {#scw_step4}
+
+The water yield ratio is calculated for each simulation. The range of esco values that produce water yield ratios within a specified range of the observed water yield ratio is identified using the [plot_esco_range](../reference/plot_esco_range.html) function. 
+
+```{r wy_ratio_f, message = FALSE,  warning = FALSE, eval = FALSE}
+plot_esco_range(sim_esco, obs_wy_ratio)
+```
+
+```{r wy_ratio_t,  echo=FALSE, out.width='100%', fig.align = 'center'}
+## Read the saved simulation results, plot to object, save to file and display figure
+# sim_esco <- readRDS(paste0(sc_res, "/sim_esco.rds"))
+# p <- plot_esco_range(sim_esco, obs_wy_ratio)
+# ggsave(p, file='figs/sim_esco.png', width=800, height=600, units = 'px', dpi = 100)
+knitr::include_graphics('figs/sim_esco.png')
+```
+

@@ -48,8 +48,8 @@ This function creates a dotty plot to visualize the relationship between
 parameter values and performance results.
 }
 \examples{
-# Example usage:
+\dontrun{
 # plot_dotty(my_data, 'performance', y_label = 'y_label')
-
+}
 }
 \keyword{plot}
