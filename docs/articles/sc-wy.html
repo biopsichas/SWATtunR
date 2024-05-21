@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9002</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -167,12 +167,119 @@ has reduced amount of water available for water yield.
 values<a class="anchor" aria-label="anchor" href="#scw_step4"></a>
 </h2>
 <p>The water yield ratio is calculated for each simulation. The range of
-esco values that produce water yield ratios within a specified range of
-the observed water yield ratio is identified using the <a href="../reference/plot_esco_range.html">plot_esco_range</a>
+<strong>esco</strong> values that produce water yield ratios within a
+specified range of the observed water yield ratio is identified using
+the <a href="../reference/plot_esco_range.html">plot_esco_range</a>
 function.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_esco_range.html">plot_esco_range</a></span><span class="op">(</span><span class="va">sim_esco</span>, <span class="va">obs_wy_ratio</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figs/sim_esco.png" width="100%" style="display: block; margin: auto;"></p>
+</div>
+<div class="section level2">
+<h2 id="scw_step5">5. (Optional) If only esco is not enough, use esco, epco parameters
+for calibration together<a class="anchor" aria-label="anchor" href="#scw_step5"></a>
+</h2>
+<p>In certain situations <strong>esco</strong> parameter might not be
+enough to reach observed water yield ratio. Addition of the plant uptake
+compensation factor (<strong>epco</strong>) might help in such cases.
+This parameter determines how water uptake is distributed across soil
+layers to meet plant transpiration needs. If the upper soil layers lack
+sufficient water, the model can draw more water from deeper layers, a
+process governed by the <strong>epco</strong> value. When
+<strong>epco</strong> is close to 1.0, there is greater flexibility,
+allowing significant compensation from lower soil layers. Conversely,
+when <strong>epc</strong> is near 0.0, the model restricts water uptake
+primarily to the original depth distribution, limiting compensation from
+deeper layers.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># The esco and epco parameter range is defined .</span></span>
+<span><span class="va">par_bnd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span><span class="st">'esco.hru | change = absval'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
+<span>                  <span class="st">'epco.hru | change = absval'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># And sampled with lhs </span></span>
+<span><span class="va">esco_epco</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sample_lhs.html">sample_lhs</a></span><span class="op">(</span><span class="va">par_bnd</span>, <span class="fl">12</span><span class="op">)</span> </span>
+<span></span>
+<span><span class="co">##Run simulations for defined parameter sets</span></span>
+<span><span class="va">sim_esco_epco</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/run_swatplus.html" class="external-link">run_swatplus</a></span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
+<span>                         output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>precip  <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span><span class="st">'basin_wb_day'</span>, </span>
+<span>                                                                <span class="st">'precip'</span>, </span>
+<span>                                                                <span class="fl">1</span><span class="op">)</span>,</span>
+<span>                                       surq_cha <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'basin_wb_day'</span>,</span>
+<span>                                                                variable <span class="op">=</span> <span class="st">'surq_cha'</span>,</span>
+<span>                                                                unit <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>                                       surq_res <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'basin_wb_day'</span>,</span>
+<span>                                                                variable <span class="op">=</span> <span class="st">'surq_res'</span>,</span>
+<span>                                                                unit <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>                                       latq_cha <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'basin_wb_day'</span>,</span>
+<span>                                                                variable <span class="op">=</span> <span class="st">'latq_cha'</span>,</span>
+<span>                                                                unit <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>                                       latq_res <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'basin_wb_day'</span>,</span>
+<span>                                                                variable <span class="op">=</span> <span class="st">'latq_res'</span>,</span>
+<span>                                                                unit <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>                                       qtile <span class="op">=</span>    <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'basin_wb_day'</span>,</span>
+<span>                                                                variable <span class="op">=</span> <span class="st">'qtile'</span>,</span>
+<span>                                                                unit <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>                                       flo <span class="op">=</span>      <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'basin_aqu_day'</span>,</span>
+<span>                                                                variable <span class="op">=</span> <span class="st">'flo'</span>,</span>
+<span>                                                                unit <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>                         <span class="op">)</span>,</span>
+<span>                         parameter <span class="op">=</span> <span class="va">esco_epco</span>,</span>
+<span>                         n_thread <span class="op">=</span> <span class="va">cores</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## Save the results to the file</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">sim_esco</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">sc_res</span>, <span class="st">"/sim_esco_epco.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="scw_step6">6. Updating parameter values in the <code>hydrology.hyd</code> file
+with selected values<a class="anchor" aria-label="anchor" href="#scw_step6"></a>
+</h2>
+<p>After determining which model parameter values allow the simulated
+water yield ratio to match the observed values, these parameters need to
+be updated in the <code>hydrology.hyd</code> file. Following code
+snippet backs up existing file and updates values in it.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## Initialize unmodified backup version of hydrology.hyd</span></span>
+<span><span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">model_path</span>, <span class="st">'/hydrology.hyd.bkp0'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/copy_file_version.html">copy_file_version</a></span><span class="op">(</span><span class="va">model_path</span>, <span class="st">'hydrology.hyd'</span>, file_version <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Read the hydrology.hyd input file</span></span>
+<span><span class="va">hydrology_hyd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_tbl.html">read_tbl</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">model_path</span>, <span class="st">'/hydrology.hyd.bkp0'</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">hydrology_hyd</span><span class="op">$</span><span class="va">esco</span> <span class="op">&lt;-</span> <span class="fl">0.39</span></span>
+<span><span class="co">## If needed update epco as well</span></span>
+<span><span class="co">## hydrology_hyd$epco &lt;- some value</span></span>
+<span></span>
+<span><span class="co">## Update hydrology.hyd file</span></span>
+<span><span class="fu"><a href="../reference/write_tbl.html">write_tbl</a></span><span class="op">(</span><span class="va">hydrology_hyd</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">model_path</span>, <span class="st">'/hydrology.hyd'</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'%-16s'</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">'%12.5f'</span>, <span class="fl">14</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="final-recheck-for-yield-results">7. Final recheck for yield results<a class="anchor" aria-label="anchor" href="#final-recheck-for-yield-results"></a>
+</h2>
+<p>Updating parameters in the hydrology.hyd file might impact crop yield
+simulation. To ensure that the water yield soft calibration has not
+adversely affected the crop yield soft calibration, it is important to
+recheck it at the end. If the results match the observed yields, the
+soft calibration is complete, and you can celebrate. Otherwise, you
+should consider revisiting the <a href="../articles/sc-cy.html">crop
+yield soft calibration</a> steps.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## Rerun model for crop yields results</span></span>
+<span><span class="va">phu_yld_recheck</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/run_swatplus.html" class="external-link">run_swatplus</a></span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
+<span>                          output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>yld <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'mgtout'</span>,</span>
+<span>                                                            variable <span class="op">=</span> <span class="st">'yld'</span>,</span>
+<span>                                                            unit <span class="op">=</span> <span class="va">crops</span><span class="op">)</span>,</span>
+<span>                                        bms <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'mgtout'</span>,</span>
+<span>                                                            variable <span class="op">=</span> <span class="st">'bioms'</span>,</span>
+<span>                                                            unit <span class="op">=</span> <span class="va">crops</span><span class="op">)</span>,</span>
+<span>                                        phu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'mgtout'</span>,</span>
+<span>                                                            variable <span class="op">=</span> <span class="st">'phu'</span>,</span>
+<span>                                                            unit <span class="op">=</span> <span class="va">crops</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">## Save the results to the file</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">phu_yld_recheck</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">sc_res</span>, <span class="st">"/phu_yld_recheck.rds"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## Plot yields </span></span>
+<span><span class="fu"><a href="../reference/plot_phu_yld_bms.html">plot_phu_yld_bms</a></span><span class="op">(</span><span class="va">phu_yld_recheck</span>, <span class="fl">0</span>, <span class="va">yield_mean</span>, <span class="va">yield_min</span>, <span class="va">yield_max</span><span class="op">)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

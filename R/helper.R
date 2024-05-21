@@ -165,7 +165,6 @@ find_par_range <- function(par, sim, obj, rel_rng) {
 #' # Calculate WYR
 #' wyr <- calculate_wyr(sim)
 #' }
-#' @export
 #' @keywords calculate
 
 calculate_wyr <- function(sim) {
