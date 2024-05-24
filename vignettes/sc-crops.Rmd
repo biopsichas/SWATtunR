@@ -221,15 +221,14 @@ par_ini
 
 We will use the [sample_lhs](../reference/sample_lhs.html) function to create a Latin hypercube sample of parameter values for the selected crops. The sample will be used to run SWAT+ simulations and evaluate the impact of the parameter changes on the model output. The syntax for the parameter boundaries could be found on the [SWATrunR page](https://chrisschuerz.github.io/SWATrunR/articles/SWATrunR.html#parameter-inputs).
 
-In the example below, the relative changes of +/-30% are applied to all parameters (`bm_e` being an exception, since changes above +10% were leading to the SWAT+ model failed run in some cases)
+In the example below, the relative changes of +/-30% are applied to most parameters (`bm_e` being an exception, since changes above +10% were leading to the SWAT+ model failed run in some cases). Since temperature is an additive variable, absolute change method is a better option for `tmp_base`. The range for `tmp_base` should be kept narrow, as this parameter may also affect PHU fraction estimation.
 
 ```{r pars, message = FALSE, warning = FALSE}
 ## Define changes to be applied to the initial parameter values
 ## Make sure your updates will not produce unrealistic values (i.e. negative values)!!!
 par_bnd <- tibble('lai_pot.pdb | change = relchg' = c(-0.3, 0.3),
                   'harv_idx.pdb | change = relchg' = c(-0.3, 0.3),
-                  'tmp_base.pdb | change = relchg' = c(-0.3, 0.3),
-                  # 'tmp_base.pdb | change = abschg' = c(-2, 2),
+                  'tmp_base.pdb | change = abschg' = c(-1.5, 1.5),
                   'bm_e.pdb | change = relchg' = c(-0.3, 0.1))
 
 par_crop <- sample_lhs(par_bnd, 10) ## 10 samples for each parameter will be generated for testing purposes. 
@@ -247,6 +246,9 @@ ylds_plnt_par <- run_swatplus(project_path = model_path,
                                                                 variable = 'yld',
                                                                 unit = crops)),
                               parameter = par_crop,
+                              start_date = '2015-01-01',
+                              end_date = '2020-12-31',
+                              years_skip = 2,
                               n_thread = cores)
 
 ## Save the results to the file
@@ -272,7 +274,7 @@ knitr::include_graphics('figs/ylds_plnt_par.png')
 
 ## 12. Update parameter values in plants.plt file {#scc_step12}
 
-After examining the results of the SWAT+ simulations, you can adjust the parameter values in the `plants.plt` file. Not all parameters need to be changed, but only those that are sensitive might help to improve the model performance. Different crops exhibit different sensitivities to the parameters, so it is important to select parameters for each crop. Following code sniplet shows how to update the `plants.plt` file.
+After examining the results of the SWAT+ simulations in step 11, decision on which parameter changes to implement needs to be taken. Not all parameters need to be changed, but only those that appeared to be sensitive and helped to improve the model performance. Different crops can exhibit sensitivities to different parameters, so it is important to make a crop-specific selection of parameter changes. The following code snippet shows how to update the `plants.plt` file. Please note that these are not the actual parameter values, but the changes in parameters (by relative or absolute change method).
 
 ```{r plants_plt_write3, message = FALSE, warning = FALSE}
 ## Fix changes you want to write in plants.plt file
@@ -295,9 +297,9 @@ for (i in 1:ncol(par_bnd)) {
 write_tbl(plants_plt, paste0(model_path, '/plants.plt'), fmt = plants_plt_fmt)
 ```
 
-## 13. Rerun final plants.plt parameter selection {#scc_step13}
+## 13. Rerun SWAT+ with the final plants.plt file {#scc_step13}
 
-After updating the `plants.plt` file with the new parameter values, you can rerun the SWAT+ model to evaluate the impact of the parameter changes on the model output. The simulation results should provide you model, which is soft calibrated for the selected crops.
+After updating the `plants.plt` file with the new parameter values, you can rerun the SWAT+ model to check if the match between the simulated and observed yields is as expected. In addition to yields, biomass and PHU outputs are also extracted.
 
 ```{r run_check, message = FALSE, warning = FALSE, eval = FALSE}
 phu_yld_final <- run_swatplus(project_path = model_path,
@@ -317,7 +319,7 @@ saveRDS(phu_yld_final, paste0(sc_res, "/phu_yld_final.rds"))
 
 ## 14. Examine the final results {#scc_step14}
 
-Egamine the final results of the SWAT+ simulations. The simulation results should provide you model, which is soft calibrated for the selected crops.
+In this step, you can examine the final results (yields, biomass, PHU fraction) of the SWAT+ simulations. If the results are satisfactory, you may consider your model setup as successfully soft-calibrated for crop yields.
 
 ```{r plot_final_f, message = FALSE, warning = FALSE, eval = FALSE}
 plot_phu_yld_bms(phu_yld_final, 0, yield_mean, yield_min, yield_max)
@@ -331,6 +333,6 @@ plot_phu_yld_bms(phu_yld_final, 0, yield_mean, yield_min, yield_max)
 knitr::include_graphics('figs/phu_yld_final.png')
 ```
 
-For a more in-depth analysis, users can employ additional [SWATdoctR functions](https://git.ufz.de/schuerz/swatdoctr), like `plot_hru_pw_day()`. This function enables visualization of daily time series of variables from the output file `hru_pw_day.txt` related to hydrological response units , providing valuable insights into the model's performance and behavior. This might help understanding of the model's outputs and decide if crop yield soft calibration results are acceptable.
+For a more in-depth analysis, users can employ at this stage additional [SWATdoctR functions](https://git.ufz.de/schuerz/swatdoctr), such as `plot_hru_pw_day()`. This function enables visualization of daily time series of variables from the output file `hru_pw_day.txt` (e.g. biomass, LAI) for selected HRUs and time periods, thus providing valuable insights into the simulated crop growth. This might help in getting a better understanding of the model's outputs and decide if crop yield soft calibration results are acceptable.
 
-After completing the soft calibration process for crops proceed with [soft calibration for water yield](../articles/sc-wy.html) presented in an another page.
+In the proposed workflow, after completing the soft calibration process for crops, the users are advised to proceed with [soft calibration for water yield](../articles/sc-wy.html) presented in an another page.
