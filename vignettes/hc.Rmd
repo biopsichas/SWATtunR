@@ -1,0 +1,118 @@
+---
+title: "Hard calibration"
+subtitle: "Hard calibration workflow for SWAT+ models"
+output: html_document
+bibliography: ref.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The calibration of the SWAT+ model is crucial for ensuring its accuracy and reliability in simulating hydrological processes and predicting the impacts of land management practices on water resources. Calibration involves adjusting the model's parameters to match observed data, such as streamflow, sediment yield, and nutrient loads, thereby improving its representation of the real-world watershed conditions. This process enhances the model's predictive capability, making it a more effective tool for water resource management, policy-making, planning and in the context of assessing the effects of climate change, land use alterations, and conservation practices. This page provides steps and tools to perform a hard calibration of SWAT+ models using scripted workflows.
+
+## 1. Loading required packages {#hc_step1}
+
+The first step in the hard calibration workflow is to load the necessary R packages. These packages provide functions and tools for data manipulation, visualization, and model calibration. The following code chunk loads the required packages for the hard calibration workflow.
+
+```{r libraries_hc, message = FALSE, warning = FALSE}
+library(data.table)
+library(ggplot2)
+library(hydroGOF)
+library(lhs)
+library(lubridate)
+library(purrr)
+library(readr)
+library(stringr)
+library(SWATrunR)
+library(tibble)
+library(tidyr)
+library(parallel)
+library(doParallel)
+library(scales)
+library(xts)
+library(dygraphs)
+library(SWATprepR)
+library(dplyr)
+```
+
+## 2. Defining settings {#hc_step2}
+
+The next step is to define the settings for the hard calibration workflow. This includes specifying the SWAT+ model path, input files, calibration parameters, observed data, and other relevant information. The following code chunk sets up the necessary settings for the hard calibration workflow.
+
+```{r settings_hc, message = FALSE, warning = FALSE}
+# Path to the SWAT+ model
+model_path <- '../test/my_dearest_model'
+
+# Path to the crop data file
+qobs_path <- '../inst/extdata/q_cha.csv'
+
+# Define the path to the observed WQ data
+wqobs_path <- '../inst/extdata/no3.csv'
+
+# You can define the path to the other observed data, like groundwater depth data, etc.
+gwobs_path <- '../inst/extdata/gw.csv'
+
+# Set the path to save results of the soft calibration
+sc_res <- '../test/simulations'
+
+# Set the number of cores available for calculations.  
+# Number of cores for 12 runs use 3, 4, 6, or 12 cores (if available)
+cores <- 3
+
+# Channel IDs where gauges are located at the channel outlets.
+cha_ids <- c(67)
+
+
+
+
+# Define the simulation save file names to be used in SWATrunR
+save_file_name <- "sim1"
+
+# Number parameter combinations to run
+n_comb <- 500
+
+# Fraction of the best parameter combinations to be used for the final 
+# WQ calibration
+n_best <- NULL # example n_best <- .02 # 2% of the best parameter combinations, 
+# if NULL, n_best = 20/n_comb
+
+# Number of combination drawn for the nutrient parameters (this number 
+# is multiplied by the number of selected parameter combinations for the flow.
+# For example n_comb = 1000, n_best .1, means 100 best runs selected, multiplied
+# with n_nutr = 100 results in 10,000 model runs for the nutrient calibration.
+# If null, 1000/(n_comb*n_best) formula applied resulting in 1000 runs)
+n_nutr <- NULL
+
+# Number of cores to be used for the parallelization of the model runs
+n_cores <- NULL ## If NULL, all available physical cores - 2 will be used
+
+# Define time period to be used in model runs. Please note this period should
+# match your management data period, if it was prepared with SWATfarmR. You can
+# safely modify 'start_date_print' and 'end_date' to define the period for which
+# you want to print the model output. However, please take great care, if you 
+# modify 'start_date' as you might need to update your management files too. 
+
+# Start date for model runs (if NULL, the start date of the model setup files 
+# will be used!!!)
+start_date <- NULL # start_date <- '2000-01-01'
+# End date for model runs (if NULL, the end date of observation data will be used).
+end_date <- NULL # end_date <- '2010-12-31'
+# Start printing model output (if NULL, the start date of observation data will used).
+start_date_print <- NULL # start_date_print <-'2003-01-01'
+
+# Define calibration and validation periods. Please note that the validation 
+# should take around 1/3 and calibration 2/3 of the total period. Also the 
+# workflow will run all simulations for the whole period (defined above), 
+# these periods are only used for the performance calculation and plotting.
+
+# Q calibration period
+q_cal_period <- c('2007-01-01', '2010-01-01')
+# Calibration end date
+q_val_period <- c('2011-01-01', '2022-12-31')
+
+# WQ calibration period
+wq_cal_period <- c('2012-01-01', '2017-12-31')
+# Calibration end date
+wq_val_period <- c('2018-12-31', '2022-12-31')
+```
