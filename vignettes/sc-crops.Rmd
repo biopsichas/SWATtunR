@@ -151,11 +151,11 @@ saveRDS(ylds_phu_dmat, paste0(sc_res, "/ylds_phu_mat.rds"))
 
 In this figure, we visualize the PHU fractions, yields, and biomass for various days to maturity settings. This graphical representation serves as a reference to adjust the initial values of `days_mat` for each crop in the simulation.
 
-For grain crops, which typically dry off before harvest, aim for PHU fractions ranging from approximately *1.2* to *1.5* to optimize yield. Vegetables, on the other hand, tend to have a PHU fraction around *1*, possibly slightly above, which is considered optimal.
+For grain crops, which typically dry off before harvest, aim for PHU fractions ranging from approximately *1.2* to *1.5* to optimize yield. Vegetables, on the other hand, tend to have a PHU fraction around *1*, possibly slightly above, which is considered optimal. Crops like basil and broccoli are harvested before reaching full maturity. In such cases, PHU fractions can be lower than *1*, ranging from *0.5* to *0.9*. Please note that values shown in the plot represent the first harvest. In case of multiple harvests (e.g. grassland, alfalfa), the PHU fraction should also be expected to be well below 1.
 
-Crops like basil and broccoli are harvested before reaching full maturity. In such cases, PHU fractions can be lower than *1*, ranging from *0.5* to *0.9*.
+These are some generic suggestions, but it is recommended to check which PHU fractions should be the target in a given case study, as this can be both crop- and region-specific.
 
-Furthermore, it's crucial to ensure that the simulated yields fall within the range of locally observed yields to maintain accuracy and relevance.
+Furthermore, it is useful to check already at this stage if the simulated yields fall within the range of locally observed yields to maintain accuracy and relevance and how `'days_mat'` affects yields. The actual soft calibration of yields will be described in steps 8-11.
 
 ```{r plot_dmat_eval_f, message = FALSE, warning = FALSE, eval = FALSE}
 plot_phu_yld_bms(ylds_phu_dmat, dmat_chg, yield_mean, yield_min, yield_max)
