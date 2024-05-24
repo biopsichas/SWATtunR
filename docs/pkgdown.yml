@@ -2,7 +2,8 @@ pandoc: 3.1.11
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
-  sc-crops: sc-crops.html
   sc-wy: sc-wy.html
-last_built: 2024-05-21T09:33Z
+  hc: hc.html
+  sc-crops: sc-crops.html
+last_built: 2024-05-24T14:37Z
 

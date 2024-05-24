@@ -48,9 +48,16 @@
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Soft calibration</h6>
     <a class="dropdown-item" href="../articles/sc-crops.html">Crop Yields</a>
     <a class="dropdown-item" href="../articles/sc-wy.html">Water Yield</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Hard calibration</h6>
+    <a class="dropdown-item" href="../articles/hc.html">Hard calibration</a>
   </div>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
       </ul>
 <form class="form-inline my-2 my-lg-0" role="search">
@@ -117,19 +124,24 @@ yield to precipitation ratio.</p>
 <span></span>
 <span><span class="co"># Set the number of cores available for calculations.  </span></span>
 <span><span class="co"># Number of cores for 12 runs use 3, 4, 6, or 12 cores (if available)</span></span>
-<span><span class="va">cores</span> <span class="op">&lt;-</span> <span class="fl">3</span></span></code></pre></div>
+<span><span class="va">cores</span> <span class="op">&lt;-</span> <span class="fl">3</span></span>
+<span></span>
+<span><span class="co">## Set the start and end date for the simulations and warm-up period</span></span>
+<span><span class="va">start_date</span> <span class="op">&lt;-</span> <span class="st">'2015-01-01'</span></span>
+<span><span class="va">end_date</span> <span class="op">&lt;-</span> <span class="st">'2020-12-31'</span></span>
+<span><span class="va">years_skip</span> <span class="op">&lt;-</span> <span class="fl">2</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="scw_step3">3. Defining esco parameter range and running model<a class="anchor" aria-label="anchor" href="#scw_step3"></a>
+<h2 id="scw_step3">3. Defining <code>esco</code> parameter range and running model<a class="anchor" aria-label="anchor" href="#scw_step3"></a>
 </h2>
-<p>The soil evaporation compensation factor (<strong>esco</strong>) is
-an important coefficient in modeling soil moisture dynamics. It allows
+<p>The soil evaporation compensation factor (<code>esco</code>) is an
+important coefficient in modeling soil moisture dynamics. It allows
 users to adjust the depth distribution used to satisfy soil evaporative
 demand, accounting for factors such as capillary action, crusting, and
-cracks. By increasing the esco value, the model can draw more of the
-evaporative demand from deeper soil layers. This means that the model
-has reduced amount of water available for water yield.
-<strong>esco</strong> values range from 0.01 to 1.</p>
+cracks. By increasing the <code>esco</code> value, the model can draw
+more of the evaporative demand from deeper soil layers. This means that
+the model has reduced amount of water available for water yield.
+<code>esco</code> values range from <em>0.01</em> to <em>1</em>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The esco parameter range is sampled.</span></span>
 <span><span class="va">esco</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span><span class="st">'esco.hru | change = absval'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.05</span>,<span class="fl">0.95</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">cores</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -158,16 +170,19 @@ has reduced amount of water available for water yield.
 <span>                                                                unit <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span>                         <span class="op">)</span>,</span>
 <span>                         parameter <span class="op">=</span> <span class="va">esco</span>,</span>
+<span>                         start_date <span class="op">=</span> <span class="va">start_date</span>,</span>
+<span>                         end_date <span class="op">=</span> <span class="va">end_date</span>,</span>
+<span>                         years_skip <span class="op">=</span> <span class="va">years_skip</span>,</span>
 <span>                         n_thread <span class="op">=</span> <span class="va">cores</span><span class="op">)</span></span>
 <span><span class="co">## Save the results to the file</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">sim_esco</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">sc_res</span>, <span class="st">"/sim_esco.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="scw_step4">4. Extracting and plotting water yield ratio vs esco parameter
-values<a class="anchor" aria-label="anchor" href="#scw_step4"></a>
+<h2 id="scw_step4">4. Extracting and plotting water yield ratio vs <code>esco</code>
+parameter values<a class="anchor" aria-label="anchor" href="#scw_step4"></a>
 </h2>
 <p>The water yield ratio is calculated for each simulation. The range of
-<strong>esco</strong> values that produce water yield ratios within a
+<code>esco</code> values that produce water yield ratios within a
 specified range of the observed water yield ratio is identified using
 the <a href="../reference/plot_esco_range.html">plot_esco_range</a>
 function.</p>
@@ -179,16 +194,16 @@ function.</p>
 <h2 id="scw_step5">5. (Optional) If only esco is not enough, use esco, epco parameters
 for calibration together<a class="anchor" aria-label="anchor" href="#scw_step5"></a>
 </h2>
-<p>In certain situations <strong>esco</strong> parameter might not be
-enough to reach observed water yield ratio. Addition of the plant uptake
-compensation factor (<strong>epco</strong>) might help in such cases.
-This parameter determines how water uptake is distributed across soil
-layers to meet plant transpiration needs. If the upper soil layers lack
+<p>In certain situations <code>esco</code> parameter might not be enough
+to reach observed water yield ratio. Addition of the plant uptake
+compensation factor (<code>epco</code>) might help in such cases. This
+parameter determines how water uptake is distributed across soil layers
+to meet plant transpiration needs. If the upper soil layers lack
 sufficient water, the model can draw more water from deeper layers, a
-process governed by the <strong>epco</strong> value. When
-<strong>epco</strong> is close to 1.0, there is greater flexibility,
-allowing significant compensation from lower soil layers. Conversely,
-when <strong>epc</strong> is near 0.0, the model restricts water uptake
+process governed by the <code>epco</code> value. When <code>epco</code>
+is close to <em>1.0</em>, there is greater flexibility, allowing
+significant compensation from lower soil layers. Conversely, when
+<code>epco</code> is near <em>0.0</em>, the model restricts water uptake
 primarily to the original depth distribution, limiting compensation from
 deeper layers.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -224,18 +239,21 @@ deeper layers.</p>
 <span>                                                                unit <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span>                         <span class="op">)</span>,</span>
 <span>                         parameter <span class="op">=</span> <span class="va">esco_epco</span>,</span>
+<span>                         start_date <span class="op">=</span> <span class="va">start_date</span>,</span>
+<span>                         end_date <span class="op">=</span> <span class="va">end_date</span>,</span>
+<span>                         years_skip <span class="op">=</span> <span class="va">years_skip</span>,</span>
 <span>                         n_thread <span class="op">=</span> <span class="va">cores</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## Save the results to the file</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">sim_esco</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">sc_res</span>, <span class="st">"/sim_esco_epco.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="scw_step6">6. Updating parameter values in the <code>hydrology.hyd</code> file
-with selected values<a class="anchor" aria-label="anchor" href="#scw_step6"></a>
+<h2 id="scw_step6">6. Updating parameter values in the <code>'hydrology.hyd'</code>
+file with selected values<a class="anchor" aria-label="anchor" href="#scw_step6"></a>
 </h2>
 <p>After determining which model parameter values allow the simulated
 water yield ratio to match the observed values, these parameters need to
-be updated in the <code>hydrology.hyd</code> file. Following code
+be updated in the <code>'hydrology.hyd'</code> file. Following code
 snippet backs up existing file and updates values in it.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Initialize unmodified backup version of hydrology.hyd</span></span>
@@ -256,13 +274,12 @@ snippet backs up existing file and updates values in it.</p>
 <div class="section level2">
 <h2 id="final-recheck-for-yield-results">7. Final recheck for yield results<a class="anchor" aria-label="anchor" href="#final-recheck-for-yield-results"></a>
 </h2>
-<p>Updating parameters in the hydrology.hyd file might impact crop yield
-simulation. To ensure that the water yield soft calibration has not
-adversely affected the crop yield soft calibration, it is important to
-recheck it at the end. If the results match the observed yields, the
-soft calibration is complete, and you can celebrate. Otherwise, you
-should consider revisiting the <a href="../articles/sc-cy.html">crop
-yield soft calibration</a> steps.</p>
+<p>Updating parameters in the <code>'hydrology.hyd'</code> file might
+impact crop yield simulation. To ensure that the water yield soft
+calibration has not adversely affected the crop yield soft calibration,
+it is important to recheck it at the end. If the results match the
+observed yields, the soft calibration is complete, and you can
+celebrate. Otherwise, you should consider revisiting the <a href="../articles/sc-cy.html">crop yield soft calibration</a> steps.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Rerun model for crop yields results</span></span>
 <span><span class="va">phu_yld_recheck</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/run_swatplus.html" class="external-link">run_swatplus</a></span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
@@ -274,7 +291,10 @@ yield soft calibration</a> steps.</p>
 <span>                                                            unit <span class="op">=</span> <span class="va">crops</span><span class="op">)</span>,</span>
 <span>                                        phu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'mgtout'</span>,</span>
 <span>                                                            variable <span class="op">=</span> <span class="st">'phu'</span>,</span>
-<span>                                                            unit <span class="op">=</span> <span class="va">crops</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>                                                            unit <span class="op">=</span> <span class="va">crops</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                          start_date <span class="op">=</span> <span class="va">start_date</span>,</span>
+<span>                          end_date <span class="op">=</span> <span class="va">end_date</span>,</span>
+<span>                          years_skip <span class="op">=</span> <span class="va">years_skip</span><span class="op">)</span></span>
 <span><span class="co">## Save the results to the file</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">phu_yld_recheck</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">sc_res</span>, <span class="st">"/phu_yld_recheck.rds"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>

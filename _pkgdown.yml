@@ -2,3 +2,13 @@ url: ~
 template:
   bootstrap: 5
 
+articles:
+- title: Soft calibration
+  navbar: Soft calibration
+  contents:
+  - sc-crops
+  - sc-wy
+- title: Hard calibration
+  navbar: Hard calibration
+  contents:
+  - hc
