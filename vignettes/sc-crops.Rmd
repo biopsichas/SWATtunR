@@ -57,7 +57,9 @@ head(crops_obs, 3)
 
 ## 3. Days to maturity parameter changes {#scc_step3}
 
-After settings following step allows to define, which days to maturity changes will be applied in soft-calibration.
+In the proposed workflow, one preliminary step before the actual calibration of crop parameters is adjusting the new SWAT+ parameter `'days_mat'` (days to maurity) that replaced the older concept of heat units to maturity in previous SWAT versions. The goal is to set the potential heat units (PHU) fraction at harvest within a plausible ranges for different crop types.
+
+It is recommended to check at this stage that the crop-specific values of the base temperature parameter (`'tmp_base'`) are realistic for the case study.
 
 ### 3.1. Initialization {#scc_step31}
 
@@ -81,7 +83,7 @@ if(!file.exists(paste0(model_path, '/plants.plt.bkp0'))) {
 
 ### 3.2. Days to maturity changes {#scc_step32}
 
-The following code generates a parameter input table with changes for required for SWAT+ model run. The names are converted into [SWATrunR syntax](https://chrisschuerz.github.io/SWATrunR/articles/par_sampl_calib.html) for the days to maturity parameter. The code snippet also samples changes for days to maturity, allowing users to define the crops to be used in soft calibration and the initial values for days to maturity.
+The following code generates a parameter input table with changes for required for SWAT+ model run. The names are converted into [SWATrunR syntax](https://chrisschuerz.github.io/SWATrunR/articles/par_sampl_calib.html) for the days to maturity parameter. The code snippet also samples changes for days to maturity, allowing users to define the crops to be used in soft calibration and the initial values for days to maturity. Those initial values originate from the default plants database and may very likely lead to unreliable simulation of PHU fraction. In the example below, the addition factor to `'days_mat'` parameter varies between -30 and 100, which could be adjusted, if necessary.
 
 ```{r dmat, message = FALSE, warning = FALSE}
 # Reading the plants.plt input file from the initial unchanged backup file
@@ -99,7 +101,7 @@ dmat_init <- plants_plt %>%
   filter(name %in% crops) %>% 
   select(name, days_mat) %>%
   mutate(days_mat = ifelse(days_mat == 0, 110, days_mat)) %>% 
-  ## if days_mat is 0, set it to 110 (as it is the default value)
+  ## if days_mat is 0, set it to 110 (as it is the default value in the SWAT+ code)
   deframe()
 
 # Sample changes for days to maturity. Depending on the number of cores you have 
@@ -117,7 +119,7 @@ par_dmat <- map_df(dmat_init, ~ .x + dmat_chg) %>%
 
 ```
 
-## 4. Run simulations {#scc_step4}
+## 4. Run simulations for days_mat adjustment {#scc_step4}
 
 Days to maturity parameter changes are applied to the SWAT+ model, and simulations are run to analyze the PHU fractions, yields and biomass for the selected crops. [SWATrunR](https://chrisschuerz.github.io/SWATrunR/) package is used to run the simulations.
 
