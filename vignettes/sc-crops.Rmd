@@ -9,6 +9,8 @@ bibliography: ref.bib
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+The aim of crop yield calibration is to adjust relevant crop parameters so that the SWAT+ simulation matches the observed crop yields. The workflow proposed below is based on the script that was initially developed in the EU project [OPTAIN](https://www.optain.eu/) and described in one of its [deliverables](https://zenodo.org/records/11233622). The reader is referred there for more information about the workflow and the results of its application in several case studies in Europe.
+
 ## 1. Loading required packages - testing pushing to git {#scc_step1}
 
 The `SWATtunR` package is essential for soft calibration, as it provides the necessary functions for the calibration process. Additional packages are required for data manipulation, visualization, SWAT+ model runs, etc.
