@@ -57,9 +57,9 @@ head(crops_obs, 3)
 
 ## 3. Days to maturity parameter changes {#scc_step3}
 
-In the proposed workflow, one preliminary step before the actual calibration of crop parameters is adjusting the new SWAT+ parameter `'days_mat'` (days to maurity) that replaced the older concept of heat units to maturity in previous SWAT versions. The goal is to set the potential heat units (PHU) fraction at harvest within a plausible ranges for different crop types.
+In the proposed workflow, one preliminary step before the actual calibration of crop parameters is adjusting the new SWAT+ parameter `days_mat` (days to maurity) that replaced the older concept of heat units to maturity in previous SWAT versions. The goal is to set the potential heat units (PHU) fraction at harvest within a plausible ranges for different crop types.
 
-It is recommended to check at this stage that the crop-specific values of the base temperature parameter (`'tmp_base'`) are realistic for the case study.
+It is recommended to check at this stage that the crop-specific values of the base temperature parameter (`tmp_base`) are realistic for the case study.
 
 ### 3.1. Initialization {#scc_step31}
 
@@ -83,7 +83,7 @@ if(!file.exists(paste0(model_path, '/plants.plt.bkp0'))) {
 
 ### 3.2. Days to maturity changes {#scc_step32}
 
-The following code generates a parameter input table with changes for required for SWAT+ model run. The names are converted into [SWATrunR syntax](https://chrisschuerz.github.io/SWATrunR/articles/par_sampl_calib.html) for the days to maturity parameter. The code snippet also samples changes for days to maturity, allowing users to define the crops to be used in soft calibration and the initial values for days to maturity. Those initial values originate from the default plants database and may very likely lead to unreliable simulation of PHU fraction. In the example below, the addition factor to `'days_mat'` parameter varies between -30 and 100, which could be adjusted, if necessary.
+The following code generates a parameter input table with changes for required for SWAT+ model run. The names are converted into [SWATrunR syntax](https://chrisschuerz.github.io/SWATrunR/articles/par_sampl_calib.html) for the days to maturity parameter. The code snippet also samples changes for days to maturity, allowing users to define the crops to be used in soft calibration and the initial values for days to maturity. Those initial values originate from the default plants database and may very likely lead to unreliable simulation of PHU fraction. In the example below, the addition factor to `days_mat` parameter varies between -30 and 100, which could be adjusted, if necessary.
 
 ```{r dmat, message = FALSE, warning = FALSE}
 # Reading the plants.plt input file from the initial unchanged backup file
@@ -119,9 +119,9 @@ par_dmat <- map_df(dmat_init, ~ .x + dmat_chg) %>%
 
 ```
 
-## 4. Run simulations for `'days_mat'` adjustment {#scc_step4}
+## 4. Run simulations for `days_mat` adjustment {#scc_step4}
 
-In this step, [SWATrunR](https://chrisschuerz.github.io/SWATrunR/) package is used to run simulations with `'days_mat'` parameter varying in the predefined range, in order to analyze the PHU fractions, yields and biomass for selected crops.
+In this step, [SWATrunR](https://chrisschuerz.github.io/SWATrunR/) package is used to run simulations with `days_mat` parameter varying in the predefined range, in order to analyze the PHU fractions, yields and biomass for selected crops.
 
 ```{r run_dmat, message = FALSE, warning = FALSE, eval = FALSE}
 # make sure to adjust simulation settings (start date, end date and warm-up period) to your situation
@@ -155,7 +155,7 @@ For grain crops, which typically dry off before harvest, aim for PHU fractions r
 
 These are some generic suggestions, but it is recommended to check which PHU fractions should be the target in a given case study, as this can be both crop- and region-specific.
 
-Furthermore, it is useful to check already at this stage if the simulated yields fall within the range of locally observed yields to maintain accuracy and relevance and how `'days_mat'` affects yields. The actual soft calibration of yields will be described in steps 8-11.
+Furthermore, it is useful to check already at this stage if the simulated yields fall within the range of locally observed yields to maintain accuracy and relevance and how `days_mat` affects yields. The actual soft calibration of yields will be described in steps 8-11.
 
 ```{r plot_dmat_eval_f, message = FALSE, warning = FALSE, eval = FALSE}
 plot_phu_yld_bms(ylds_phu_dmat, dmat_chg, yield_mean, yield_min, yield_max)
@@ -185,7 +185,7 @@ dmat_sel <- chg_dmat_sel[names(dmat_init)] + dmat_init
 dmat_sel <- enframe(dmat_sel, value = 'days_mat_upd')
 ```
 
-## 7. Write d_mat modifications into file {#scc_step7}
+## 7. Write days_mat modifications into a file {#scc_step7}
 
 Write the changes to the `plants.plt` file to update the days to maturity values for the selected crops and also backup the updated file to `plants.plt.bkp1` file.
 
@@ -204,9 +204,9 @@ write_tbl(plants_plt, paste0(model_path, '/plants.plt'), fmt = plants_plt_fmt)
 copy_file_version(model_path, 'plants.plt', file_version = 1)
 ```
 
-## 8. Check initial crop lai_pot, harv_idx, tmp_base, bm_e parameters {#scc_step8}
+## 8. Read crop calibration parameters {#scc_step8}
 
-After fixing the days to maturity values, it might be needed to address values of the `lai_pot`, `harv_idx`, `tmp_base`, and `bm_e` parameters for the selected crops. These parameters are crucial for the simulation and should be adjusted if PHU fractions, yields, and biomass values are not within the expected range.
+In the proposed workflow, four parameters are suggested to be used in crop calibration: [`lai_pot`](https://swatplus.gitbook.io/io-docs/introduction/databases/plants.plt/untitled-15) (maximum potential leaf area index), [`harv_idx`](https://swatplus.gitbook.io/io-docs/introduction/databases/plants.plt/untitled-16) (harvest index for optimal growth conditions), [`tmp_base`](https://swatplus.gitbook.io/io-docs/introduction/databases/plants.plt/tmp_base) (minimum temperature for plant growth) and [`bm_e`](https://swatplus.gitbook.io/io-docs/introduction/databases/plants.plt/untitled-17) (biomass energy ratio). These parameters were found to be effective in the [OPTAIN modelling report](https://zenodo.org/records/11233622). However, in case if the user wants to add other parameters from the `'plants.plt'` file, the code can be easily adapted.
 
 ```{r plants_plt_write2, message = FALSE, warning = FALSE}
 plants_plt <- read_tbl(file_path = paste0(model_path, '/plants.plt'))
@@ -217,9 +217,11 @@ par_ini <- plants_plt %>%
 par_ini
 ```
 
-## 9. Create sample of lai_pot, harv_idx, tmp_base, bm_e parameters with LHS {#scc_step9}
+## 9. LHS sampling of crop parameters {#scc_step9}
 
-For this we will use the [sample_lhs](../reference/sample_lhs.html) function to create a sample of parameter values for the selected crops. The sample will be used to run SWAT+ simulations and evaluate the impact of the parameter changes on the model output. The syntax for the parameter boundaries could be found on the [SWATrunR page](https://chrisschuerz.github.io/SWATrunR/articles/SWATrunR.html#parameter-inputs).
+We will use the [sample_lhs](../reference/sample_lhs.html) function to create a Latin hypercube sample of parameter values for the selected crops. The sample will be used to run SWAT+ simulations and evaluate the impact of the parameter changes on the model output. The syntax for the parameter boundaries could be found on the [SWATrunR page](https://chrisschuerz.github.io/SWATrunR/articles/SWATrunR.html#parameter-inputs).
+
+In the example below, the relative changes of +/-30% are applied to all parameters (`bm_e` being an exception, since changes above +10% were leading to the SWAT+ model failed run in some cases)
 
 ```{r pars, message = FALSE, warning = FALSE}
 ## Define changes to be applied to the initial parameter values
@@ -230,14 +232,14 @@ par_bnd <- tibble('lai_pot.pdb | change = relchg' = c(-0.3, 0.3),
                   # 'tmp_base.pdb | change = abschg' = c(-2, 2),
                   'bm_e.pdb | change = relchg' = c(-0.3, 0.1))
 
-par_crop <- sample_lhs(par_bnd, 10) ## 10 samples for each parameter will be generated. 
+par_crop <- sample_lhs(par_bnd, 10) ## 10 samples for each parameter will be generated for testing purposes. 
 ## The number of samples can be adjusted based on the available computational resources.
 ## Recommended number of samples is 50-100.
 ```
 
-## 10. Run SWATrunR for prepared parameter set {#scc_step10}
+## 10. Make SWAT+ model runs for crop yield calibration {#scc_step10}
 
-Run the SWAT+ model with the updated parameters for the selected crops should be rerun. The simulation results will be used to evaluate the impact of the parameter changes on the model output.
+In this step we run the SWAT+ model with the updated parameters for selected crops. The simulation results will be used to evaluate the effect of the parameter changes on the model output.
 
 ```{r run_par, message = FALSE, warning = FALSE, eval = FALSE}
 ylds_plnt_par <- run_swatplus(project_path = model_path,
@@ -253,7 +255,7 @@ saveRDS(ylds_plnt_par, paste0(sc_res, "/ylds_plnt_par.rds"))
 
 ## 11. Examine results in figures {#scc_step11}
 
-Plotting simulation results in dotty plots can help to identify parameter sensitivities and how to modify them. After examining the patterns in dotty plots, you may consider adjusting certain parameter ranges ([step 9](#scc_step9)) and then rerunning the model ([step 10](#scc_step10)) to observe any changes in the results. Subsequently, you can reanalyze the outcomes with [plot_dotty_yields](../reference/plot_dotty_yields.html) function to gain further insights or refine your understanding of the system being modeled.
+Plotting simulation results in 'dotty plots' can help to identify parameter sensitivities (how yields of different crops respond changes in individual parameters), thus providing suggestions how to modify the ranges in subsequent simulation. After examining the patterns in dotty plots, you may consider adjusting certain parameter ranges ([step 9](#scc_step9)) and then rerunning the model ([step 10](#scc_step10)). Subsequently, you can reanalyze the outcomes with [plot_dotty_yields](../reference/plot_dotty_yields.html) function to gain further insights or refine your understanding of the system being modeled. The ultimate goal is that simulated yields match with observed yields as well as possible. It is recommended to aim for an average error below 10%. In case if the observed min and max were provided, it is good if the simulated yield variability matches with these ranges.
 
 ```{r plot_dotty_eval_f, message = FALSE, warning = FALSE, eval = FALSE}
 ## Plot dotty figures for the selected crops
