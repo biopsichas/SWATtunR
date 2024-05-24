@@ -119,12 +119,12 @@ par_dmat <- map_df(dmat_init, ~ .x + dmat_chg) %>%
 
 ```
 
-## 4. Run simulations for days_mat adjustment {#scc_step4}
+## 4. Run simulations for `'days_mat'` adjustment {#scc_step4}
 
-Days to maturity parameter changes are applied to the SWAT+ model, and simulations are run to analyze the PHU fractions, yields and biomass for the selected crops. [SWATrunR](https://chrisschuerz.github.io/SWATrunR/) package is used to run the simulations.
+In this step, [SWATrunR](https://chrisschuerz.github.io/SWATrunR/) package is used to run simulations with `'days_mat'` parameter varying in the predefined range, in order to analyze the PHU fractions, yields and biomass for selected crops.
 
 ```{r run_dmat, message = FALSE, warning = FALSE, eval = FALSE}
-
+# make sure to adjust simulation settings (start date, end date and warm-up period) to your situation
 ylds_phu_dmat <- run_swatplus(project_path = model_path,
                               output = list(yld = define_output(file = 'mgtout',
                                                                 variable = 'yld',
