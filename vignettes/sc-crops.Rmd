@@ -9,7 +9,7 @@ bibliography: ref.bib
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## 1. Loading required packages {#scc_step1}
+## 1. Loading required packages - testing pushing to git {#scc_step1}
 
 The `SWATtunR` package is essential for soft calibration, as it provides the necessary functions for the calibration process. Additional packages are required for data manipulation, visualization, SWAT+ model runs, etc.
 
@@ -24,7 +24,7 @@ library(purrr)
 
 ## 2. Defining settings {#scc_step2}
 
-This step requires defining the SWAT+ model path, the path to the crop data file. 
+This step requires defining the SWAT+ model path, the path to the crop data file.
 
 For the crop yield soft calibration, it's essential to have accurate data on observed crop yields in dry weight. The data is typically sourced from a `'*.csv'` file, with columns specifying the plant names and their corresponding mean yields. If additional information is accessible, such as the minimum and maximum ranges for average annual observed yields, it's advisable to include them in the `'*.csv'` file as well, under the columns labeled yield_min and yield_max respectively. This ensures a comprehensive dataset for effective calibration and analysis.
 
@@ -55,7 +55,7 @@ head(crops_obs, 3)
 
 ## 3. Days to maturity parameter changes {#scc_step3}
 
-After settings following step allows to define, which days to maturity changes will be applied in soft-calibration. 
+After settings following step allows to define, which days to maturity changes will be applied in soft-calibration.
 
 ### 3.1. Initialization {#scc_step31}
 
@@ -79,7 +79,7 @@ if(!file.exists(paste0(model_path, '/plants.plt.bkp0'))) {
 
 ### 3.2. Days to maturity changes {#scc_step32}
 
-The following code generates a parameter input table with changes for required for SWAT+ model run. The names are converted into [SWATrunR syntax](https://chrisschuerz.github.io/SWATrunR/articles/par_sampl_calib.html) for the days to maturity parameter. The code snippet also samples changes for  days to maturity, allowing users to define the crops to be used in soft calibration and the initial values for days to maturity. 
+The following code generates a parameter input table with changes for required for SWAT+ model run. The names are converted into [SWATrunR syntax](https://chrisschuerz.github.io/SWATrunR/articles/par_sampl_calib.html) for the days to maturity parameter. The code snippet also samples changes for days to maturity, allowing users to define the crops to be used in soft calibration and the initial values for days to maturity.
 
 ```{r dmat, message = FALSE, warning = FALSE}
 # Reading the plants.plt input file from the initial unchanged backup file
@@ -117,7 +117,7 @@ par_dmat <- map_df(dmat_init, ~ .x + dmat_chg) %>%
 
 ## 4. Run simulations {#scc_step4}
 
-Days to maturity parameter changes are applied to the SWAT+ model, and simulations  are run to analyze the PHU fractions, yields and biomass for the selected crops. [SWATrunR](https://chrisschuerz.github.io/SWATrunR/) package is used to run the simulations.
+Days to maturity parameter changes are applied to the SWAT+ model, and simulations are run to analyze the PHU fractions, yields and biomass for the selected crops. [SWATrunR](https://chrisschuerz.github.io/SWATrunR/) package is used to run the simulations.
 
 ```{r run_dmat, message = FALSE, warning = FALSE, eval = FALSE}
 
@@ -165,7 +165,6 @@ plot_phu_yld_bms(ylds_phu_dmat, dmat_chg, yield_mean, yield_min, yield_max)
 knitr::include_graphics('figs/ylds_phu_dmat.png')
 ```
 
-
 ## 6. Select days to maturity parameter changes to apply {#scc_step6}
 
 Based on the figure provided, identify the necessary adjustments to the days to maturity parameter in the SWAT+ model. These adjustments should be made to ensure that the PHU fractions, yields, and biomass values of the specified crops align with the observed data.
@@ -184,7 +183,7 @@ dmat_sel <- enframe(dmat_sel, value = 'days_mat_upd')
 
 ## 7. Write d_mat modifications into file {#scc_step7}
 
-Write the changes to the `plants.plt` file to update the days to maturity values for the selected crops and also backup the updated file to `plants.plt.bkp1` file. 
+Write the changes to the `plants.plt` file to update the days to maturity values for the selected crops and also backup the updated file to `plants.plt.bkp1` file.
 
 ```{r plants_plt_write, message = FALSE, warning = FALSE}
 # Update the days_mat values in plants.plt according to the changes defined above.
@@ -204,7 +203,7 @@ copy_file_version(model_path, 'plants.plt', file_version = 1)
 ## 8. Check initial crop lai_pot, harv_idx, tmp_base, bm_e parameters {#scc_step8}
 
 After fixing the days to maturity values, it might be needed to address values of the `lai_pot`, `harv_idx`, `tmp_base`, and `bm_e` parameters for the selected crops. These parameters are crucial for the simulation and should be adjusted if PHU fractions, yields, and biomass values are not within the expected range.
- 
+
 ```{r plants_plt_write2, message = FALSE, warning = FALSE}
 plants_plt <- read_tbl(file_path = paste0(model_path, '/plants.plt'))
 
@@ -216,8 +215,7 @@ par_ini
 
 ## 9. Create sample of lai_pot, harv_idx, tmp_base, bm_e parameters with LHS {#scc_step9}
 
-For this we will use the [sample_lhs](../reference/sample_lhs.html) function to create a sample of parameter values for the selected crops. The sample will be used to run SWAT+ simulations and evaluate the impact of the parameter changes on the model output. The syntax for the parameter boundaries could be found on the [SWATrunR page](https://chrisschuerz.github.io/SWATrunR/articles/SWATrunR.html#parameter-inputs). 
-
+For this we will use the [sample_lhs](../reference/sample_lhs.html) function to create a sample of parameter values for the selected crops. The sample will be used to run SWAT+ simulations and evaluate the impact of the parameter changes on the model output. The syntax for the parameter boundaries could be found on the [SWATrunR page](https://chrisschuerz.github.io/SWATrunR/articles/SWATrunR.html#parameter-inputs).
 
 ```{r pars, message = FALSE, warning = FALSE}
 ## Define changes to be applied to the initial parameter values
@@ -235,7 +233,7 @@ par_crop <- sample_lhs(par_bnd, 10) ## 10 samples for each parameter will be gen
 
 ## 10. Run SWATrunR for prepared parameter set {#scc_step10}
 
-Run the SWAT+ model with the updated parameters for the selected crops should be rerun. The simulation results will be used to evaluate the impact of the parameter changes on the model output. 
+Run the SWAT+ model with the updated parameters for the selected crops should be rerun. The simulation results will be used to evaluate the impact of the parameter changes on the model output.
 
 ```{r run_par, message = FALSE, warning = FALSE, eval = FALSE}
 ylds_plnt_par <- run_swatplus(project_path = model_path,
@@ -293,8 +291,7 @@ write_tbl(plants_plt, paste0(model_path, '/plants.plt'), fmt = plants_plt_fmt)
 
 ## 13. Rerun final plants.plt parameter selection {#scc_step13}
 
-After updating the `plants.plt` file with the new parameter values, you can rerun the SWAT+ model to evaluate the impact of the parameter changes on the model output. The simulation results should provide you model, which is soft calibrated for the selected crops. 
-
+After updating the `plants.plt` file with the new parameter values, you can rerun the SWAT+ model to evaluate the impact of the parameter changes on the model output. The simulation results should provide you model, which is soft calibrated for the selected crops.
 
 ```{r run_check, message = FALSE, warning = FALSE, eval = FALSE}
 phu_yld_final <- run_swatplus(project_path = model_path,
@@ -319,6 +316,7 @@ Egamine the final results of the SWAT+ simulations. The simulation results shoul
 ```{r plot_final_f, message = FALSE, warning = FALSE, eval = FALSE}
 plot_phu_yld_bms(phu_yld_final, 0, yield_mean, yield_min, yield_max)
 ```
+
 ```{r plot_final_t,  echo=FALSE, out.width='100%', fig.align = 'center'}
 ## Read the saved simulation results, plot to object, save to file and display figure
 # phu_yld_final <- readRDS(paste0(sc_res, "/phu_yld_final.rds"))
@@ -326,6 +324,7 @@ plot_phu_yld_bms(phu_yld_final, 0, yield_mean, yield_min, yield_max)
 # ggsave(p, file='figs/phu_yld_final.png', width=800, height=600, units = 'px', dpi = 100)
 knitr::include_graphics('figs/phu_yld_final.png')
 ```
+
 For a more in-depth analysis, users can employ additional [SWATdoctR functions](https://git.ufz.de/schuerz/swatdoctr), like `plot_hru_pw_day()`. This function enables visualization of daily time series of variables from the output file `hru_pw_day.txt` related to hydrological response units , providing valuable insights into the model's performance and behavior. This might help understanding of the model's outputs and decide if crop yield soft calibration results are acceptable.
 
-After completing the soft calibration process for crops proceed with [soft calibration for water yield](../articles/sc-wy.html) presented in an another page. 
+After completing the soft calibration process for crops proceed with [soft calibration for water yield](../articles/sc-wy.html) presented in an another page.
