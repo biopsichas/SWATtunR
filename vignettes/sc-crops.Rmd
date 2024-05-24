@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 The aim of crop yield calibration is to adjust relevant crop parameters so that the SWAT+ simulation matches the observed crop yields. The workflow proposed below is based on the script that was initially developed in the EU project [OPTAIN](https://www.optain.eu/) and described in one of its [deliverables](https://zenodo.org/records/11233622). The reader is referred there for more information about the workflow and the results of its application in several case studies in Europe.
 
-## 1. Loading required packages - testing pushing to git {#scc_step1}
+## 1. Loading required packages {#scc_step1}
 
 The `SWATtunR` package is essential for soft calibration, as it provides the necessary functions for the calibration process. Additional packages are required for data manipulation, visualization, SWAT+ model runs, etc.
 
@@ -28,7 +28,7 @@ library(purrr)
 
 This step requires defining the SWAT+ model path, the path to the crop data file.
 
-For the crop yield soft calibration, it's essential to have accurate data on observed crop yields in dry weight. The data is typically sourced from a `'*.csv'` file, with columns specifying the plant names and their corresponding mean yields. If additional information is accessible, such as the minimum and maximum ranges for average annual observed yields, it's advisable to include them in the `'*.csv'` file as well, under the columns labeled yield_min and yield_max respectively. This ensures a comprehensive dataset for effective calibration and analysis.
+For the crop yield soft calibration, it's essential to have accurate data on observed crop yields expressed in dry matter weight. Since reference data is typically provided as fresh matter weight, the values need to be multiplied by crop-specific conversion factors prior to their use in calibration. In the proposed workflow, basin-averaged yield data are required, so this solution may not fit to large river basins with spatially heterogeneous yields. The data is typically sourced from a `'*.csv'` file, with columns specifying the plant names and their corresponding mean yields. If additional information is accessible, such as the minimum and maximum ranges for average annual observed yields, it's advisable to include them in the `'*.csv'` file as well, under the columns labeled yield_min and yield_max respectively. This ensures a comprehensive dataset for effective calibration and analysis.
 
 ```{r settings, message = FALSE, warning = FALSE}
 # Path to the SWAT+ model
@@ -45,7 +45,7 @@ sc_res <- '../test/simulations'
 cores <- 3
 ```
 
-Crops observed yields data example is provided below.
+An example file with observed crop yields is provided below.
 
 ```{r crop_data, message = FALSE, warning = FALSE}
 ##
