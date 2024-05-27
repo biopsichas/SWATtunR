@@ -67,7 +67,7 @@ cha_ids <- c(67)
 save_file_name <- "sim1"
 
 # Number parameter combinations to run
-n_comb <- 500
+n_comb <- 100
 
 # Fraction of the best parameter combinations to be used for the final 
 # WQ calibration
@@ -116,15 +116,13 @@ wq_val_period <- c('2018-12-31', '2022-12-31')
 
 ## 3. Preparing parameters sets for the flow (and water quality) calibration {#hc_step3}
 
-Adding text here
+The suggested list and ranges of SWAT+ parameters for hydrology calibration are divided into groups based on the primary processes they affect. Some groups are considered optional. These parameters help fine-tune the model to achieve accurate hydrological simulations, ensuring that various aspects of the hydrological cycle are properly represented.
 
+It is important to note that calibration and validation of all hydrology and water quality/load related parameters could be done in one step. For this, you need to define the nutrient parameters together with hydrology. Please refer to step 12 for an example of how to define sediment, nitrogen, and phosphorus parameters. The example here presents only hydrology parameters.
 
 ```{r sampling, message = FALSE, warning = FALSE, eval = FALSE}
 par_bound <- tibble(
-  # Suggested list and ranges of SWAT+ paramaters for hydrology calibration in 
-  # OPTAIN. Parameters are roughly divided into groups by processes which they 
-  # affect most. Some groups should be considered optional
-  # snow (optional - use if average snow fall to precipitation ratio is higher 
+  # Snow (optional - use if average snow fall to precipitation ratio is higher 
   # than 5%)
   'snomelt_tmp.hru | change = absval' = c(-1.5, 1.5),
   'snofall_tmp.hru | change = absval' = c(-1.5, 1.5),
@@ -168,46 +166,26 @@ par_bound <- tibble(
 par_flow <- sample_lhs(par_bound, n_comb)
 ```
 
-## 3a. Preparing parameters sets for the flow (and water quality) calibration {#hc_step3a}
+## 3a. (Optional) Calibration of parameters for HRU groups {#hc_step3a}
 
-### Initialization of Parameters
-The parameters `cn3_swf` and `latq_co` are initialized based on the runoff potential of a Hydrologic Response Unit (HRU), while the parameter `perco` is initialized based on its leaching potential. The calibration of these three parameters requires considering their different initial values. Therefore, the parameter sampling will be conducted as follows:
+For some parameters it might be important to differentiate calibration values based on some characteristic of areas. For instance the parameters [`cn3_swf`](## "Soil water adjustment factor for CN3") and [`latq_co`](## "Lateral flow coefficient") are initialized based on the runoff potential of a Hydrologic Response Unit (HRU), while the parameter [`perco`](## "Percolation coefficient") is initialized based on its leaching potential. `perco`, `cn3_swf`, and `latq_co` have normalized range *0*-*1*, which sampled as single value, but better approach is considering their different initial values. Therefore, the parameter sampling could be conducted as follows:
 
-### Base Parameter Set
-
-- For the parameters `perco`, `cn3_swf`, and `latq_co`, normalized ranges (*0*, *1*) are sampled.
-- All other parameters are sampled within their actual parameter ranges.
-- A base Latin Hypercube Sampling (LHS) set is drawn for the defined parameter boundaries.
-
-### Translating Base Parameter Values
-- From hydrology.hyd, HRU IDs with low, moderate, and high leaching and runoff potentials are drawn.
-= These IDs are compiled into text strings required for parameter definition via the parameter names.
-- Parameter boundaries for the different low, moderate, and high potentials are defined.
+- From `'hydrology.hyd'`, HRU IDs with low, moderate, and high leaching and runoff potentials are drawn.
+- These IDs are compiled into text strings required for parameter definition via the parameter names.
+- Parameter boundaries or the different low, moderate, and high potentials are defined.
 - The normalized parameter ranges are translated into the defined boundaries.
 
-### Base Parameter Boundary Definition
-This is a very reduced set for testing purposes and does not include all parameters that should be used in OPTAIN model setups.
-
-*Note*: Calibration and validation of all hydrology and water quality/load related parameters could be done in one step. For this, you need to define the nutrient parameters together with hydrology. Please refer to step 12 for an example of how to define sediment, nitrogen, and phosphorus parameters. The example here presents only hydrology parameters.
+This is a very reduced set for testing purposes and does not include all parameters that could be used in model setups.
 
 ```{r sampling_a, message = FALSE, warning = FALSE, eval = FALSE}
 # Read the hydrology.hyd file to identify the HRU IDs with the different 
 # runoff and leaching potentials.
-hyd_hyd <- read_tbl(paste0(model_path, '/hydrology.hyd'))
+hyd <- read_tbl(paste0(model_path, '/hydrology.hyd'))
 
 # Generate the ID text strings to be included in the parameter names so that 
 # parameter values for HRUs can be addressed separately.
-init_perco <- c(low = 0.01, mod = 0.50, high = 0.95)
-
-id_lch_pot <- c(low  = group_values(which(hyd_hyd$perco == init_perco['low'])),
-                mod  = group_values(which(hyd_hyd$perco == init_perco['mod'])),
-                high = group_values(which(hyd_hyd$perco == init_perco['high'])))
-
-init_cn3 <- c(low = 0.95, mod = 0.30, high = 0.00)
-
-id_run_pot <- c(low  = group_values(which(hyd_hyd$cn3_swf == init_cn3['low'])),
-                mod  = group_values(which(hyd_hyd$cn3_swf == init_cn3['mod'])),
-                high = group_values(which(hyd_hyd$cn3_swf == init_cn3['high'])))
+id_lch_pot <- id_text_strings('perco', c(low = 0.01, mod = 0.50, high = 0.95), hyd)
+id_run_pot <- id_text_strings('cn3_swf', c(low = 0.95, mod = 0.30, high = 0.00), hyd)
 
 # Define parameter boundaries in which the parameter values should vary for 
 # the different leaching and runoff potentials.
@@ -235,5 +213,54 @@ for(i in c('low', 'mod', 'high')) {
 
 # Remove the initial normalized parameters.
 par_flow <- par_flow %>% 
-  select(- starts_with(c('perco.hru', 'cn3_swf.hru', 'latq_co.hru')))
+  select(-starts_with(c('perco.hru', 'cn3_swf.hru', 'latq_co.hru')))
+```
+
+## 4. Running simulations {#hc_step4}
+
+The parameter sets are used to run simulations. 
+
+```{r run_hyd, message = FALSE, warning = FALSE, eval = FALSE}
+# Read the observed discharge data to obtain period needed for the runs.
+obs_full <- read_csv(qobs_path) 
+# Get the number of cores to be used for parallel processing.
+n_cores <- ifelse(length(cores) == 0, parallel::detectCores(logical = FALSE) - 
+                    2, cores)
+
+# In this first test only the daily hydrograph outputs are used for the 
+# locations where observed discharge is available.
+
+# Simulate daily discharge for the channel IDs.
+sim_flow_full_bck <- run_swatplus(project_path = model_path,
+                         output = list(
+                           flo_day = define_output(file = 'channel_sd_day',
+                                                   variable = 'flo_out',
+                                                   unit = cha_ids)
+                         ),
+                         parameter = par_flow,
+                         start_date = start_date,
+                         end_date = end_date,
+                         start_date_print = as.Date(
+                           ifelse(length(start_date_print)==0, min(obs_full$date), 
+                                  start_date_print)),
+                         n_thread = n_cores,
+                         save_file = paste0(save_file_name, '_q')
+) 
+
+# If you have to remove the runs that did not finish, use the following code.
+sim_flow_full <- remove_unsuccesful_runs(sim_flow_full_bck)
+
+# If you have to load the runs from the saved runs in the data bases, use the
+# following code.
+# sim_flow <- load_swat_run(paste0(model_path, '/', save_file_name))
+
+# If you have calculate and use concentrations together with flow values in the 
+# next steps, use the following code.
+# get_conc() function has two optional arguments: not_conc and sediment.
+# 'not_conc' is a regular expression which defines the variables which should not
+# be converted to concentrations. Default is '^flo_day|^gwd'. 
+# sediment is a regular expression which defines the variables which should be 
+# identified as sediment variables. Default is '^sed'.
+
+# sim_flow_full <- get_conc(sim_flow_full)
 ```

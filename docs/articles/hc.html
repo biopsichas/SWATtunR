@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9003</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -169,7 +169,7 @@ calibration workflow.</p>
 <span><span class="va">save_file_name</span> <span class="op">&lt;-</span> <span class="st">"sim1"</span></span>
 <span></span>
 <span><span class="co"># Number parameter combinations to run</span></span>
-<span><span class="va">n_comb</span> <span class="op">&lt;-</span> <span class="fl">500</span></span>
+<span><span class="va">n_comb</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
 <span></span>
 <span><span class="co"># Fraction of the best parameter combinations to be used for the final </span></span>
 <span><span class="co"># WQ calibration</span></span>
@@ -219,13 +219,21 @@ calibration workflow.</p>
 <h2 id="hc_step3">3. Preparing parameters sets for the flow (and water quality)
 calibration<a class="anchor" aria-label="anchor" href="#hc_step3"></a>
 </h2>
-<p>Adding text here</p>
+<p>The suggested list and ranges of SWAT+ parameters for hydrology
+calibration are divided into groups based on the primary processes they
+affect. Some groups are considered optional. These parameters help
+fine-tune the model to achieve accurate hydrological simulations,
+ensuring that various aspects of the hydrological cycle are properly
+represented.</p>
+<p>It is important to note that calibration and validation of all
+hydrology and water quality/load related parameters could be done in one
+step. For this, you need to define the nutrient parameters together with
+hydrology. Please refer to step 12 for an example of how to define
+sediment, nitrogen, and phosphorus parameters. The example here presents
+only hydrology parameters.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">par_bound</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>  <span class="co"># Suggested list and ranges of SWAT+ paramaters for hydrology calibration in </span></span>
-<span>  <span class="co"># OPTAIN. Parameters are roughly divided into groups by processes which they </span></span>
-<span>  <span class="co"># affect most. Some groups should be considered optional</span></span>
-<span>  <span class="co"># snow (optional - use if average snow fall to precipitation ratio is higher </span></span>
+<span>  <span class="co"># Snow (optional - use if average snow fall to precipitation ratio is higher </span></span>
 <span>  <span class="co"># than 5%)</span></span>
 <span>  <span class="st">'snomelt_tmp.hru | change = absval'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span><span class="op">)</span>,</span>
 <span>  <span class="st">'snofall_tmp.hru | change = absval'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span><span class="op">)</span>,</span>
@@ -269,74 +277,40 @@ calibration<a class="anchor" aria-label="anchor" href="#hc_step3"></a>
 <span><span class="va">par_flow</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sample_lhs.html">sample_lhs</a></span><span class="op">(</span><span class="va">par_bound</span>, <span class="va">n_comb</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="hc_step3a">3a. Preparing parameters sets for the flow (and water quality)
-calibration<a class="anchor" aria-label="anchor" href="#hc_step3a"></a>
+<h2 id="hc_step3a">3a. (Optional) Calibration of parameters for HRU groups<a class="anchor" aria-label="anchor" href="#hc_step3a"></a>
 </h2>
-<div class="section level3">
-<h3 id="initialization-of-parameters">Initialization of Parameters<a class="anchor" aria-label="anchor" href="#initialization-of-parameters"></a>
-</h3>
-<p>The parameters <code>cn3_swf</code> and <code>latq_co</code> are
+<p>For some parameters it might be important to differentiate
+calibration values based on some characteristic of areas. For instance
+the parameters <a href="#id_#" title="Soil water adjustment factor for CN3"><code>cn3_swf</code></a>
+and <a href="#id_#" title="Lateral flow coefficient"><code>latq_co</code></a> are
 initialized based on the runoff potential of a Hydrologic Response Unit
-(HRU), while the parameter <code>perco</code> is initialized based on
-its leaching potential. The calibration of these three parameters
-requires considering their different initial values. Therefore, the
-parameter sampling will be conducted as follows:</p>
-</div>
-<div class="section level3">
-<h3 id="base-parameter-set">Base Parameter Set<a class="anchor" aria-label="anchor" href="#base-parameter-set"></a>
-</h3>
+(HRU), while the parameter <a href="#id_#" title="Percolation coefficient"><code>perco</code></a> is initialized
+based on its leaching potential. <code>perco</code>,
+<code>cn3_swf</code>, and <code>latq_co</code> have normalized range
+<em>0</em>-<em>1</em>, which sampled as single value, but better
+approach is considering their different initial values. Therefore, the
+parameter sampling could be conducted as follows:</p>
 <ul>
-<li>For the parameters <code>perco</code>, <code>cn3_swf</code>, and
-<code>latq_co</code>, normalized ranges (<em>0</em>, <em>1</em>) are
-sampled.</li>
-<li>All other parameters are sampled within their actual parameter
-ranges.</li>
-<li>A base Latin Hypercube Sampling (LHS) set is drawn for the defined
-parameter boundaries.</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="translating-base-parameter-values">Translating Base Parameter Values<a class="anchor" aria-label="anchor" href="#translating-base-parameter-values"></a>
-</h3>
-<ul>
-<li>From hydrology.hyd, HRU IDs with low, moderate, and high leaching
-and runoff potentials are drawn. = These IDs are compiled into text
-strings required for parameter definition via the parameter names.</li>
-<li>Parameter boundaries for the different low, moderate, and high
+<li>From <code>'hydrology.hyd'</code>, HRU IDs with low, moderate, and
+high leaching and runoff potentials are drawn.</li>
+<li>These IDs are compiled into text strings required for parameter
+definition via the parameter names.</li>
+<li>Parameter boundaries or the different low, moderate, and high
 potentials are defined.</li>
 <li>The normalized parameter ranges are translated into the defined
 boundaries.</li>
 </ul>
-</div>
-<div class="section level3">
-<h3 id="base-parameter-boundary-definition">Base Parameter Boundary Definition<a class="anchor" aria-label="anchor" href="#base-parameter-boundary-definition"></a>
-</h3>
 <p>This is a very reduced set for testing purposes and does not include
-all parameters that should be used in OPTAIN model setups.</p>
-<p><em>Note</em>: Calibration and validation of all hydrology and water
-quality/load related parameters could be done in one step. For this, you
-need to define the nutrient parameters together with hydrology. Please
-refer to step 12 for an example of how to define sediment, nitrogen, and
-phosphorus parameters. The example here presents only hydrology
-parameters.</p>
+all parameters that could be used in model setups.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Read the hydrology.hyd file to identify the HRU IDs with the different </span></span>
 <span><span class="co"># runoff and leaching potentials.</span></span>
-<span><span class="va">hyd_hyd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_tbl.html">read_tbl</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">model_path</span>, <span class="st">'/hydrology.hyd'</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">hyd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_tbl.html">read_tbl</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">model_path</span>, <span class="st">'/hydrology.hyd'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Generate the ID text strings to be included in the parameter names so that </span></span>
 <span><span class="co"># parameter values for HRUs can be addressed separately.</span></span>
-<span><span class="va">init_perco</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>low <span class="op">=</span> <span class="fl">0.01</span>, mod <span class="op">=</span> <span class="fl">0.50</span>, high <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">id_lch_pot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>low  <span class="op">=</span> <span class="fu">group_values</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">hyd_hyd</span><span class="op">$</span><span class="va">perco</span> <span class="op">==</span> <span class="va">init_perco</span><span class="op">[</span><span class="st">'low'</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>                mod  <span class="op">=</span> <span class="fu">group_values</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">hyd_hyd</span><span class="op">$</span><span class="va">perco</span> <span class="op">==</span> <span class="va">init_perco</span><span class="op">[</span><span class="st">'mod'</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>                high <span class="op">=</span> <span class="fu">group_values</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">hyd_hyd</span><span class="op">$</span><span class="va">perco</span> <span class="op">==</span> <span class="va">init_perco</span><span class="op">[</span><span class="st">'high'</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">init_cn3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>low <span class="op">=</span> <span class="fl">0.95</span>, mod <span class="op">=</span> <span class="fl">0.30</span>, high <span class="op">=</span> <span class="fl">0.00</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">id_run_pot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>low  <span class="op">=</span> <span class="fu">group_values</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">hyd_hyd</span><span class="op">$</span><span class="va">cn3_swf</span> <span class="op">==</span> <span class="va">init_cn3</span><span class="op">[</span><span class="st">'low'</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>                mod  <span class="op">=</span> <span class="fu">group_values</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">hyd_hyd</span><span class="op">$</span><span class="va">cn3_swf</span> <span class="op">==</span> <span class="va">init_cn3</span><span class="op">[</span><span class="st">'mod'</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>                high <span class="op">=</span> <span class="fu">group_values</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">hyd_hyd</span><span class="op">$</span><span class="va">cn3_swf</span> <span class="op">==</span> <span class="va">init_cn3</span><span class="op">[</span><span class="st">'high'</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">id_lch_pot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/id_text_strings.html">id_text_strings</a></span><span class="op">(</span><span class="st">'perco'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>low <span class="op">=</span> <span class="fl">0.01</span>, mod <span class="op">=</span> <span class="fl">0.50</span>, high <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span>, <span class="va">hyd</span><span class="op">)</span></span>
+<span><span class="va">id_run_pot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/id_text_strings.html">id_text_strings</a></span><span class="op">(</span><span class="st">'cn3_swf'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>low <span class="op">=</span> <span class="fl">0.95</span>, mod <span class="op">=</span> <span class="fl">0.30</span>, high <span class="op">=</span> <span class="fl">0.00</span><span class="op">)</span>, <span class="va">hyd</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Define parameter boundaries in which the parameter values should vary for </span></span>
 <span><span class="co"># the different leaching and runoff potentials.</span></span>
@@ -364,8 +338,55 @@ parameters.</p>
 <span></span>
 <span><span class="co"># Remove the initial normalized parameters.</span></span>
 <span><span class="va">par_flow</span> <span class="op">&lt;-</span> <span class="va">par_flow</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span> <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'perco.hru'</span>, <span class="st">'cn3_swf.hru'</span>, <span class="st">'latq_co.hru'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'perco.hru'</span>, <span class="st">'cn3_swf.hru'</span>, <span class="st">'latq_co.hru'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
+<div class="section level2">
+<h2 id="hc_step4">4. Running simulations<a class="anchor" aria-label="anchor" href="#hc_step4"></a>
+</h2>
+<p>The parameter sets are used to run simulations.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Read the observed discharge data to obtain period needed for the runs.</span></span>
+<span><span class="va">obs_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="va">qobs_path</span><span class="op">)</span> </span>
+<span><span class="co"># Get the number of cores to be used for parallel processing.</span></span>
+<span><span class="va">n_cores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">cores</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">detectCores</a></span><span class="op">(</span>logical <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">-</span> </span>
+<span>                    <span class="fl">2</span>, <span class="va">cores</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># In this first test only the daily hydrograph outputs are used for the </span></span>
+<span><span class="co"># locations where observed discharge is available.</span></span>
+<span></span>
+<span><span class="co"># Simulate daily discharge for the channel IDs.</span></span>
+<span><span class="va">sim_flow_full_bck</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/run_swatplus.html" class="external-link">run_swatplus</a></span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
+<span>                         output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>                           flo_day <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'channel_sd_day'</span>,</span>
+<span>                                                   variable <span class="op">=</span> <span class="st">'flo_out'</span>,</span>
+<span>                                                   unit <span class="op">=</span> <span class="va">cha_ids</span><span class="op">)</span></span>
+<span>                         <span class="op">)</span>,</span>
+<span>                         parameter <span class="op">=</span> <span class="va">par_flow</span>,</span>
+<span>                         start_date <span class="op">=</span> <span class="va">start_date</span>,</span>
+<span>                         end_date <span class="op">=</span> <span class="va">end_date</span>,</span>
+<span>                         start_date_print <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/zoo/man/yearmon.html" class="external-link">as.Date</a></span><span class="op">(</span></span>
+<span>                           <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">start_date_print</span><span class="op">)</span><span class="op">==</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">obs_full</span><span class="op">$</span><span class="va">date</span><span class="op">)</span>, </span>
+<span>                                  <span class="va">start_date_print</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                         n_thread <span class="op">=</span> <span class="va">n_cores</span>,</span>
+<span>                         save_file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">save_file_name</span>, <span class="st">'_q'</span><span class="op">)</span></span>
+<span><span class="op">)</span> </span>
+<span></span>
+<span><span class="co"># If you have to remove the runs that did not finish, use the following code.</span></span>
+<span><span class="va">sim_flow_full</span> <span class="op">&lt;-</span> <span class="fu">remove_unsuccesful_runs</span><span class="op">(</span><span class="va">sim_flow_full_bck</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># If you have to load the runs from the saved runs in the data bases, use the</span></span>
+<span><span class="co"># following code.</span></span>
+<span><span class="co"># sim_flow &lt;- load_swat_run(paste0(model_path, '/', save_file_name))</span></span>
+<span></span>
+<span><span class="co"># If you have calculate and use concentrations together with flow values in the </span></span>
+<span><span class="co"># next steps, use the following code.</span></span>
+<span><span class="co"># get_conc() function has two optional arguments: not_conc and sediment.</span></span>
+<span><span class="co"># 'not_conc' is a regular expression which defines the variables which should not</span></span>
+<span><span class="co"># be converted to concentrations. Default is '^flo_day|^gwd'. </span></span>
+<span><span class="co"># sediment is a regular expression which defines the variables which should be </span></span>
+<span><span class="co"># identified as sediment variables. Default is '^sed'.</span></span>
+<span></span>
+<span><span class="co"># sim_flow_full &lt;- get_conc(sim_flow_full)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

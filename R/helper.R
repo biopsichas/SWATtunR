@@ -180,5 +180,113 @@ calculate_wyr <- function(sim) {
   return(wyr)
 }
 
+#' ID Grouping Functions for Parameter Names
+#'
+#' This function groups values for parameter names, sorting and concatenating
+#' numeric sequences while handling non-numeric values appropriately.
+#'
+#' @param vals A vector of values to be grouped. Can be numeric or character.
+#' @param sep (optional) A string separator to use between ranges of numeric
+#' values. Default \code{sep = ':'}.
+#' @param n_trunc (optional) An integer specifying the maximum number of elements
+#' to include in the output. Default \code{sep = Inf}, which means no truncation.
+#' @importFrom purrr map2_chr
+#'
+#' @return A string with grouped values. For numeric inputs, ranges are collapsed
+#' and separated by the specified separator. Non-numeric inputs are concatenated
+#' with ', '. If all values are NA, an empty string is returned.
+#' @keywords calculate
+
+group_values <- function(vals, sep = ':', n_trunc = Inf) {
+  if(all(is.na(vals))) {
+    ''
+  } else if (is.numeric(vals[1])) {
+    vals <- sort(vals)
+    diff_vals <- diff(vals)
+
+    end_seq   <- unique(c(vals[diff_vals != 1], vals[length(vals)]))
+    start_seq <- unique(c(vals[1], vals[which(diff_vals != 1) + 1]))
+
+    map2_chr(start_seq, end_seq, ~paste_runs(.x, .y, sep = sep)) %>%
+      truncate(., n_trunc, side = 'both')
+  } else {
+    paste(vals, collapse = ', ')
+  }
+}
+
+#' Combine Start and End Values into a Range String
+#'
+#' This function creates a string representation of a range by combining start
+#' and end values. If the start and end values are the same, it returns the
+#' single value as a string. Otherwise, it concatenates them with a separator.
+#'
+#' @param strt The starting value of the range.
+#' @param end The ending value of the range.
+#' @param sep A string separator to use between the start and end values. Default is ':'.
+#'
+#' @return A string representing the range. If the start and end values are the same,
+#' the single value is returned. Otherwise, the start and end values are concatenated
+#' with the specified separator.
+
+#' @keywords calculate
+
+paste_runs <- function(strt, end, sep) {
+  if(strt == end) {
+    as.character(strt)
+  } else {
+    paste(strt, end, sep = sep)
+  }
+}
+
+#' Truncate a Vector with Ellipses
+#'
+#' This function truncates a vector and adds ellipses (`"..."`) to indicate omitted values.
+#' Truncation can be done from the left or both sides.
+#'
+#' @param x A vector to be truncated.
+#' @param n An integer specifying the maximum number of elements to include before truncation.
+#' @param side A string indicating the side from which to truncate. Options are `'left'` or `'both'`.
+#' Default is `'left'`.
+#'
+#' @return A string with the truncated vector. If truncation occurs, ellipses (`"..."`) are added
+#' to indicate omitted values.
+#' @keywords calculate
+
+truncate <- function(x, n, side = 'left') {
+  if (side == 'left') {
+    if(!is.na(x[n])) {
+      x <- c(x[1:n],"...")
+    }
+  } else if (side == 'both') {
+    if(length(x) > (n + 1)) {
+      x <- c(x[1:(n/2)],"...", x[(length(x) - (n/2)) : length(x)])
+    }
+  }
+
+  paste(x, collapse = ", ")
+}
 
 
+#' Generate ID Text Strings for Parameter Names
+#'
+#' This function generates ID text strings to be included in parameter names based on
+#' parameter groups and hydrology data.
+#'
+#' @param par A character vector specifying the parameter name. Example 'perco'.
+#' @param par_groups A vector of groups identified based on parameter value.
+#' Example: init_perco <- c(low = 0.01, mod = 0.50, high = 0.95)
+#' @param hyd A data frame containing 'hydrology.hyd' data.
+#' @importFrom purrr map_vec
+#'
+#' @return A vector of HRU ID text strings separated into groups according to
+#' provided values.
+#' @examples
+#' \dontrun{
+#' hyd_hyd <- read_tbl(paste0(model_path, '/hydrology.hyd'))
+#' init_perco <- c(low = 0.01, mod = 0.50, high = 0.95)
+#' id_text_strings('perco', init_perco, hyd_hyd)
+#' }
+
+id_text_strings <- function(par, par_groups, hyd){
+  map_vec(par_groups, ~group_values(which(hyd[[par]] == .x)))
+}
