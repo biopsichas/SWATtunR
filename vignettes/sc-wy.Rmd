@@ -88,11 +88,13 @@ saveRDS(sim_esco, paste0(sc_res, "/sim_esco.rds"))
 
 ## 4. Extracting and plotting water yield ratio vs `esco` parameter values {#scw_step4}
 
-The water yield ratio is calculated for each simulation. The range of `esco` values that produce water yield ratios within a specified range of the observed water yield ratio is identified using the [plot_esco_range](../reference/plot_esco_range.html) function.
+The water yield ratio is calculated for each simulation. The range of `esco` values that produce water yield ratios within a specified range of the observed water yield ratio is identified using the [plot_esco_range](../reference/plot_esco_range.html) function. The relative range for acceptable error `rel_wyr_lim` can be provided as an additional argument (by default it is set to 0.05, as in the example plot below).
 
 ```{r wy_ratio_f, message = FALSE,  warning = FALSE, eval = FALSE}
 plot_esco_range(sim_esco, obs_wy_ratio)
 ```
+
+The plot below shows the relationship between `esco` and water yield presented as an interpolated line. Dashed horizontal lines show the predefined acceptable range for the water yield values. The corresponding range for `esco` can be read from the corresponding dashed vertical lines.
 
 ```{r wy_ratio_t,  echo=FALSE, out.width='100%', fig.align = 'center'}
 ## Read the saved simulation results, plot to object, save to file and display figure
@@ -102,9 +104,11 @@ plot_esco_range(sim_esco, obs_wy_ratio)
 knitr::include_graphics('figs/sim_esco.png')
 ```
 
-## 5. (Optional) If only esco is not enough, use esco, epco parameters for calibration together {#scw_step5}
+## 5. (Optional) Water yield calibration using additional parameters {#scw_step5}
 
-In certain situations `esco` parameter might not be enough to reach observed water yield ratio. Addition of the plant uptake compensation factor (`epco`) might help in such cases. This parameter determines how water uptake is distributed across soil layers to meet plant transpiration needs. If the upper soil layers lack sufficient water, the model can draw more water from deeper layers, a process governed by the `epco` value. When `epco` is close to *1.0*, there is greater flexibility, allowing significant compensation from lower soil layers. Conversely, when `epco` is near *0.0*, the model restricts water uptake primarily to the original depth distribution, limiting compensation from deeper layers.
+In certain situations `esco` parameter might not be enough to reach observed water yield ratio. An addition of the plant uptake compensation factor (`epco`) might help in such cases. This parameter determines how water uptake is distributed across soil layers to meet plant transpiration needs. If the upper soil layers lack sufficient water, the model can draw more water from deeper layers, a process governed by the `epco` value. When `epco` is close to *1.0*, there is greater flexibility, allowing significant compensation from lower soil layers. Conversely, when `epco` is near *0.0*, the model restricts water uptake primarily to the original depth distribution, limiting compensation from deeper layers.
+
+In the example below, `esco` and `epco` are sampled using LHS sampling which is followed by running SWAT for the derive parameter combinations. [(Add something what next - how to determine parameter ranges).]{.underline}
 
 ```{r run_esco_epco, message = FALSE, warning = FALSE, eval = FALSE}
 # The esco and epco parameter range is defined .
