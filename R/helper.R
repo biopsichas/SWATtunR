@@ -195,7 +195,7 @@ calculate_wyr <- function(sim) {
 #' @return A string with grouped values. For numeric inputs, ranges are collapsed
 #' and separated by the specified separator. Non-numeric inputs are concatenated
 #' with ', '. If all values are NA, an empty string is returned.
-#' @keywords calculate
+#' @keywords internal
 
 group_values <- function(vals, sep = ':', n_trunc = Inf) {
   if(all(is.na(vals))) {
@@ -228,7 +228,7 @@ group_values <- function(vals, sep = ':', n_trunc = Inf) {
 #' the single value is returned. Otherwise, the start and end values are concatenated
 #' with the specified separator.
 
-#' @keywords calculate
+#' @keywords internal
 
 paste_runs <- function(strt, end, sep) {
   if(strt == end) {
@@ -250,7 +250,7 @@ paste_runs <- function(strt, end, sep) {
 #'
 #' @return A string with the truncated vector. If truncation occurs, ellipses (`"..."`) are added
 #' to indicate omitted values.
-#' @keywords calculate
+#' @keywords internal
 
 truncate <- function(x, n, side = 'left') {
   if (side == 'left') {

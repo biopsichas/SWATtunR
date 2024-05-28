@@ -22,4 +22,4 @@ to indicate omitted values.
 This function truncates a vector and adds ellipses (\code{"..."}) to indicate omitted values.
 Truncation can be done from the left or both sides.
 }
-\keyword{calculate}
+\keyword{internal}

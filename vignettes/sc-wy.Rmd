@@ -107,7 +107,7 @@ par_bnd <- tibble('esco.hru | change = absval' = c(0.05, 0.95),
                   'epco.hru | change = absval' = c(0.05, 0.95))
 
 # And sampled with lhs 
-esco_epco <- sample_lhs(par_bnd, 12) 
+esco_epco <- sample_lhs(par_bnd, 20) 
 
 ##Run simulations for defined parameter sets
 sim_esco_epco <- run_swatplus(project_path = model_path,
@@ -140,7 +140,30 @@ sim_esco_epco <- run_swatplus(project_path = model_path,
                          n_thread = cores)
 
 ## Save the results to the file
-saveRDS(sim_esco, paste0(sc_res, "/sim_esco_epco.rds"))
+saveRDS(sim_esco_epco, paste0(sc_res, "/sim_esco_epco.rds"))
+
+## Plot the results
+plot_dotty(as.data.frame(SWATtunR:::calculate_wyr(sim_esco_epco)), 
+           list(sim_esco_epco$parameter$values$epco, 
+                sim_esco_epco$parameter$values$esco), 
+           list("epco", "esco"), 
+           y_inter = obs_wy_ratio)+
+  labs(x = "Water yield ratio", y = "Parameter value",  color = "Parameters", title = "Water yield ratio vs esco + epco")+
+  theme(strip.background = element_blank(), strip.text = element_blank())
+```
+
+```{r wy_ratio_esco_epco_t,  echo=FALSE, out.width='100%', fig.align = 'center'}
+## Read the saved simulation results, plot to object, save to file and display figure
+# sim_esco_epco <- readRDS(paste0(sc_res, "/sim_esco_epco.rds"))
+# p <- plot_dotty(as.data.frame(SWATtunR:::calculate_wyr(sim_esco_epco)),
+#            list(sim_esco_epco$parameter$values$epco, 
+#                 sim_esco_epco$parameter$values$esco), 
+#            list("epco", "esco"), 
+#            y_inter = obs_wy_ratio)+
+#   labs(x = "Water yield ratio", y = "Parameter value",  color = "Parameters", title = "Water yield ratio vs esco + epco")+
+#   theme(strip.background = element_blank(), strip.text = element_blank())
+# ggsave(p, file='figs/sim_esco_epco.png', width=800, height=600, units = 'px', dpi = 100)
+knitr::include_graphics('figs/sim_esco_epco.png')
 ```
 
 ## 6. Updating parameter values in the `'hydrology.hyd'` file with selected values {#scw_step6}

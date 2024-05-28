@@ -24,4 +24,4 @@ with ', '. If all values are NA, an empty string is returned.
 This function groups values for parameter names, sorting and concatenating
 numeric sequences while handling non-numeric values appropriately.
 }
-\keyword{calculate}
+\keyword{internal}

@@ -23,4 +23,4 @@ This function creates a string representation of a range by combining start
 and end values. If the start and end values are the same, it returns the
 single value as a string. Otherwise, it concatenates them with a separator.
 }
-\keyword{calculate}
+\keyword{internal}
