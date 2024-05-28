@@ -147,38 +147,6 @@ find_par_range <- function(par, sim, obj, rel_rng) {
               y = sim_interpol$y))
 }
 
-#' Calculate Water Yield Ratio (WYR)
-#'
-#' This function calculates the Water Yield Ratio (WYR) based on various components
-#' of a simulation, including precipitation, surface runoff, lateral flow, and
-#' others. It aggregates these components and computes the ratio of the sum of
-#' water yields to the precipitation.
-#'
-#' @param sim A SWATrunR nested list containing simulation data. It should have a named element
-#' 'simulation' which itself contains named elements: 'precip', 'surq_cha', 'surq_res',
-#' 'latq_cha', 'latq_res', 'qtile', and 'flo'.
-#'
-#' @return A numeric value representing the Water Yield Ratio (WYR).
-#'
-#' @examples
-#' \dontrun{
-#' # Calculate WYR
-#' wyr <- calculate_wyr(sim)
-#' }
-#' @keywords calculate
-
-calculate_wyr <- function(sim) {
-  precip  <- aggregate_aa(sim$simulation$precip)
-  surq_cha <- aggregate_aa(sim$simulation$surq_cha)
-  surq_res <- aggregate_aa(sim$simulation$surq_res)
-  latq_cha <- aggregate_aa(sim$simulation$latq_cha)
-  latq_res <- aggregate_aa(sim$simulation$latq_res)
-  qtile    <- aggregate_aa(sim$simulation$qtile)
-  flo      <- aggregate_aa(sim$simulation$flo)
-  wyr <- (surq_cha + surq_res + latq_cha + latq_res + qtile + flo) / precip
-
-  return(wyr)
-}
 
 #' ID Grouping Functions for Parameter Names
 #'

@@ -38,10 +38,14 @@ obs_wy_ratio <- 0.27
 # Number of cores for 12 runs use 3, 4, 6, or 12 cores (if available)
 cores <- 3
 
-## Set the start and end date for the simulations and warm-up period
-start_date <- '2015-01-01'
-end_date <- '2020-12-31'
-years_skip <- 2
+# Start date for model runs (if NULL, the start date of the model setup files 
+# will be used!!!)
+start_date <- NULL # start_date <- '2000-01-01'
+# End date for model runs (if NULL, the end date of observation data will be used).
+end_date <- NULL # end_date <- '2010-12-31'
+## Years to skip in the simulation period (if NULL, print.prt value will be used)
+years_skip <- NULL 
+
 ```
 
 ## 3. Defining `esco` parameter range and running the model {#scw_step3}
@@ -108,7 +112,7 @@ knitr::include_graphics('figs/sim_esco.png')
 
 In certain situations `esco` parameter might not be enough to reach observed water yield ratio. An addition of the plant uptake compensation factor (`epco`) might help in such cases. This parameter determines how water uptake is distributed across soil layers to meet plant transpiration needs. If the upper soil layers lack sufficient water, the model can draw more water from deeper layers, a process governed by the `epco` value. When `epco` is close to *1.0*, there is greater flexibility, allowing significant compensation from lower soil layers. Conversely, when `epco` is near *0.0*, the model restricts water uptake primarily to the original depth distribution, limiting compensation from deeper layers.
 
-In the example below, `esco` and `epco` are sampled using LHS sampling which is followed by running SWAT for the derive parameter combinations. [(Add something what next - how to determine parameter ranges).]{.underline}
+In the example below, `esco` and `epco` are sampled using LHS sampling, which is followed by running SWAT for the derive parameter combinations. Results could be plotting with [plot_dotty](../reference/plot_dotty.html) function to visualize parameters' sensitivities and how the parameters affect water yield ratios.
 
 ```{r run_esco_epco, message = FALSE, warning = FALSE, eval = FALSE}
 # The esco and epco parameter range is defined .
@@ -152,25 +156,28 @@ sim_esco_epco <- run_swatplus(project_path = model_path,
 saveRDS(sim_esco_epco, paste0(sc_res, "/sim_esco_epco.rds"))
 
 ## Plot the results
-plot_dotty(as.data.frame(SWATtunR:::calculate_wyr(sim_esco_epco)), 
+plot_dotty(as.data.frame(calculate_wyr(sim_esco_epco)), 
            list(sim_esco_epco$parameter$values$epco, 
                 sim_esco_epco$parameter$values$esco), 
-           list("epco", "esco"), 
-           y_inter = obs_wy_ratio)+
+           list("epco", "esco"))+
   labs(x = "Water yield ratio", y = "Parameter value",  color = "Parameters", title = "Water yield ratio vs esco + epco")+
-  theme(strip.background = element_blank(), strip.text = element_blank())
+  geom_vline(xintercept = obs_wy_ratio, linetype="twodash", color = "red", size=0.75)+
+  theme(strip.background = element_blank(), strip.text = element_blank()) +
+  coord_flip()
+
 ```
 
 ```{r wy_ratio_esco_epco_t,  echo=FALSE, out.width='100%', fig.align = 'center'}
 ## Read the saved simulation results, plot to object, save to file and display figure
 # sim_esco_epco <- readRDS(paste0(sc_res, "/sim_esco_epco.rds"))
-# p <- plot_dotty(as.data.frame(SWATtunR:::calculate_wyr(sim_esco_epco)),
+# p <- plot_dotty(as.data.frame(calculate_wyr(sim_esco_epco)), 
 #            list(sim_esco_epco$parameter$values$epco, 
 #                 sim_esco_epco$parameter$values$esco), 
-#            list("epco", "esco"), 
-#            y_inter = obs_wy_ratio)+
+#            list("epco", "esco"))+
 #   labs(x = "Water yield ratio", y = "Parameter value",  color = "Parameters", title = "Water yield ratio vs esco + epco")+
-#   theme(strip.background = element_blank(), strip.text = element_blank())
+#   geom_vline(xintercept = obs_wy_ratio, linetype="twodash", color = "red", size=0.75)+
+#   theme(strip.background = element_blank(), strip.text = element_blank()) +
+#   coord_flip()
 # ggsave(p, file='figs/sim_esco_epco.png', width=800, height=600, units = 'px', dpi = 100)
 knitr::include_graphics('figs/sim_esco_epco.png')
 ```
