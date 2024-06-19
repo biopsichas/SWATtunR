@@ -168,9 +168,9 @@ par_flow <- sample_lhs(par_bound, n_comb)
 
 ## 3a. (Optional) Calibration of parameters for HRU groups {#hc_step3a}
 
-For some parameters it might be important to differentiate calibration values based on some characteristic of areas. For instance the parameters [`cn3_swf`](## "Soil water adjustment factor for CN3") and [`latq_co`](## "Lateral flow coefficient") are initialized based on the runoff potential of a Hydrologic Response Unit (HRU), while the parameter [`perco`](## "Percolation coefficient") is initialized based on its leaching potential. `perco`, `cn3_swf`, and `latq_co` have normalized range *0*-*1*, which sampled as single value, but better approach is considering their different initial values. Therefore, the parameter sampling could be conducted as follows:
+For some parameters it might be important to differentiate calibration values based on some characteristic of areas. For instance the parameters [`cn3_swf`](https://swatplus.gitbook.io/io-docs/introduction/hydrology/hydrology.hyd/cn3_swf) (soil water adjustment factor for CN3) and [`latq_co`](https://swatplus.gitbook.io/io-docs/introduction/hydrology/hydrology.hyd/cn_plntet) (lateral flow coefficient) are initialized based on the runoff potential of a Hydrologic Response Unit (HRU), while the parameter [`perco`](https://swatplus.gitbook.io/io-docs/introduction/hydrology/hydrology.hyd/perco) (percolation coefficient) is initialized based on its leaching potential. `perco`, `cn3_swf`, and `latq_co` have normalized range *0*-*1*, which sampled as single value, but better approach is considering their different initial values. Therefore, the parameter sampling could be conducted as follows:
 
-- From `'hydrology.hyd'`, HRU IDs with low, moderate, and high leaching and runoff potentials are drawn.
+- From [`'hydrology.hyd'`](https://swatplus.gitbook.io/io-docs/introduction/hydrology/hydrology.hyd), HRU IDs with low, moderate, and high leaching and runoff potentials are drawn.
 - These IDs are compiled into text strings required for parameter definition via the parameter names.
 - Parameter boundaries or the different low, moderate, and high potentials are defined.
 - The normalized parameter ranges are translated into the defined boundaries.
@@ -218,17 +218,11 @@ par_flow <- par_flow %>%
 
 ## 4. Running simulations {#hc_step4}
 
-The parameter sets are used to run simulations. 
+Prepared parameter sets are used to run simulations. The SWAT+ model is executed for the defined period, and the daily hydrographs (in this example) are stored for the channel IDs. The simulation is run in parallel, and the number of cores used can be defined. The simulation results are stored in the defined output folder. Observed discharge data are read to obtain the period needed for the runs. 
 
 ```{r run_hyd, message = FALSE, warning = FALSE, eval = FALSE}
 # Read the observed discharge data to obtain period needed for the runs.
 obs_full <- read_csv(qobs_path) 
-# Get the number of cores to be used for parallel processing.
-n_cores <- ifelse(length(cores) == 0, parallel::detectCores(logical = FALSE) - 
-                    2, cores)
-
-# In this first test only the daily hydrograph outputs are used for the 
-# locations where observed discharge is available.
 
 # Simulate daily discharge for the channel IDs.
 sim_flow_full_bck <- run_swatplus(project_path = model_path,
@@ -243,7 +237,9 @@ sim_flow_full_bck <- run_swatplus(project_path = model_path,
                          start_date_print = as.Date(
                            ifelse(length(start_date_print)==0, min(obs_full$date), 
                                   start_date_print)),
-                         n_thread = n_cores,
+                         # Get the number of cores to be used for parallel processing.
+                         n_thread = ifelse(length(cores) == 0, 
+                                           parallel::detectCores(logical = FALSE) - 2, cores),
                          save_file = paste0(save_file_name, '_q')
 ) 
 
@@ -252,15 +248,40 @@ sim_flow_full <- remove_unsuccesful_runs(sim_flow_full_bck)
 
 # If you have to load the runs from the saved runs in the data bases, use the
 # following code.
-# sim_flow <- load_swat_run(paste0(model_path, '/', save_file_name))
-
-# If you have calculate and use concentrations together with flow values in the 
-# next steps, use the following code.
-# get_conc() function has two optional arguments: not_conc and sediment.
-# 'not_conc' is a regular expression which defines the variables which should not
-# be converted to concentrations. Default is '^flo_day|^gwd'. 
-# sediment is a regular expression which defines the variables which should be 
-# identified as sediment variables. Default is '^sed'.
-
-# sim_flow_full <- get_conc(sim_flow_full)
+# sim_flow <- load_swat_run(paste0(model_path, '/',  paste0(save_file_name, '_q')))
 ```
+
+## 4a. (Optional) Getting concentrations {#hc_step4a}
+
+If you need to calculate and use concentrations together with flow values in the next steps, use the  [get_conc](../reference/get_conc.html) function. It has two optional arguments: `not_conc` and `sediment`. The `not_conc` argument is a regular expression that defines the variables which should not be converted to concentrations. By default, it is set to `'^flo_day|^gwd'`. The `sediment` argument is a regular expression that defines the variables which should be identified as sediment variables. The default for this argument is `'^sed'`.
+
+
+```{r get_conc, message = FALSE, warning = FALSE, eval = FALSE}
+# Get the concentrations for the daily discharge.
+sim_flow_full <- get_conc(sim_flow_full)
+```
+
+
+## 5. Readjusting observation and simulation periods
+
+To align the dates of the simulated and observed data for the calibration period (or validation), the [fix_dates](../reference/fix_dates.html) function could be used. This function adjusts the dates to ensure that the simulated data matches the observed data and can also trim the dataset to a specified time range. 
+
+
+```{r trim_period, message = FALSE, warning = FALSE, eval = FALSE}
+# Align the dates of the simulated and observed data for the discharge calibration period.
+tmp <- fix_dates(sim_flow_full, obs_full, trim_start = q_cal_period[1], 
+                 trim_end = q_cal_period[2])
+sim_flow <- tmp$sim
+obs <- tmp$obs
+## Example of usage for trimming the data to a specific period.
+# tmp <- fix_dates(runr_obj = sim_flow, obs_obj = obs, 
+# trim_start = "2010-01-01", trim_end = "2015-01-01")
+
+# In case you want to use water quality data, read it here before applying the following code.
+# obs2 <- read_csv(wqobs_path) 
+# tmp <- fix_dates(sim_flow, obs_wq_full, trim_start = "2015-01-01", trim_end = "2020-01-01"))
+# obs2 <- tmp$obs
+```
+
+
+

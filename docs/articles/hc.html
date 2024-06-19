@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9006</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -281,18 +281,20 @@ only hydrology parameters.</p>
 </h2>
 <p>For some parameters it might be important to differentiate
 calibration values based on some characteristic of areas. For instance
-the parameters <a href="#id_#" title="Soil water adjustment factor for CN3"><code>cn3_swf</code></a>
-and <a href="#id_#" title="Lateral flow coefficient"><code>latq_co</code></a> are
-initialized based on the runoff potential of a Hydrologic Response Unit
-(HRU), while the parameter <a href="#id_#" title="Percolation coefficient"><code>perco</code></a> is initialized
-based on its leaching potential. <code>perco</code>,
-<code>cn3_swf</code>, and <code>latq_co</code> have normalized range
-<em>0</em>-<em>1</em>, which sampled as single value, but better
-approach is considering their different initial values. Therefore, the
-parameter sampling could be conducted as follows:</p>
+the parameters <a href="https://swatplus.gitbook.io/io-docs/introduction/hydrology/hydrology.hyd/cn3_swf" class="external-link"><code>cn3_swf</code></a>
+(soil water adjustment factor for CN3) and <a href="https://swatplus.gitbook.io/io-docs/introduction/hydrology/hydrology.hyd/cn_plntet" class="external-link"><code>latq_co</code></a>
+(lateral flow coefficient) are initialized based on the runoff potential
+of a Hydrologic Response Unit (HRU), while the parameter <a href="https://swatplus.gitbook.io/io-docs/introduction/hydrology/hydrology.hyd/perco" class="external-link"><code>perco</code></a>
+(percolation coefficient) is initialized based on its leaching
+potential. <code>perco</code>, <code>cn3_swf</code>, and
+<code>latq_co</code> have normalized range <em>0</em>-<em>1</em>, which
+sampled as single value, but better approach is considering their
+different initial values. Therefore, the parameter sampling could be
+conducted as follows:</p>
 <ul>
-<li>From <code>'hydrology.hyd'</code>, HRU IDs with low, moderate, and
-high leaching and runoff potentials are drawn.</li>
+<li>From <a href="https://swatplus.gitbook.io/io-docs/introduction/hydrology/hydrology.hyd" class="external-link"><code>'hydrology.hyd'</code></a>,
+HRU IDs with low, moderate, and high leaching and runoff potentials are
+drawn.</li>
 <li>These IDs are compiled into text strings required for parameter
 definition via the parameter names.</li>
 <li>Parameter boundaries or the different low, moderate, and high
@@ -343,16 +345,15 @@ all parameters that could be used in model setups.</p>
 <div class="section level2">
 <h2 id="hc_step4">4. Running simulations<a class="anchor" aria-label="anchor" href="#hc_step4"></a>
 </h2>
-<p>The parameter sets are used to run simulations.</p>
+<p>Prepared parameter sets are used to run simulations. The SWAT+ model
+is executed for the defined period, and the daily hydrographs (in this
+example) are stored for the channel IDs. The simulation is run in
+parallel, and the number of cores used can be defined. The simulation
+results are stored in the defined output folder. Observed discharge data
+are read to obtain the period needed for the runs.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Read the observed discharge data to obtain period needed for the runs.</span></span>
 <span><span class="va">obs_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="va">qobs_path</span><span class="op">)</span> </span>
-<span><span class="co"># Get the number of cores to be used for parallel processing.</span></span>
-<span><span class="va">n_cores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">cores</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">detectCores</a></span><span class="op">(</span>logical <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">-</span> </span>
-<span>                    <span class="fl">2</span>, <span class="va">cores</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># In this first test only the daily hydrograph outputs are used for the </span></span>
-<span><span class="co"># locations where observed discharge is available.</span></span>
 <span></span>
 <span><span class="co"># Simulate daily discharge for the channel IDs.</span></span>
 <span><span class="va">sim_flow_full_bck</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/run_swatplus.html" class="external-link">run_swatplus</a></span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
@@ -367,7 +368,9 @@ all parameters that could be used in model setups.</p>
 <span>                         start_date_print <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/zoo/man/yearmon.html" class="external-link">as.Date</a></span><span class="op">(</span></span>
 <span>                           <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">start_date_print</span><span class="op">)</span><span class="op">==</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">obs_full</span><span class="op">$</span><span class="va">date</span><span class="op">)</span>, </span>
 <span>                                  <span class="va">start_date_print</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>                         n_thread <span class="op">=</span> <span class="va">n_cores</span>,</span>
+<span>                         <span class="co"># Get the number of cores to be used for parallel processing.</span></span>
+<span>                         n_thread <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">cores</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span>, </span>
+<span>                                           <span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">detectCores</a></span><span class="op">(</span>logical <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">-</span> <span class="fl">2</span>, <span class="va">cores</span><span class="op">)</span>,</span>
 <span>                         save_file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">save_file_name</span>, <span class="st">'_q'</span><span class="op">)</span></span>
 <span><span class="op">)</span> </span>
 <span></span>
@@ -376,17 +379,46 @@ all parameters that could be used in model setups.</p>
 <span></span>
 <span><span class="co"># If you have to load the runs from the saved runs in the data bases, use the</span></span>
 <span><span class="co"># following code.</span></span>
-<span><span class="co"># sim_flow &lt;- load_swat_run(paste0(model_path, '/', save_file_name))</span></span>
+<span><span class="co"># sim_flow &lt;- load_swat_run(paste0(model_path, '/',  paste0(save_file_name, '_q')))</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="hc_step4a">4a. (Optional) Getting concentrations<a class="anchor" aria-label="anchor" href="#hc_step4a"></a>
+</h2>
+<p>If you need to calculate and use concentrations together with flow
+values in the next steps, use the <a href="../reference/get_conc.html">get_conc</a> function. It has two
+optional arguments: <code>not_conc</code> and <code>sediment</code>. The
+<code>not_conc</code> argument is a regular expression that defines the
+variables which should not be converted to concentrations. By default,
+it is set to <code>'^flo_day|^gwd'</code>. The <code>sediment</code>
+argument is a regular expression that defines the variables which should
+be identified as sediment variables. The default for this argument is
+<code>'^sed'</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Get the concentrations for the daily discharge.</span></span>
+<span><span class="va">sim_flow_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_conc.html">get_conc</a></span><span class="op">(</span><span class="va">sim_flow_full</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="readjusting-observation-and-simulation-periods">5. Readjusting observation and simulation periods<a class="anchor" aria-label="anchor" href="#readjusting-observation-and-simulation-periods"></a>
+</h2>
+<p>To align the dates of the simulated and observed data for the
+calibration period (or validation), the <a href="../reference/fix_dates.html">fix_dates</a> function could be used.
+This function adjusts the dates to ensure that the simulated data
+matches the observed data and can also trim the dataset to a specified
+time range.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Align the dates of the simulated and observed data for the discharge calibration period.</span></span>
+<span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fix_dates.html">fix_dates</a></span><span class="op">(</span><span class="va">sim_flow_full</span>, <span class="va">obs_full</span>, trim_start <span class="op">=</span> <span class="va">q_cal_period</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, </span>
+<span>                 trim_end <span class="op">=</span> <span class="va">q_cal_period</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">sim_flow</span> <span class="op">&lt;-</span> <span class="va">tmp</span><span class="op">$</span><span class="va">sim</span></span>
+<span><span class="va">obs</span> <span class="op">&lt;-</span> <span class="va">tmp</span><span class="op">$</span><span class="va">obs</span></span>
+<span><span class="co">## Example of usage for trimming the data to a specific period.</span></span>
+<span><span class="co"># tmp &lt;- fix_dates(runr_obj = sim_flow, obs_obj = obs, </span></span>
+<span><span class="co"># trim_start = "2010-01-01", trim_end = "2015-01-01")</span></span>
 <span></span>
-<span><span class="co"># If you have calculate and use concentrations together with flow values in the </span></span>
-<span><span class="co"># next steps, use the following code.</span></span>
-<span><span class="co"># get_conc() function has two optional arguments: not_conc and sediment.</span></span>
-<span><span class="co"># 'not_conc' is a regular expression which defines the variables which should not</span></span>
-<span><span class="co"># be converted to concentrations. Default is '^flo_day|^gwd'. </span></span>
-<span><span class="co"># sediment is a regular expression which defines the variables which should be </span></span>
-<span><span class="co"># identified as sediment variables. Default is '^sed'.</span></span>
-<span></span>
-<span><span class="co"># sim_flow_full &lt;- get_conc(sim_flow_full)</span></span></code></pre></div>
+<span><span class="co"># In case you want to use water quality data, read it here before applying the following code.</span></span>
+<span><span class="co"># obs2 &lt;- read_csv(wqobs_path) </span></span>
+<span><span class="co"># tmp &lt;- fix_dates(sim_flow, obs_wq_full, trim_start = "2015-01-01", trim_end = "2020-01-01"))</span></span>
+<span><span class="co"># obs2 &lt;- tmp$obs</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
