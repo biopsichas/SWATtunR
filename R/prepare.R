@@ -124,3 +124,160 @@ calculate_wyr <- function(sim) {
 
   return(wyr)
 }
+
+#' Calculate All Performance Metrics
+#'
+#' This function calculates various performance metrics for a given simulation
+#' and observed data.
+#'
+#' @param sim Object from SWATrunR
+#' @param obs Dataframe for the observed data with two columns: date and value
+#' @param par_name (optional) Character for name of the parameter set to be used.
+#' Default \code{par_name = NULL}, which select first variable in sim object.
+#' But if you have multiple parameter sets, you can use this argument to select
+#' the one you want to use. Example par_name = "flo_day" or par_name = no3_day_conc".
+#' @param perf_metrics (optional) Character vector with the names of the performance metrics
+#' to used in the rank_tot calculation. Default \code{perf_metrics = NULL},
+#' which means that all performance metrics will be used in calculation.
+#' Other example could be perf_metrics = c("kge", "nse"), which means that only
+#' KGE and NSE will be used in calculation.
+#' @param period (optional) Character describing, which time interval to display.
+#' Default \code{period = NULL}, which mean not activated, other examples are
+#' "day", "week", "month", etc).
+#' See [lubridate::floor_date](https://www.rdocumentation.org/packages/lubridate/versions/1.3.3/topics/floor_date) for details.
+#' @param fn_summarize (optional) Function to recalculate to the specified time interval.
+#' Default \code{fn_summarize ="mean"}, other examples are "median", "sum". See [dplyr::summarise](https://dplyr.tidyverse.org/reference/summarise.html) for details.
+#' @return A dataframe with the performance metrics and ranking.
+#' @importFrom dplyr mutate group_by summarize_all left_join select everything row_number %>%
+#' @importFrom lubridate month floor_date
+#' @importFrom purrr map_dbl map2 reduce
+#' @importFrom stats cor
+#' @importFrom readr parse_number
+#' @importFrom hydroGOF NSE KGE pbias mae rsr
+#' @export
+#' @examples
+#' \dontrun{
+#' obj_tbl <- calculate_performance(sim = sim_flow, obs, "flo_day", c("kge", "nse"), "month", "sum")
+#' }
+#' @keywords calculate
+
+calculate_performance <- function(sim, obs, par_name = NULL, perf_metrics = NULL,
+                                  period = NULL,
+                                  fn_summarize = 'mean') {
+
+  if(is.null(par_name)) {
+    if(length(sim$simulation) > 1) {
+      warning(paste0("You have multiple variable sets in the simulation object.\n
+      They are ", paste(names(sim$simulation), collapse = ", "),
+                     "\nCurrently, the first one is used, which is ", names(sim$simulation)[1],
+                     ".\n If you want to use another one, please specify, which one you want to use with 'par_name' argument."))
+    }
+    # Filter to parameter set of interest.
+    sim <- sim$simulation[[1]]
+  } else {
+    sim <- sim$simulation[[par_name]]
+  }
+
+  # Adding list of metric if not provided
+  if(is.null(perf_metrics)) perf_metrics <- c("nse", "kge", "pbias", "r2", "mae", "rsr")
+
+  # Initializing result table
+  t <- data.frame(run_id = parse_number(names(sim[-1])))
+
+  # Calculate the mean absolute error (MAE) for the average monthly values.
+  if("mae" %in% perf_metrics){
+    sim_m <- mutate(sim, date = month(date)) %>%
+      group_by(date) %>%
+      summarize_all(get(fn_summarize))
+    obs_m <- mutate(obs, date = month(date)) %>%
+      group_by(date) %>%
+      summarize_all(get(fn_summarize))
+    t$mae <- map_dbl(select(sim_m, - date), ~mae(.x, obs_m$value))
+    t$rank_mae <- rank(abs(t$mae))
+
+  }
+
+  # Change the time step
+  if(!is.null(period)) {
+    sim <- mutate(sim, date = floor_date(date , period)) %>%
+      group_by(date) %>%
+      summarize_all(get(fn_summarize))
+    obs <- mutate(obs, date = floor_date(date , period)) %>%
+      group_by(date) %>%
+      summarize_all(get(fn_summarize))
+  }
+
+  # Calculate the root square ratio
+  if("rsr" %in% perf_metrics){
+    # Calculate flow duration curves (FDC) for observed data and the simulations.
+    fdc_obs <- calc_fdc(obs$value)
+    fdc_sim <- calc_fdc(select(sim, -date))
+
+    # Splitting intervals for the flow duration curve (FDC)
+    p <- c(5, 20, 70, 95)
+    p_lbl <- c('p_0_5', 'p_5_20', 'p_20_70', 'p_70_95', 'p_95_100')
+
+    perf_metrics <- c(perf_metrics, gsub("p", "rsr", p_lbl))
+
+    # Calculate the ratio of RSME and standard deviation for different segments
+    # of the FDC (same as in the publications of the Kiel working group).
+    rsr_fdc <- calc_fdc_rsr(fdc_sim, fdc_obs, p)
+
+
+    fdc_thrs <- c(max(fdc_obs$value),
+                  approx(fdc_obs$p, fdc_obs$value, p)$y,
+                  -0.1)
+    # Separate the hydrograph into high medium and low flows.
+    obs_sep <- map2(fdc_thrs[1:(length(fdc_thrs) - 1)],
+                    fdc_thrs[2:length(fdc_thrs)],
+                    ~ mutate(obs, value = ifelse(value <= .x & value > .y, value, NA))) %>%
+      map2(., p_lbl, ~ set_names(.x, c('date', .y))) %>%
+      reduce(., left_join, by = 'date')
+
+    t$rsr_vh <- -map_dbl(select(sim, - date), ~rsr(.x, obs_sep$p_0_5))
+    t$rsr_h <- -map_dbl(select(sim, - date), ~rsr(.x, obs_sep$p_5_20))
+    t$rsr_m <- -map_dbl(select(sim, - date), ~rsr(.x, obs_sep$p_20_70))
+    t$rsr_l <- -map_dbl(select(sim, - date), ~rsr(.x, obs_sep$p_70_95))
+    t$rsr_vl <- -map_dbl(select(sim, - date), ~rsr(.x, obs_sep$p_95_100))
+
+    t$rsr_0_5 <- -rsr_fdc$p_0_5
+    t$rsr_5_20 <- -rsr_fdc$p_5_20
+    t$rsr_20_70 <- -rsr_fdc$p_20_70
+    t$rsr_70_95 <- -rsr_fdc$p_70_95
+    t$rsr_95_100 <- -rsr_fdc$p_95_100
+
+    t$rank_rsr_0_5 <- rank(-t$rsr_0_5)
+    t$rank_rsr_5_20 <- rank(-t$rsr_5_20)
+    t$rank_rsr_20_70 <- rank(-t$rsr_20_70)
+    t$rank_rsr_70_95 <- rank(-t$rsr_70_95)
+    t$rank_rsr_95_100 <- rank(-t$rsr_95_100)
+  }
+  # Calculate the Nash-Sutcliffe efficiency (NSE)
+  if ("nse" %in% perf_metrics){
+    t$nse <- map_dbl(select(sim, - date), ~NSE(.x, obs$value))
+    t$rank_nse <- rank(-t$nse)
+  }
+  # Calculate the Kling-Gupta efficiency (KGE)
+  if("kge" %in% perf_metrics){
+    t$kge <- map_dbl(select(sim, - date), ~KGE(.x, obs$value))
+    t$rank_kge <- rank(-t$kge)
+  }
+  # Calculate the percent bias (PBIAS)
+  if("pbias" %in% perf_metrics){
+    t$pbias <- map_dbl(select(sim, - date), ~pbias(.x, obs$value))
+    t$rank_pbias <- rank(abs(-abs(t$pbias)))
+  }
+  # Calculate the coefficient of determination (R2)
+  if("r2" %in% perf_metrics){
+    t$r2 <- map_dbl(select(sim, - date), ~cor(.x, obs$value)^2)
+    t$rank_r2 <- rank(-t$r2)
+  }
+
+  # Calculate rank_tot.
+  t <- t %>% mutate(rank_tot = as.integer(rank(rowSums(
+    select(., starts_with(paste0('rank_', tolower(perf_metrics)))))))) %>%
+    select(run_id, everything())
+
+  return(t)
+}
+

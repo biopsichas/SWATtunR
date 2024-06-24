@@ -248,6 +248,7 @@ truncate <- function(x, n, side = 'left') {
 #'
 #' @return A vector of HRU ID text strings separated into groups according to
 #' provided values.
+#' @export
 #' @examples
 #' \dontrun{
 #' hyd_hyd <- read_tbl(paste0(model_path, '/hydrology.hyd'))
@@ -354,4 +355,110 @@ fix_dates <- function(runr_obj, obs_obj, trim_start = NULL, trim_end = NULL){
          Please check the observation data and correct this.")
   }
   return(list(sim=runr_obj, obs=obs_obj))
+}
+
+# Flow duration curve calculation functions ------------------------------------
+
+#' Calculate Flow Duration Curve (FDC)
+#'
+#' This function calculates the flow duration curve for a given vector or dataframe.
+#'
+#' @param x a vector or a tibble with flow values.
+#'
+#' @return a tibble with sorted values and their corresponding exceedance
+#' probabilities.
+#'
+#' @importFrom tibble tibble
+#' @importFrom dplyr mutate %>%
+#'
+#' @examples
+#' \dontrun{
+#' fdc <- calc_fdc(c(3, 1, 4, 1, 5, 9, 2, 6, 5))
+#' }
+#' @keywords internal
+
+calc_fdc <- function(x) {
+  if(is.vector(x)) {
+    x <- tibble(value = x)
+  }
+
+  n <- nrow(x)
+
+  x %>%
+    apply(., 2, sort, decreasing = TRUE) %>%
+    as_tibble(.) %>%
+    mutate(p = 100 * 1:n / (n + 1), .before = 1)
+}
+
+#' Calculate RSR for Flow Duration Curve Segments
+#'
+#' This function calculates the ratio of RMSE and standard deviation for
+#' different segments of the flow duration curve (FDC).
+#'
+#' @param fdc_sim a tibble with simulated flow data.
+#' @param fdc_obs a tibble with observed flow data.
+#' @param quantile_splits a numeric vector with quantiles for splitting the FDC.
+#' @param out_tbl character specifying the output format ('long' or 'wide').
+#' Default \code{out_tbl = 'long'}.
+#'
+#' @return a tibble with RSR values for the different segments of the FDC.
+#'
+#' @importFrom dplyr select mutate bind_cols bind_rows %>%
+#' @importFrom purrr map2 map_dbl
+#'
+#' @examples
+#' \dontrun{
+#' fdc_sim <- calc_fdc(runif(100))
+#' fdc_obs <- calc_fdc(runif(100))
+#' rsr_values <- calc_fdc_rsr(fdc_sim, fdc_obs, c(5, 20, 70, 95))
+#' }
+#' @keywords internal
+
+
+calc_fdc_rsr <- function(fdc_sim, fdc_obs, quantile_splits, out_tbl = 'long') {
+  if(all(quantile_splits <= 1)) {
+    quantile_splits <- 100 * quantile_splits
+  }
+  quantile_splits <- sort(unique(c(0, 100, quantile_splits)))
+  p_cuts <- cut(fdc_obs$p, quantile_splits)
+  obs <- split(select(fdc_obs, -p), p_cuts)
+  sim <- split(select(fdc_sim, -p), p_cuts)
+
+  rsr_list <- map2(sim, obs, ~ rsr_df(.x, .y[[1]]))
+
+  if(out_tbl == 'long') {
+    n_col <- length(quantile_splits) - 1
+    col_names <- paste0('p_', quantile_splits[1:n_col],
+                        '_',  quantile_splits[2:(n_col + 1)])
+    rsr <- bind_cols(rsr_list) %>%
+      set_names(col_names) %>%
+      mutate(., run = names(fdc_sim)[2:ncol(fdc_sim)], .before = 1)
+  } else {
+    rsr <- rsr_list %>%
+      bind_rows(.) %>%
+      mutate(p = unique(p_cuts), .before = 1)
+  }
+  return(rsr)
+}
+
+#' Calculate RSR for Dataframe Segments
+#'
+#' This function calculates the RSR values for the different segments of the data.
+#'
+#' @param df_sim a dataframe with simulated values.
+#' @param v_obs a dataframe with observed values.
+#'
+#' @return a numeric vector with RSR values for each segment.
+#'
+#' @importFrom purrr map_dbl
+#' @importFrom hydroGOF rsr
+#'
+#' @examples
+#' \dontrun{
+#' rsr_values <- rsr_df(df_sim, v_obs)
+#' }
+#' @keywords internal
+
+rsr_df <- function(df_sim, v_obs) {
+  map_dbl(df_sim, ~ rsr(.x, v_obs))
 }
