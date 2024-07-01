@@ -316,7 +316,7 @@ obs2 <- read_csv(wqobs_path)
 obs3 <- read_csv(gwobs_path) 
 
 # Calculate the performance metrics for each variable separately.
-calculate_performance_multi <- function(sim, vector_var, list_obs, list_periods = NULL, 
+calculate_performance_mv <- function(sim, vector_var, list_obs, list_periods = NULL, 
                                         vector_weights = 1, 
                                         perf_metrics = c("nse", "kge", "pbias", "r2", "mae")){
   obj_tbl_list <- pmap(list(vector_var, list_obs, list_periods), function(.x, .y, .z){

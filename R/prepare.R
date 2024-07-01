@@ -131,7 +131,7 @@ calculate_wyr <- function(sim) {
 #' and observed data.
 #'
 #' @param sim Object from SWATrunR
-#' @param obs Dataframe for the observed data with two columns: date and value
+#' @param obs Dataframe for the observed data with two columns: date and value.
 #' @param par_name (optional) Character for name of the parameter set to be used.
 #' Default \code{par_name = NULL}, which select first variable in sim object.
 #' But if you have multiple parameter sets, you can use this argument to select
@@ -281,3 +281,77 @@ calculate_performance <- function(sim, obs, par_name = NULL, perf_metrics = NULL
   return(t)
 }
 
+
+#' Calculate Performance Metrics for 2 of more variables
+#'
+#' This function calculates various performance metrics for two or more
+#' variables between a given simulation and observed data.
+#'
+#' @param sim Object from SWATrunR
+#' @param vector_var Character vector of variables to be used in performance
+#' metric calculation. They should be present in sim object.
+#' Example vector_var = c("flo_day_52", "no3_day_52_conc", "gwd_day").
+#' The rest parameters should be provided in the same sequence as variables vector.
+#' @param list_obs List of dataframes for the observed data with two columns:
+#' 'date', 'value'.
+#' @param list_periods (optional) List of two-element character vectors with the start and
+#' end dates for the period to be used in the performance metric calculation for
+#' each variable. Default \code{list_periods = NULL}, means full observation
+#' data periods are used.
+#' Example list_periods = list(c('2002-01-01', '2011-12-26'),
+#' c('2007-01-01', '2008-12-26'), c('2007-01-01', '2011-12-26'))
+#' @param vector_weights (optional) Numeric vector of weights for each variable in the
+#' vector_var. Default \code{vector_weights = NULL}, which means all variables will
+#' impact final results the same. vector_weights = c(0.5, 0.3, 0.2).
+#' The sum of weights should be 1.
+#' @param perf_metrics (optional) Character vector with the names of the performance metrics
+#' to used in the rank_tot calculation. Default \code{perf_metrics = NULL},
+#' which means that all (in this case c("nse", "kge", "pbias", "r2", "mae"))
+#' performance metrics will be used in calculation. Other example could be
+#' perf_metrics = c("kge", "nse"), which means that only KGE and NSE will be
+#' used in calculation.
+
+#' @return A list of two objects. One list 'obj_tbl_list' is storage with all performance
+#' metrics for each variable. Another, 'obj_tbl' is dataframe with aggregated
+#' results for all variables. This dataframe has final ranking and run ids/
+#' @importFrom purrr pmap set_names map2 reduce
+#' @importFrom dplyr mutate select across left_join
+#' @export
+#' @examples
+#' \dontrun{
+#' obj_tbl_m <- calculate_performance_2plus(sim,
+#' vector_var = c("flo_day_52",  "no3_day_52_conc", "gwd_day"),
+#' list_obs = list(obs_flow, obs_no3, obs_gwd)),
+#' list_periods = list(c('2002-01-01', '2011-12-26'), NULL, c('2007-01-01', '2011-12-26')),
+#' vector_weights = c(0.5, 0.3, 0.2),
+#' perf_metrics = c("nse", "kge", "pbias", "r2", "mae")
+#' }
+
+calculate_performance_2plus <- function(sim, vector_var, list_obs, list_periods = NULL,
+                                     vector_weights = NULL,
+                                     perf_metrics = NULL){
+
+  ## Calculate performance dataframes for each variable
+  obj_tbl_list <- pmap(list(vector_var, list_obs, list_periods), function(.x, .y, .z){
+    if(!is.null(.z)){
+      tmp <- fix_dates(sim, .y, trim_start = .z[1], trim_end = .z[2])
+    } else {
+      tmp <- fix_dates(sim, .y, trim_start = min(.y$date), trim_end = max(.y$date))
+    }
+    calculate_performance(tmp$sim, tmp$obs, par_name = .x,
+                          perf_metrics = ifelse(is.null(perf_metrics),
+                                                c("nse", "kge", "pbias", "r2", "mae"),
+                                                perf_metrics))}) %>%
+    set_names(vector_var)
+
+  # Calculate the mean of the performance rank for all parameter sets.
+  obj_tbl <- map2(obj_tbl_list, ifelse(is.null(vector_weights), 1, vector_weights), function(.x, .y){
+    select(.x, c(run_id, rank_tot)) %>%
+      mutate(rank_tot = rank_tot * .y)}) %>%
+    reduce(., left_join, by = 'run_id')%>%
+    mutate(sum_rank = rowSums(across(starts_with("rank_tot")))) %>%
+    mutate(rank_tot = as.integer(rank(sum_rank))) %>%
+    select(run_id, rank_tot)
+
+  return(list(obj_tbl_list = obj_tbl_list, obj_tbl = obj_tbl))
+}

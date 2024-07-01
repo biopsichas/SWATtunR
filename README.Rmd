@@ -30,7 +30,7 @@ library(badger)
 
 The goal of `SWATtunR` is to help with the [SWAT+ model](https://swat.tamu.edu/software/plus/) calibration and validation. These functions were developed and tested for the implementation of modeling tasks in the [OPTAIN project](https://www.optain.eu/), [Nordbalt-Ecosafe](https://projects.au.dk/nordbalt-ecosafe) and [LIFE SIP Vanduo](https://webgate.ec.europa.eu/life/publicWebsite/project/LIFE22-IPE-LT-LIFE-SIP-Vanduo-101104645/integrated-water-management-in-lithuania). Functions are initially developed by [Christoph Schuerz](https://www.ufz.de/index.php?en=49467), which added important capability on top of other R tools designed for the SWAT/SWAT+ models. Therefore, we highly recommend trying and using these tools:
 
-- [SWATbuildR](https://git.ufz.de/optain/wp4-integrated-assessment/swat/bildr_script)[^1] -
+- [SWATbuildR](https://git.ufz.de/optain/wp4-integrated-assessment/swat/bildr_script)^[For access please inquire at *christoph.schuerz@ufz.de*.] -
   R tool for building SWAT+ setups; 
 - [SWATprepR](https://biopsichas.github.io/SWATprepR/) - SWAT+ model input data preparation helper. 
 - [SWATfarmR](http://chrisschuerz.github.io/SWATfarmR/) - R tool for
@@ -40,7 +40,7 @@ The goal of `SWATtunR` is to help with the [SWAT+ model](https://swat.tamu.edu/s
   diagnostics;
 - [SWATrunR](https://chrisschuerz.github.io/SWATrunR/) - R tool for running 
 SWAT models for different parameters and scenarios.
-- [SWATmeasR](https://nc.ufz.de/s/KA9Cr2bbtALGMHr?path=%2FWPs%20%26%20Tasks%2FWP4%2FTask%204.4%2FTools%20to%20share)[^1] - R tool for implementing Natural/Small Water Retention Measures (NSWRMs) in the SWAT+ models and running scenarios.
+- [SWATmeasR](https://nc.ufz.de/s/KA9Cr2bbtALGMHr?path=%2FWPs%20%26%20Tasks%2FWP4%2FTask%204.4%2FTools%20to%20share)^[For access please inquire at *christoph.schuerz@ufz.de*.] - R tool for implementing Natural/Small Water Retention Measures (NSWRMs) in the SWAT+ models and running scenarios.
 
 <img src="man/figures/swativerse_update.png" title="SWAT packages for R" alt="swativerse logo" width="80%" style="display: block; margin: auto;" />
 

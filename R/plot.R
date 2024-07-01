@@ -1,3 +1,53 @@
+#' Plot Parameter Identifiability
+#'
+#' This function creates a plot to visualize the identifiability of parameters
+#' based on objective functions.
+#'
+#' @param parameters A vector of parameter names.
+#' @param objectives A list of objective functions, each represented as a numeric vector.
+#' @param run_fraction A numeric value representing the fraction of runs to consider for threshold calculation. Default is NULL.
+#'
+#' @return A ggplot object visualizing the identifiability of parameters.
+#'
+#' @examples
+#' parameters <- c("param1", "param2", "param3")
+#' objectives <- list(obj1 = runif(100), obj2 = runif(100), obj3 = runif(100))
+#' plot_parameter_identifiability(parameters, objectives, run_fraction = 0.1)
+#'
+#' @import ggplot2
+#' @import dplyr
+#' @import purrr
+#' @import scales
+#' @import tibble
+#'
+#' @export
+
+plot_parameter_identifiability <- function(parameters, objectives, run_fraction = NULL) {
+  thresholds <- map_dbl(objectives, ~ quantile(.x, 1 - run_fraction))
+  plot_tbl <- map2(objectives, thresholds,
+                   ~ calc_segment_diff(parameters, .x, .y)) %>%
+    map2_df(., 1:length(.), ~ mutate(.x, id = .y))
+
+  lbls <- tibble(obj = names(objectives), y = 1:ncol(objectives))
+
+  col_vals <- c(seq(-100, -25, length.out = 4), seq(0, max(100, max(plot_tbl$fill_segment)), length.out = 5))
+  col_pal <- c("#B2182B", "#D6604D", "#F4A582", "#FDDBC7", "#F7F7F7",
+               "#D1E5F0", "#92C5DE", "#4393C3", "#2166AC")
+  # col_pal <- c(col_pal_full[1], col_pal_full[(6 - n_neg):4], col_pal_full[5:9])
+  ggplot(plot_tbl) +
+    geom_rect(aes(xmin = xmin, xmax = xmax, ymin = id - 0.5, ymax = id + 0.5, fill = fill_segment)) +
+    facet_wrap(.~parameter, scales = 'free_x') +
+    scale_y_continuous(breaks = lbls$y, labels = lbls$obj) +
+    scale_fill_gradientn(colors = col_pal, values = scales::rescale(col_vals),
+                         limits = c(-100, max(100, max(plot_tbl$fill_segment)))) +
+    labs(fill = 'Deviation to uniform distribution (%)') +
+    theme_bw() +
+    theme(legend.position = 'bottom',
+          legend.key.width = unit(2, 'cm'),
+          panel.grid.minor.y = element_blank())
+}
+
+
 #' Plot PHU, yield, and biomass over days to maturity
 #'
 #' This function generates boxplots to visualize Plant Heat Units (PHU) fractions,

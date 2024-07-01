@@ -16,7 +16,7 @@ calculate_performance(
 \arguments{
 \item{sim}{Object from SWATrunR}
 
-\item{obs}{Dataframe for the observed data with two columns: date and value}
+\item{obs}{Dataframe for the observed data with two columns: date and value.}
 
 \item{par_name}{(optional) Character for name of the parameter set to be used.
 Default \code{par_name = NULL}, which select first variable in sim object.
