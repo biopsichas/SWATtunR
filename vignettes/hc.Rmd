@@ -250,7 +250,7 @@ sim_flow_full <- remove_unsuccesful_runs(sim_flow_full_bck)
 
 # If you have to load the runs from the saved runs in the data bases, use the
 # following code.
-# sim_flow <- load_swat_run(paste0(model_path, '/',  paste0(save_file_name, '_q')))
+# sim_flow <- SWATrunR::load_swat_run(paste0(model_path, '/',  paste0(save_file_name, '_q')))
 ```
 
 ## 4a. (Optional) Getting concentrations {#hc_step4a}
@@ -281,7 +281,7 @@ obs <- tmp$obs
 
 # In case you want to use water quality data, read it here before applying the following code.
 # obs2 <- read_csv(wqobs_path) 
-# tmp <- fix_dates(sim_flow, obs_wq_full, trim_start = "2015-01-01", trim_end = "2020-01-01"))
+# tmp <- fix_dates(sim_flow_full, obs2, trim_start = wq_cal_period[1], trim_end = wq_cal_period[2])
 # obs2 <- tmp$obs
 ```
 
@@ -306,7 +306,7 @@ The performance metrics can also be applied to multiple variables within the sim
 ```{r calc_perf_mv, message = FALSE, warning = FALSE, eval = FALSE, echo = FALSE}
 
 # Example of usage:
-var_to_use <- c("flo_day_52",  "no3_day_52_conc", "gwd_day")
+var_to_use <- c("flo_day_52",  "no3_day_52_conc", "gwd")
 var_weights <- c(0.5, 0.3, 0.2) ## The sum of weights should be 1.
 periods <- list(q_cal_period, wq_cal_period, c('2007-01-01', '2011-12-26'))
 
@@ -317,7 +317,7 @@ obs2 <- read_csv(wqobs_path)
 obs3 <- read_csv(gwobs_path) 
 
 # Calculate the performance metrics for each variable separately.
-obj_tbl_m <- calculate_performance_2plus(sim_flow, var_to_use, 
+obj_tbl_m <- calculate_performance_2plus(sim_flow_full, var_to_use, 
                                          list(obs, obs2, obs3), periods, 
                                          var_weights)
 ```

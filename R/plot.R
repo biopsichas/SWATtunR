@@ -9,18 +9,14 @@
 #'
 #' @return A ggplot object visualizing the identifiability of parameters.
 #'
-#' @examples
-#' parameters <- c("param1", "param2", "param3")
-#' objectives <- list(obj1 = runif(100), obj2 = runif(100), obj3 = runif(100))
-#' plot_parameter_identifiability(parameters, objectives, run_fraction = 0.1)
-#'
-#' @import ggplot2
-#' @import dplyr
-#' @import purrr
-#' @import scales
-#' @import tibble
+#' @importFrom ggplot2 scale_y_continuous scale_fill_gradientn geom_rect facet_wrap labs theme_bw theme
+#' @importFrom dplyr mutate %>%
+#' @importFrom purrr map_dbl map2_df
+#' @importFrom scales rescale
+#' @importFrom tibble tibble
 #'
 #' @export
+
 
 plot_parameter_identifiability <- function(parameters, objectives, run_fraction = NULL) {
   thresholds <- map_dbl(objectives, ~ quantile(.x, 1 - run_fraction))
@@ -38,7 +34,7 @@ plot_parameter_identifiability <- function(parameters, objectives, run_fraction 
     geom_rect(aes(xmin = xmin, xmax = xmax, ymin = id - 0.5, ymax = id + 0.5, fill = fill_segment)) +
     facet_wrap(.~parameter, scales = 'free_x') +
     scale_y_continuous(breaks = lbls$y, labels = lbls$obj) +
-    scale_fill_gradientn(colors = col_pal, values = scales::rescale(col_vals),
+    scale_fill_gradientn(colors = col_pal, values = rescale(col_vals),
                          limits = c(-100, max(100, max(plot_tbl$fill_segment)))) +
     labs(fill = 'Deviation to uniform distribution (%)') +
     theme_bw() +

@@ -39,7 +39,7 @@ The goal of `SWATtunR` is to help with the [SWAT+ model](https://swat.tamu.edu/s
   functions in R and routines for SWAT model calibration and model
   diagnostics;
 - [SWATrunR](https://chrisschuerz.github.io/SWATrunR/) - R tool for running 
-SWAT models for different parameters and scenarios.
+SWAT models for different parameters and scenarios. Please install branch names *remove_legacy*. It could be done using line like this `remotes::install_github("chrisschuerz/SWATrunR@remove_legacy")`
 - [SWATmeasR](https://nc.ufz.de/s/KA9Cr2bbtALGMHr?path=%2FWPs%20%26%20Tasks%2FWP4%2FTask%204.4%2FTools%20to%20share)^[For access please inquire at *christoph.schuerz@ufz.de*.] - R tool for implementing Natural/Small Water Retention Measures (NSWRMs) in the SWAT+ models and running scenarios.
 
 <img src="man/figures/swativerse_update.png" title="SWAT packages for R" alt="swativerse logo" width="80%" style="display: block; margin: auto;" />

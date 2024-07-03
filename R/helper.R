@@ -1,3 +1,38 @@
+#' Remove Unsuccessful Runs from Simulation
+#'
+#' This function removes unsuccessful runs from the simulation parameter set
+#' to ensure that all analyses are only performed for parameter combinations
+#' that have corresponding simulation results.
+#'
+#' @param sim A SWATrunR nested list containing simulation data. : `simulation` and `parameter`.
+#'   - `simulation`: A list where the first element contains the results of the simulation runs.
+#'   - `parameter`: A list with an element `values` which is a data frame containing the parameter sets used in the simulation.
+#'
+#' @return A modified version of the input `sim` list, with the `parameter$values`
+#' element containing only the parameter sets for which simulation results are available.
+#' @importFrom dplyr %>%
+#' @importFrom stringr str_remove
+#' @export
+#' @examples
+#' \dontrun{
+#' sim_flow_full <- remove_unsuccesful_runs(sim_flow_full_bck)
+#' }
+#' @keywords helper
+
+remove_unsuccesful_runs <- function(sim){
+  id_runs <- sim$simulation[[1]] %>%
+    names(.) %>%
+    .[2:length(.)] %>%
+    str_remove(., 'run_') %>%
+    as.numeric(.)
+
+  sim$parameter$values <- sim$parameter$values[id_runs,]
+  rownames(sim$parameter$values) <- id_runs
+
+  return(sim)
+}
+
+
 #' Add a running ID to duplicated names
 #'
 #' @param col_name Character vector of column names
@@ -462,3 +497,66 @@ calc_fdc_rsr <- function(fdc_sim, fdc_obs, quantile_splits, out_tbl = 'long') {
 rsr_df <- function(df_sim, v_obs) {
   map_dbl(df_sim, ~ rsr(.x, v_obs))
 }
+
+# Plot parameter identifiability -----------------------------------------------
+
+#' Calculate Segment Differences
+#'
+#' This function calculates segment differences for a given set of parameters.
+#'
+#' @param par A list or data frame of parameters to segment.
+#' @param obj A numeric vector of objective values.
+#' @param obj_thrs A numeric threshold for the objective values.
+#'
+#' @return A data frame containing the calculated segment differences.
+#'
+#' @importFrom dplyr bind_cols group_by summarise mutate ungroup %>%
+#' @importFrom purrr map map2_df
+#'
+#' @keywords internal
+
+calc_segment_diff <- function(par, obj, obj_thrs) {
+
+  # Cut the parameters into 20 segments
+  par_cuts <- map_df(par, ~ cut(.x, 20))
+
+  # Calculate the fill_segment for each parameter segment
+  tbl <- map(par_cuts, ~ bind_cols(segment = .x, obj = obj)) %>%
+    map(., ~ mutate(.x, obj = obj >= obj_thrs)) %>%
+    map(., ~ group_by(.x, segment)) %>%
+    map(., ~ summarise(.x, fill_segment = sum(obj))) %>%
+    map2_df(., names(.), ~ mutate(.x, parameter = .y, .before = 1)) %>%
+    group_by(parameter) %>%
+    mutate(., fill_segment = 100 * (fill_segment/sum(fill_segment) - 0.05) / 0.05) %>%
+    ungroup()
+
+  # Convert segment cuts to rectangle coordinates
+  x_segment <- cuts_to_rect(tbl$segment)
+  tbl <- bind_cols(tbl, x_segment)
+
+  return(tbl)
+}
+
+#' Convert Cuts to Rectangle Coordinates
+#'
+#' This function converts cut labels into rectangle coordinates.
+#'
+#' @param lbl A character vector of cut labels.
+#'
+#' @importFrom dplyr tibble %>%
+#' @importFrom stringr str_remove_all str_split
+#' @importFrom purrr map map_df
+#'
+#' @return A data frame containing the rectangle coordinates.
+#'
+#' @keywords internal
+
+cuts_to_rect <- function(lbl) {
+  lbl %>%
+    as.character() %>%
+    str_remove_all(., '\\(|\\]') %>%
+    str_split(., ',') %>%
+    map(., ~ as.numeric(.x)) %>%
+    map_df(., ~ tibble(xmin = .x[1], xmax = .x[2]))
+}
+

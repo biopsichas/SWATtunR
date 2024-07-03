@@ -24,6 +24,9 @@ get_conc <- function(sim, not_conc = '^flo_day|^gwd', sediment = '^sed_'){
   if(!any(grepl("flo_day", names(sim$simulation)))){
     stop("Please make sure that the simulation object contains a variable called 'flo_day'!!!")
   }
+  if(any(grepl("_conc", names(sim$simulation)))){
+    stop("The simulation object already contains a concentration variable/s ending with '_conc'!!! Please remove them before running 'get_conc().'")
+  }
   # Extract the names of the variables that should be used for the calculation
   names_par <- names(sim$simulation)[!grepl(not_conc, names(sim$simulation))]
 
@@ -176,7 +179,11 @@ calculate_performance <- function(sim, obs, par_name = NULL, perf_metrics = NULL
     # Filter to parameter set of interest.
     sim <- sim$simulation[[1]]
   } else {
-    sim <- sim$simulation[[par_name]]
+    if(par_name %in% names(sim$simulation)){
+      sim <- sim$simulation[[par_name]]
+    } else {
+      stop(paste0("The variable name '", par_name, "' does not exist in the simulation object!!!"))
+    }
   }
 
   # Adding list of metric if not provided
@@ -334,7 +341,7 @@ calculate_performance_2plus <- function(sim, vector_var, list_obs, list_periods 
                                      vector_weights = NULL,
                                      perf_metrics = NULL){
 
-  ## Calculate performance dataframes for each variable
+  ## Calculate performance data frames for each variable
   obj_tbl_list <- pmap(list(vector_var, list_obs, list_periods), function(.x, .y, .z){
     if(!is.null(.z)){
       tmp <- fix_dates(sim, .y, trim_start = .z[1], trim_end = .z[2])

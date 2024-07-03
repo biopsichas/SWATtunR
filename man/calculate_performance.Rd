@@ -49,4 +49,7 @@ and observed data.
 obj_tbl <- calculate_performance(sim = sim_flow, obs, "flo_day", c("kge", "nse"), "month", "sum")
 }
 }
+\seealso{
+\code{\link{calculate_performance_2plus}}
+}
 \keyword{calculate}

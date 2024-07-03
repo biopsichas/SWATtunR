@@ -62,3 +62,7 @@ vector_weights = c(0.5, 0.3, 0.2),
 perf_metrics = c("nse", "kge", "pbias", "r2", "mae")
 }
 }
+\seealso{
+\code{\link{calculate_performance}}
+}
+\keyword{calculate}

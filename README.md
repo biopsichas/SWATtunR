@@ -3,7 +3,7 @@ Introduction to SWATtunR
 
 # SWATtunR
 
-[![](https://img.shields.io/badge/devel%20version-0.0.1.9008-blue.svg)](https://github.com/biopsichas/SWATtunR)
+[![](https://img.shields.io/badge/devel%20version-0.0.1.9010-blue.svg)](https://github.com/biopsichas/SWATtunR)
 [![](https://img.shields.io/github/last-commit/biopsichas/SWATtunR.svg)](https://github.com/biopsichas/SWATtunR/commits/green)
 [![](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![Project Status: Active - The project has reached a stable, usable
@@ -25,7 +25,7 @@ Schuerz](https://www.ufz.de/index.php?en=49467), which added important
 capability on top of other R tools designed for the SWAT/SWAT+ models.
 Therefore, we highly recommend trying and using these tools:
 
-- [SWATbuildR](https://git.ufz.de/optain/wp4-integrated-assessment/swat/bildr_script)\[^1\] -
+- [SWATbuildR](https://git.ufz.de/optain/wp4-integrated-assessment/swat/bildr_script)[^1] -
   R tool for building SWAT+ setups;
 - [SWATprepR](https://biopsichas.github.io/SWATprepR/) - SWAT+ model
   input data preparation helper.
@@ -35,8 +35,10 @@ Therefore, we highly recommend trying and using these tools:
   functions in R and routines for SWAT model calibration and model
   diagnostics;
 - [SWATrunR](https://chrisschuerz.github.io/SWATrunR/) - R tool for
-  running SWAT models for different parameters and scenarios.
-- [SWATmeasR](https://nc.ufz.de/s/KA9Cr2bbtALGMHr?path=%2FWPs%20%26%20Tasks%2FWP4%2FTask%204.4%2FTools%20to%20share)\[^1\] -
+  running SWAT models for different parameters and scenarios. Please
+  install branch names *remove_legacy*. It could be done using line like
+  this `remotes::install_github("chrisschuerz/SWATrunR@remove_legacy")`
+- [SWATmeasR](https://nc.ufz.de/s/KA9Cr2bbtALGMHr?path=%2FWPs%20%26%20Tasks%2FWP4%2FTask%204.4%2FTools%20to%20share)[^2] -
   R tool for implementing Natural/Small Water Retention Measures
   (NSWRMs) in the SWAT+ models and running scenarios.
 
@@ -62,3 +64,7 @@ remotes::install_github("biopsichas/SWATtunR")
 Text text text
 
 <img src="man/figures/eu.png" title="EU LIFE+ logo" alt="eu logo" width="40%" align="left" style="display: block; margin: auto;" />
+
+[^1]: For access please inquire at *<christoph.schuerz@ufz.de>*.
+
+[^2]: For access please inquire at *<christoph.schuerz@ufz.de>*.
