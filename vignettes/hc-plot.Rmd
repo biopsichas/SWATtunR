@@ -1,0 +1,10 @@
+---
+title: "Plotting results"
+subtitle: "Plotting SWAT+ model results"
+output: html_document
+bibliography: ref.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```

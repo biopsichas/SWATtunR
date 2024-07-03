@@ -160,6 +160,7 @@ calculate_wyr <- function(sim) {
 #' obj_tbl <- calculate_performance(sim = sim_flow, obs, "flo_day", c("kge", "nse"), "month", "sum")
 #' }
 #' @keywords calculate
+#' @seealso \code{\link{calculate_performance_2plus}}
 
 calculate_performance <- function(sim, obs, par_name = NULL, perf_metrics = NULL,
                                   period = NULL,
@@ -326,6 +327,8 @@ calculate_performance <- function(sim, obs, par_name = NULL, perf_metrics = NULL
 #' vector_weights = c(0.5, 0.3, 0.2),
 #' perf_metrics = c("nse", "kge", "pbias", "r2", "mae")
 #' }
+#' @keywords calculate
+#' @seealso \code{\link{calculate_performance}}
 
 calculate_performance_2plus <- function(sim, vector_var, list_obs, list_periods = NULL,
                                      vector_weights = NULL,

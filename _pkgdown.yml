@@ -12,3 +12,4 @@ articles:
   navbar: Hard calibration
   contents:
   - hc
+  - hc-plot
