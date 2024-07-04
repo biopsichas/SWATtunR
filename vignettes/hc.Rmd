@@ -16,24 +16,11 @@ The calibration of the SWAT+ model is crucial for ensuring its accuracy and reli
 The first step in the hard calibration workflow is to load the necessary R packages. These packages provide functions and tools for data manipulation, visualization, and model calibration. The following code chunk loads the required packages for the hard calibration workflow.
 
 ```{r libraries_hc, message = FALSE, warning = FALSE}
-library(data.table)
-library(ggplot2)
-library(hydroGOF)
-library(lhs)
-library(lubridate)
-library(purrr)
-library(readr)
-library(stringr)
+library(SWATtunR)
 library(SWATrunR)
 library(tibble)
-library(tidyr)
-library(parallel)
-library(doParallel)
-library(scales)
-library(xts)
-library(dygraphs)
-library(SWATprepR)
 library(dplyr)
+library(readr)
 ```
 
 ## 2. Defining settings {#hc_step2}
@@ -226,6 +213,9 @@ Prepared parameter sets are used to run simulations. The SWAT+ model is executed
 # Read the observed discharge data to obtain period needed for the runs.
 obs_full <- read_csv(qobs_path) 
 
+unlink(paste0(model_path, "/", save_file_name, '_q'), recursive = TRUE) # Remove 
+# the previous saved runs if they exist.
+
 # Simulate daily discharge for the channel IDs.
 sim_flow_full_bck <- run_swatplus(project_path = model_path,
                          output = list(
@@ -322,5 +312,32 @@ obj_tbl_m <- calculate_performance_2plus(sim_flow_full, var_to_use,
                                          var_weights)
 ```
 
+## 7. Selecting the best parameter sets {#hc_step7}
 
+To select the best-performing parameter sets for continuing next iteration of calibration or going into water quality (WQ) calibration or proceeding into validation, you can follow two methods. The first method is based on the rank of performance metrics. Filter the parameter sets to include only the best-performing ones. The number of best sets (`n_best`) parameters in [step 2](#hc_step2) determines this. If  `n_best = NULL` , then 20 the best sets are selected, otherwise this numebr is calculated based on specified ratio. The selected run IDs are obtained by arranging the parameter sets by their total rank and selecting the top fraction. 
 
+```{r select_best_1m, message = FALSE, warning = FALSE, eval = FALSE}
+n_best <- ifelse(length(n_best) == 0, 20/n_comb, n_best)
+
+run_sel_ids <- obj_tbl %>% 
+  arrange(rank_tot)%>%
+  top_frac(-n_best, wt = rank_tot) %>% 
+  pull(run_id) %>% 
+  as.numeric
+```
+
+The second method is based on the thresholds of performance metrics, which should be defined by the user based on the [plots](../articles/hc-plot.html.html). For example, you can select the parameter sets where the Nash-Sutcliffe efficiency (NSE) is greater than 0.5, the Kling-Gupta efficiency (KGE) is greater than 0.5, and the absolute percent bias (PBIAS) is less than 15. After selecting the run IDs based on these criteria, you can examine the selected parameter sets by printing the run IDs and extracting the corresponding rows from the `obj_tbl` data frame.
+
+```{r select_best_2m, message = FALSE, warning = FALSE, eval = FALSE}
+run_sel_ids <- as.numeric(str_remove(names(which(obj_tbl$nse > 0.5 & 
+                              obj_tbl$kge > 0.5 & 
+                              abs(obj_tbl$pbias) < 15)), 'run_'))
+
+```
+
+You can examine the selected parameter sets by running the following code. 
+
+```{r select_best_print, message = FALSE, warning = FALSE, eval = FALSE}
+print(paste0("Selected run ids are: ", paste(run_sel_ids, collapse = ", ")))
+obj_tbl_cal<- obj_tbl[run_sel_ids,]
+```

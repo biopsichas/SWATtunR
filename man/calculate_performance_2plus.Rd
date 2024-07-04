@@ -57,7 +57,8 @@ variables between a given simulation and observed data.
 obj_tbl_m <- calculate_performance_2plus(sim,
 vector_var = c("flo_day_52",  "no3_day_52_conc", "gwd_day"),
 list_obs = list(obs_flow, obs_no3, obs_gwd)),
-list_periods = list(c('2002-01-01', '2011-12-26'), NULL, c('2007-01-01', '2011-12-26')),
+list_periods = list(c('2002-01-01', '2011-12-26'),
+NULL, c('2007-01-01', '2011-12-26')),
 vector_weights = c(0.5, 0.3, 0.2),
 perf_metrics = c("nse", "kge", "pbias", "r2", "mae")
 }
