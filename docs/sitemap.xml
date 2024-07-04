@@ -1,100 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
     <loc>/404.html</loc>
   </url>
   <url>
-    <loc>/reference/index.html</loc>
+    <loc>/articles/hc-plot.html</loc>
   </url>
   <url>
-    <loc>/reference/hello.html</loc>
-  </url>
-  <url>
-    <loc>/reference/read_tbl.html</loc>
-  </url>
-  <url>
-    <loc>/reference/add_suffix_to_duplicate.html</loc>
-  </url>
-  <url>
-    <loc>/reference/write_tbl.html</loc>
-  </url>
-  <url>
-    <loc>/reference/copy_file_version.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_phu_yld_bms.html</loc>
-  </url>
-  <url>
-    <loc>/reference/sample_lhs.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_dotty_yields.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dotty_fig.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_dotty.html</loc>
-  </url>
-  <url>
-    <loc>/reference/update_par.html</loc>
-  </url>
-  <url>
-    <loc>/reference/aggregate_aa.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calculate_wyr.html</loc>
-  </url>
-  <url>
-    <loc>/reference/find_par_range.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_esco_range.html</loc>
-  </url>
-  <url>
-    <loc>/reference/group_values.html</loc>
-  </url>
-  <url>
-    <loc>/reference/paste_runs.html</loc>
-  </url>
-  <url>
-    <loc>/reference/truncate.html</loc>
-  </url>
-  <url>
-    <loc>/reference/id_text_strings.html</loc>
-  </url>
-  <url>
-    <loc>/reference/get_conc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/fix_dates.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_fdc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_fdc_rsr.html</loc>
-  </url>
-  <url>
-    <loc>/reference/rsr_df.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calculate_performance.html</loc>
+    <loc>/articles/hc.html</loc>
   </url>
   <url>
     <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/articles/soft-cal.html</loc>
   </url>
   <url>
     <loc>/articles/sc-crops.html</loc>
@@ -103,9 +19,111 @@
     <loc>/articles/sc-wy.html</loc>
   </url>
   <url>
-    <loc>/articles/hc.html</loc>
+    <loc>/articles/soft-cal.html</loc>
+  </url>
+  <url>
+    <loc>/authors.html</loc>
+  </url>
+  <url>
+    <loc>/index.html</loc>
+  </url>
+  <url>
+    <loc>/LICENSE-text.html</loc>
   </url>
   <url>
     <loc>/news/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/add_suffix_to_duplicate.html</loc>
+  </url>
+  <url>
+    <loc>/reference/aggregate_aa.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calculate_performance.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calculate_performance_2plus.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calculate_wyr.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calc_fdc.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calc_fdc_rsr.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calc_segment_diff.html</loc>
+  </url>
+  <url>
+    <loc>/reference/copy_file_version.html</loc>
+  </url>
+  <url>
+    <loc>/reference/cuts_to_rect.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dotty_fig.html</loc>
+  </url>
+  <url>
+    <loc>/reference/find_par_range.html</loc>
+  </url>
+  <url>
+    <loc>/reference/fix_dates.html</loc>
+  </url>
+  <url>
+    <loc>/reference/get_conc.html</loc>
+  </url>
+  <url>
+    <loc>/reference/group_values.html</loc>
+  </url>
+  <url>
+    <loc>/reference/hello.html</loc>
+  </url>
+  <url>
+    <loc>/reference/id_text_strings.html</loc>
+  </url>
+  <url>
+    <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/paste_runs.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_dotty.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_dotty_yields.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_esco_range.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_parameter_identifiability.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_phu_yld_bms.html</loc>
+  </url>
+  <url>
+    <loc>/reference/read_tbl.html</loc>
+  </url>
+  <url>
+    <loc>/reference/remove_unsuccesful_runs.html</loc>
+  </url>
+  <url>
+    <loc>/reference/rsr_df.html</loc>
+  </url>
+  <url>
+    <loc>/reference/sample_lhs.html</loc>
+  </url>
+  <url>
+    <loc>/reference/truncate.html</loc>
+  </url>
+  <url>
+    <loc>/reference/update_par.html</loc>
+  </url>
+  <url>
+    <loc>/reference/write_tbl.html</loc>
   </url>
 </urlset>

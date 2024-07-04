@@ -19,7 +19,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Crop Yields">
 <meta property="og:description" content="SWATtunR">
-<meta property="og:image" content="/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -33,7 +32,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9008</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9010</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,6 +53,7 @@
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Hard calibration</h6>
     <a class="dropdown-item" href="../articles/hc.html">Hard calibration</a>
+    <a class="dropdown-item" href="../articles/hc-plot.html">Plotting results</a>
   </div>
 </li>
 <li class="nav-item">
@@ -83,7 +83,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Crop Yields</h1>
+      <img src="" class="logo" alt=""><h1>Crop Yields</h1>
             <h3 data-toc-skip class="subtitle">Soft calibration workflow
 for crop yields in SWAT+ models</h3>
             
@@ -342,7 +342,6 @@ updated file to <code>'plants.plt.bkp1'</code> file.</p>
 <span></span>
 <span><span class="co"># Create a backup file with the changed days_mat values</span></span>
 <span><span class="fu"><a href="../reference/copy_file_version.html">copy_file_version</a></span><span class="op">(</span><span class="va">model_path</span>, <span class="st">'plants.plt'</span>, file_version <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] TRUE</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="scc_step8">8. Read crop calibration parameters<a class="anchor" aria-label="anchor" href="#scc_step8"></a>
@@ -357,23 +356,13 @@ the <a href="https://zenodo.org/records/11233622" class="external-link">OPTAIN m
 report</a>. However, in case if the user wants to add other parameters
 from the <code>'plants.plt'</code> file, the code can be easily
 adapted.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plants_plt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_tbl.html">read_tbl</a></span><span class="op">(</span>file_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">model_path</span>, <span class="st">'/plants.plt'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">par_ini</span> <span class="op">&lt;-</span> <span class="va">plants_plt</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">crops</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">lai_pot</span>, <span class="va">harv_idx</span>, <span class="va">tmp_base</span>, <span class="va">bm_e</span><span class="op">)</span><span class="co">#, days_mat)</span></span>
 <span><span class="va">par_ini</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 7 × 5</span></span></span>
-<span><span class="co">##   name  lai_pot harv_idx tmp_base  bm_e</span></span>
-<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span> csil      4       0.9         8  39  </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">2</span> sgbt      5       2           4  30  </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">3</span> wbar      4       0.54        0  30  </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">4</span> wwht      4       0.4         0  30  </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">5</span> wira      3.5     0.23        5  38  </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">6</span> wiry      4       0.4         0  30  </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">7</span> akgs      4       0.75        0  12.5</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="scc_step9">9. LHS sampling of crop parameters<a class="anchor" aria-label="anchor" href="#scc_step9"></a>
@@ -391,7 +380,7 @@ cases). Since temperature is an additive variable, absolute change
 method is a better option for <code>tmp_base</code>. The range for
 <code>tmp_base</code> should be kept narrow, as this parameter may also
 affect PHU fraction estimation.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Define changes to be applied to the initial parameter values</span></span>
 <span><span class="co">## Make sure your updates will not produce unrealistic values (i.e. negative values)!!!</span></span>
 <span><span class="va">par_bnd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span><span class="st">'lai_pot.pdb | change = relchg'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.3</span><span class="op">)</span>,</span>
@@ -409,7 +398,7 @@ affect PHU fraction estimation.</p>
 <p>In this step we run the SWAT+ model with the updated parameters for
 selected crops. The simulation results will be used to evaluate the
 effect of the parameter changes on the model output.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ylds_plnt_par</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/run_swatplus.html" class="external-link">run_swatplus</a></span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
 <span>                              output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>yld <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'mgtout'</span>,</span>
 <span>                                                                variable <span class="op">=</span> <span class="st">'yld'</span>,</span>
@@ -438,7 +427,7 @@ with observed yields as well as possible. It is recommended to aim for
 an average error below 10%. In case if the observed min and max were
 provided, it is good if the simulated yield variability matches with
 these ranges.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Plot dotty figures for the selected crops</span></span>
 <span><span class="fu"><a href="../reference/plot_dotty_yields.html">plot_dotty_yields</a></span><span class="op">(</span><span class="va">ylds_plnt_par</span>, <span class="va">yield_mean</span>, <span class="va">yield_min</span>, <span class="va">yield_max</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figs/ylds_plnt_par.png" width="100%" style="display: block; margin: auto;"></p>
@@ -455,7 +444,7 @@ make a crop-specific selection of parameter changes. The following code
 snippet shows how to update the <code>'plants.plt'</code> file. Please
 note that these are not the actual parameter values, but the changes in
 parameters (by relative or absolute change method).</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Fix changes you want to write in plants.plt file</span></span>
 <span><span class="va">chg_par</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  name     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"akgs"</span>,<span class="st">"barl"</span>, <span class="st">"csil"</span>, <span class="st">"sgbt"</span>, <span class="st">"wbar"</span>, <span class="st">"wira"</span>, <span class="st">"wiry"</span>, <span class="st">"wwht"</span><span class="op">)</span>,</span>
@@ -482,7 +471,7 @@ parameters (by relative or absolute change method).</p>
 parameter values, you can rerun the SWAT+ model to check if the match
 between the simulated and observed yields is as expected. In addition to
 yields, biomass and PHU outputs are also extracted.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">phu_yld_final</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/run_swatplus.html" class="external-link">run_swatplus</a></span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
 <span>                              output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>yld <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'mgtout'</span>,</span>
 <span>                                                                variable <span class="op">=</span> <span class="st">'yld'</span>,</span>
@@ -507,7 +496,7 @@ yields, biomass and PHU outputs are also extracted.</p>
 fraction) of the SWAT+ simulations. If the results are satisfactory, you
 may consider your model setup as successfully soft-calibrated for crop
 yields.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_phu_yld_bms.html">plot_phu_yld_bms</a></span><span class="op">(</span><span class="va">phu_yld_final</span>, <span class="fl">0</span>, <span class="va">yield_mean</span>, <span class="va">yield_min</span>, <span class="va">yield_max</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figs/phu_yld_final.png" width="100%" style="display: block; margin: auto;"></p>
 <p>For a more in-depth analysis, users can employ at this stage

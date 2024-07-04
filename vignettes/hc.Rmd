@@ -1,5 +1,5 @@
 ---
-title: "Hard calibration"
+title: "Calibration run"
 subtitle: "Hard calibration workflow for SWAT+ models"
 output: html_document
 bibliography: ref.bib
@@ -285,7 +285,7 @@ obs <- tmp$obs
 # obs2 <- tmp$obs
 ```
 
-## 6. Calculating performance metrics {#hc_step6}
+## 6. (Optional) Calculating performance metrics {#hc_step6}
 
 To calculate the performance metrics for the simulated discharge, the `sim` object containing the simulated discharge data and the `obs` object with the observed discharge data are required. The parameter `par_name` specifies the variable for which the performance metrics should be calculated; if not provided, it defaults to the first variable in the simulation list. For cases with multiple variables, specifying `par_name` is necessary. The `perf_metrics` parameter allows the selection of performance metrics for the calculation, which will influence the final ranking used in the selection of parameter sets in [step 7](#hc_step7). If `perf_metrics` is not provided, all available metrics will be used. The `period` parameter defines the time interval for calculating performance metrics, such as "week", "month," or "year". The `fn_summarize` parameter specifies the function to summarize data over the defined period, such as "mean", "median", "max", "min" or "sum". 
 

@@ -1,10 +1,19 @@
 ---
-title: "Plotting results"
-subtitle: "Plotting SWAT+ model results"
+title: "Results in plots"
+subtitle: "Plot SWAT+ model calibration results"
 output: html_document
 bibliography: ref.bib
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+```
+
+The calibration of the SWAT+ model is a complex process that involves many steps. One of the most important steps is the visual inspection of the model results. This document provides an overview of the functions available in the `SWATtunR` package for plotting SWAT+ model calibration and validation results. Functions intended to be used for plotting at different stages of the SWAT+ model calibration and validation process and not in sequential order. To run these function [step 6](#hc_step7) or/and [step 6a](#hc_step6a) should be completed successfully. Same packages should be loaded as in the [step 1](#hc_step1).
+
+## 1. Loading required packages {#hc_step1}
+
+
+```{r load_packages, message=FALSE}
+print("comming soon")
 ```
