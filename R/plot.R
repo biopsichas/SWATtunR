@@ -1,3 +1,85 @@
+#' Function to plot OAT (One-At-A-Time) analysis results
+#'
+#' This function generates an interactive dygraph to visualize the results of an OAT analysis,
+#' comparing simulated data with observed data if provided.
+#'
+#' @param sim Object containing simulation data from SWATrunR.
+#' @param obs Optional dataframe for observed data with columns 'date' and 'value'. Default is NULL.
+#' @param variable Name of the variable for which OAT analysis results are plotted.
+#' @param round_values Number of decimal places to round parameter values. Default is 3.
+#'
+#' @return A dygraph object showing the OAT analysis results.
+#'
+#' @importFrom xts xts
+#' @importFrom dplyr select left_join
+#' @importFrom dygraphs dygraph dyOptions dySeries dyRangeSelector dyHighlight dyCSS
+#' @importFrom stringr str_replace_all
+#' @importFrom purrr map set_names
+#' @importFrom tibble as_tibble
+#' @importFrom readr parse_number
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' plot_oat(sim_oat, obs = obs_data, variable = 'flo_day', round_values = 2)
+#' }
+#' @seealso \code{\link{plot_selected_sim}}, \code{\link{sample_oat}}, \code{\link[SWATrunR:run_swatplus]{https://chrisschuerz.github.io/SWATrunR/}}
+#'
+#' @references
+#' For more information on OAT analysis and SWATrunR, refer to the SWATR manual.
+#'
+
+plot_oat <- function(sim, obs = NULL, variable, round_values = 3) {
+  if(!is.null(obs)) {
+    if(!is.Date(obs[[1]])){
+      stop("The first column of 'obs' must by of type 'Date'.")
+    }
+    names(obs) <- c('date', 'obs')
+  }
+
+  par_oat <- sim$parameter$values
+
+  parameter <- names(par_oat)[map(names(par_oat), ~length(unique(par_oat[[.]]))) > 1]
+
+  run_name <- paste0('run_',
+                     sprintf(paste0('%0',
+                                    nchar(as.character(nrow(par_oat))), 'd'),
+                             as.numeric(row.names(par_oat))))
+
+  run_exist <- run_name %in% names(sim$simulation[[variable]])
+  sim_sel <- sim$simulation[[variable]][, c('date', run_name[run_exist])] %>%
+    set_names(c('date', paste0(parameter,':', round(par_oat[as.vector(parse_number(run_name[run_exist])), parameter][[1]], round_values))))
+
+  col_pal <- c("#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33",
+               "#A65628", "#F781BF", "#999999", "#1B9E77", "#D9D9D9")
+  col_pal <- col_pal[run_exist]
+
+  if (!is.null(obs)) {
+    sim_sel <- left_join(sim_sel, obs, by = 'date')
+    col_pal <- c(col_pal, 'black')
+  }
+
+  sim_sel_xts <- xts(select(sim_sel, -date), order.by = sim_sel$date)
+
+
+
+  dy_oat <- dygraph(sim_sel_xts) %>%
+    dyRangeSelector(height = 100, fillColor = 'gray', strokeColor = 'black') %>%
+    dyOptions(colors = col_pal) %>%
+    dyHighlight(highlightSeriesBackgroundAlpha = 0.6,
+                hideOnMouseOut = FALSE) %>%
+    dyCSS(textConnection("
+     .dygraph-legend > span.highlight { display: inline; background-color: #B0B0B0;}
+  "))
+
+  if (!is.null(obs)) {
+    dy_oat <- dySeries(dy_oat, 'obs', drawPoints = TRUE,
+                       pointSize = 2, strokeWidth = 0.75)
+  }
+
+  return(dy_oat)
+}
+
 #' Plot interactive time series of simulation results
 #'
 #' This function plots interactive time series comparing simulated data with observed data.
@@ -184,7 +266,7 @@ plot_selected_sim <- function(sim, obs = NULL, par_name = NULL, run_ids = NULL, 
 #'
 #' @return A ggplot object visualizing the identifiability of parameters.
 #'
-#' @importFrom ggplot2 scale_y_continuous scale_fill_gradientn geom_rect facet_wrap labs theme_bw theme
+#' @importFrom ggplot2 scale_y_continuous scale_fill_gradientn geom_rect facet_wrap labs theme_bw theme unit element_blank
 #' @importFrom dplyr mutate %>%
 #' @importFrom purrr map_dbl map2_df
 #' @importFrom scales rescale

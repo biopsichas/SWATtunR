@@ -1,0 +1,24 @@
+---
+title: "Extend calibration"
+subtitle: "Workflow to extend calibration of SWAT+ model (adding additional parameters)"
+output: html_document
+bibliography: ref.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+After the first iteration of calibration additional parameters can be added to calibrate another processes in the model. Such are parameters related to water quality or sediment load variables. Following lines provide an example of how to add additional parameters to the SWAT+ model calibration process.
+
+## 1. Add additional parameters {#hc_plus_step1}
+
+To add additional parameters to the SWAT+ model calibration process, you need to extract the parameter set that you want to combine with the nutrient parameters. The following code snippet shows how to extract the hydrology parameter set that you want to combine with the nutrient parameters.
+
+```{r add, message = FALSE, warning = FALSE, eval = FALSE}
+# Extract the hydrology parameter set that you want to combine the nutrient
+# parameters with
+
+par_q <- sim_flow$parameter$values[run_sel_ids,] %>%
+  set_names(., sim_flow$parameter$definition$full_name)
+```

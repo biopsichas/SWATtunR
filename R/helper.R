@@ -379,7 +379,70 @@ cuts_to_rect <- function(lbl) {
     map_df(., ~ tibble(xmin = .x[1], xmax = .x[2]))
 }
 
+# OAT analysis -----------------------------------------------------------------
+
+#' Sample Transect for a Specific Parameter
+#'
+#' Generates samples along the transect for a specific parameter.
+#'
+#' @param par_bnd A list of parameter boundaries.
+#' @param par_center A data frame or matrix of parameter centers.
+#' @param par_transect A list of parameter transects.
+#' @param i_c An integer indicating the index of the current parameter center.
+#' @return A data frame of samples along the transect for the specified parameter.
+#' @importFrom dplyr bind_rows distinct mutate relocate %>%
+#' @importFrom purrr map map2
+#' @keywords internal
+
+sample_transect_i <- function(par_bnd, par_center, par_transect, i_c) {
+  n_t <- length(par_transect[[1]])
+  c_i    <- par_center[i_c,]
+  c_i_nt <- c_i[rep(1,n_t),]
+  c_i_add <- mutate(c_i, center = i_c)
+  par_transect %>%
+    map2(., c_i, ~ replace_closest_value(.x, .y)) %>%
+    map2(., 1:ncol(c_i), ~ replace_col_by_sequence(c_i_nt, .x, .y)) %>%
+    map(., ~ mutate(.x, center = i_c)) %>%
+    bind_rows(.) %>%
+    bind_rows(c_i_add, .) %>%
+    distinct() %>%
+    mutate(., parameter = c('center', rep(names(c_i), each = n_t - 1))) %>%
+    relocate(., center, parameter, .before = 1)
+}
+
+#' Replace Closest Value in Sequence
+#'
+#' Replaces the closest value in a sequence with a specified value.
+#'
+#' @param val_seq A numeric vector representing a sequence of values.
+#' @param x A numeric value to find the closest match in the sequence.
+#' @return A numeric vector with the closest value replaced by \code{x}.
+#' @keywords internal
+
+replace_closest_value <- function(val_seq, x) {
+  i_mdist <- which.min(abs(val_seq - x))
+  val_seq[i_mdist] <- x
+  return(val_seq)
+}
+
+#' Replace Column by Sequence
+#'
+#' Replaces the specified column in a table with a sequence of values.
+#'
+#' @param tbl A data frame or matrix.
+#' @param val_seq A numeric vector representing a sequence of values.
+#' @param i An integer indicating the index of the column to be replaced.
+#' @return The modified data frame or matrix with the specified column replaced
+#' by \code{val_seq}.
+#' @keywords internal
+
+replace_col_by_sequence <- function(tbl, val_seq, i) {
+  tbl[i] <- val_seq
+  return(tbl)
+}
+
 # All other --------------------------------------------------------------------
+
 #' Remove Unsuccessful Runs from Simulation
 #'
 #' This function removes unsuccessful runs from the simulation parameter set

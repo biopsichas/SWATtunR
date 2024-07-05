@@ -1,5 +1,5 @@
 ---
-title: "Calibration run"
+title: "Run calibration"
 subtitle: "Hard calibration workflow for SWAT+ models"
 output: html_document
 bibliography: ref.bib
@@ -21,6 +21,7 @@ library(SWATrunR)
 library(tibble)
 library(dplyr)
 library(readr)
+library(purrr)
 ```
 
 ## 2. Defining settings {#hc_step2}
@@ -226,7 +227,7 @@ sim_flow_full_bck <- run_swatplus(project_path = model_path,
                          parameter = par_flow,
                          start_date = start_date,
                          end_date = end_date,
-                         start_date_print = as.Date(
+                         start_date_print = lubridate::as_date(
                            ifelse(length(start_date_print)==0, min(obs_full$date), 
                                   start_date_print)),
                          # Get the number of cores to be used for parallel processing.

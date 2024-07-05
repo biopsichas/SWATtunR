@@ -1,3 +1,38 @@
+# Calculate variables and parameters -------------------------------------------
+
+#' Calculate Water Yield Ratio (WYR)
+#'
+#' This function calculates the Water Yield Ratio (WYR) based on various components
+#' of a simulation, including precipitation, surface runoff, lateral flow, and
+#' others. It aggregates these components and computes the ratio of the sum of
+#' water yields to the precipitation.
+#'
+#' @param sim A SWATrunR nested list containing simulation data. It should have a named element
+#' 'simulation' which itself contains named elements: 'precip', 'surq_cha', 'surq_res',
+#' 'latq_cha', 'latq_res', 'qtile', and 'flo'.
+#'
+#' @return A numeric value representing the Water Yield Ratio (WYR).
+#' @export
+#' @examples
+#' \dontrun{
+#' # Calculate WYR
+#' wyr <- calculate_wyr(sim)
+#' }
+#' @keywords calculate
+
+calculate_wyr <- function(sim) {
+  precip  <- aggregate_aa(sim$simulation$precip)
+  surq_cha <- aggregate_aa(sim$simulation$surq_cha)
+  surq_res <- aggregate_aa(sim$simulation$surq_res)
+  latq_cha <- aggregate_aa(sim$simulation$latq_cha)
+  latq_res <- aggregate_aa(sim$simulation$latq_res)
+  qtile    <- aggregate_aa(sim$simulation$qtile)
+  flo      <- aggregate_aa(sim$simulation$flo)
+  wyr <- (surq_cha + surq_res + latq_cha + latq_res + qtile + flo) / precip
+
+  return(wyr)
+}
+
 #' Calculate concentrations
 #'
 #' This function calculates concentrations based on simulated data, adjusting
@@ -58,6 +93,7 @@ get_conc <- function(sim, not_conc = '^flo_day|^gwd', sediment = '^sed_'){
   return(sim)
 }
 
+# Generating parameter samples  ---------------------------------------------------------------------
 
 #' Sample parameters space
 #'
@@ -94,39 +130,42 @@ sample_lhs <- function(par, n) {
     map2_df(., par, ~ (.x * (.y[2] - .y[1]) + .y[1])) # Scale parameter ranges
 }
 
-
-#' Calculate Water Yield Ratio (WYR)
+#' Sample OAT Function
 #'
-#' This function calculates the Water Yield Ratio (WYR) based on various components
-#' of a simulation, including precipitation, surface runoff, lateral flow, and
-#' others. It aggregates these components and computes the ratio of the sum of
-#' water yields to the precipitation.
+#' Generates a set of OAT (One-At-a-Time) samples based on provided parameter centers and boundaries.
 #'
-#' @param sim A SWATrunR nested list containing simulation data. It should have a named element
-#' 'simulation' which itself contains named elements: 'precip', 'surq_cha', 'surq_res',
-#' 'latq_cha', 'latq_res', 'qtile', and 'flo'.
-#'
-#' @return A numeric value representing the Water Yield Ratio (WYR).
+#' @param par A matrix or data frame specifying the parameter ranges.
+#' Each element is length 2 indicating the min and max values.
+#' @param par_center (optional) A data frame or matrix of parameter centers.
+#' Default \code{par_center = 1}.
+#' @param n_t (optional) An integer specifying the parameter combination around,
+#'  which you want to do the OAT analysis. Default \code{n_t = 10}.
+#' @return A data frame containing the OAT samples.
+#' @importFrom purrr map map_df
 #' @export
 #' @examples
 #' \dontrun{
-#' # Calculate WYR
-#' wyr <- calculate_wyr(sim)
+#' # Define parameter ranges
+#' par <- data.frame("snomelt_tmp.hru | change = absval" = c(-1, 1),
+#'                  "snofall_tmp.hru | change = absval" = c(-1, 1))
+#' par_center <- 2
+#' par_oat <- sample_oat(par, par_center)
 #' }
-#' @keywords calculate
+#' @keywords sampling
+#' @seealso \code{\link{plot_oat}}
 
-calculate_wyr <- function(sim) {
-  precip  <- aggregate_aa(sim$simulation$precip)
-  surq_cha <- aggregate_aa(sim$simulation$surq_cha)
-  surq_res <- aggregate_aa(sim$simulation$surq_res)
-  latq_cha <- aggregate_aa(sim$simulation$latq_cha)
-  latq_res <- aggregate_aa(sim$simulation$latq_res)
-  qtile    <- aggregate_aa(sim$simulation$qtile)
-  flo      <- aggregate_aa(sim$simulation$flo)
-  wyr <- (surq_cha + surq_res + latq_cha + latq_res + qtile + flo) / precip
+sample_oat <- function(par, par_center = 1, n_t = 10) {
+  n_c <- nrow(par_center)
 
-  return(wyr)
+  par_transect <- map(par, ~ seq(.x[1], .x[2], length.out = n_t))
+
+  par_oat <- map_df(1:n_c, ~ sample_transect_i(par, par_center, par_transect, .x))
+
+  return(par_oat)
 }
+
+
+# Evaluate model performance ---------------------------------------------------
 
 #' Calculate All Performance Metrics
 #'
@@ -328,12 +367,12 @@ calculate_performance <- function(sim, obs, par_name = NULL, perf_metrics = NULL
 #' @examples
 #' \dontrun{
 #' obj_tbl_m <- calculate_performance_2plus(sim,
-#' vector_var = c("flo_day_52",  "no3_day_52_conc", "gwd_day"),
-#' list_obs = list(obs_flow, obs_no3, obs_gwd)),
-#' list_periods = list(c('2002-01-01', '2011-12-26'),
-#' NULL, c('2007-01-01', '2011-12-26')),
-#' vector_weights = c(0.5, 0.3, 0.2),
-#' perf_metrics = c("nse", "kge", "pbias", "r2", "mae")
+#'   vector_var = c("flo_day_52",  "no3_day_52_conc", "gwd_day"),
+#'   list_obs = list(obs_flow, obs_no3, obs_gwd)),
+#'   list_periods = list(c('2002-01-01', '2011-12-26'),
+#'     NULL, c('2007-01-01', '2011-12-26')),
+#'   vector_weights = c(0.5, 0.3, 0.2),
+#'   perf_metrics = c("nse", "kge", "pbias", "r2", "mae")
 #' }
 #' @keywords calculate
 #' @seealso \code{\link{calculate_performance}}

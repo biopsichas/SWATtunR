@@ -1,5 +1,5 @@
 ---
-title: "Results in plots"
+title: "Plot results"
 subtitle: "Plot SWAT+ model calibration results"
 output: html_document
 bibliography: ref.bib
@@ -70,7 +70,7 @@ plot_selected_sim(sim_flow, obs, par_name = "flo_day_52", run_ids = c(1, 2, 3))
 # Another example how all function arguments are used
 plot_selected_sim(sim = sim_flow,
                   obs = obs,
-                  par_name = "flo_day",
+                  par_name = "flo_day_52",
                   run_ids = run_sel_ids,
                   run_sel = run_sel_ids[1],
                   plot_bands = TRUE,
@@ -94,6 +94,48 @@ plot_parameter_identifiability(parameters = sim_flow$parameter$values,
                                ## This starts_with vector could be amended with
                                ## other columns which should not be considered
                                run_fraction = .2)
+
+```
+
+## 4. Plotting parameter sensitivity {#hcp_step4}
+
+To perform an OAT (One-At-A-Time) analysis could be used to visualize the sensitivity of the model to the parameters. The function [plot_oat](../reference/plot_oat.html) allows you to plot the results of the OAT analysis.
+
+```{r oat, message = FALSE, warning = FALSE, eval = FALSE}
+# Example of usage:
+# If you want to perform an OAT analysis
+# Select the parameter combination around which you want to do the OAT analysis
+par_center_id <- 2
+
+# Extract the center parameter set and assign again the "full" names to be used
+# with SWATrunR
+par_center <- sim_flow$parameter$values[par_center_id, ] %>% 
+  set_names(sim_flow$parameter$definition$full_name)
+
+# You can define your own parameter boundaries for the selected parameters
+# Here a way how you can quickly extract the boundaries from the last simulation
+par_bnd <- sim_flow$parameter$values %>% 
+  map(., ~ c(min(.x), max(.x))) %>% 
+  map(., ~ round(.x, 3)) %>% 
+  bind_cols(.) %>% 
+  set_names(sim_flow$parameter$definition$full_name)
+
+# Sample the OAT parameter set and run the simulations
+par_oat <- sample_oat(par = par_bnd, par_center = par_center)
+
+par_oat <- filter(par_oat, parameter %in% c('center', 'bf_max.aqu | change = absval'))
+
+sim_oat <- run_swatplus(project_path = model_path,
+                        output = list(
+                          flo_day = define_output(file = 'channel_sd_day',
+                                                  variable = 'flo_out',
+                                                  unit = cha_ids)),
+                        parameter = par_oat[,3:ncol(par_oat)],
+                        n_thread = n_cores)
+# save_file = '231128_sim_oat')
+
+# To visualize the OAT runs e.g. for the parameter surlag:
+plot_oat(sim = sim_oat, obs = obs, variable = 'flo_day')
 
 ```
 

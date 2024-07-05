@@ -3,8 +3,9 @@ pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   hc-plot: hc-plot.html
+  hc-plus: hc-plus.html
   hc: hc.html
   sc-crops: sc-crops.html
   sc-wy: sc-wy.html
-last_built: 2024-07-04T14:05Z
+last_built: 2024-07-05T13:52Z
 

@@ -7,6 +7,9 @@
     <loc>/articles/hc-plot.html</loc>
   </url>
   <url>
+    <loc>/articles/hc-plus.html</loc>
+  </url>
+  <url>
     <loc>/articles/hc.html</loc>
   </url>
   <url>
@@ -100,6 +103,9 @@
     <loc>/reference/plot_esco_range.html</loc>
   </url>
   <url>
+    <loc>/reference/plot_oat.html</loc>
+  </url>
+  <url>
     <loc>/reference/plot_parameter_identifiability.html</loc>
   </url>
   <url>
@@ -115,10 +121,22 @@
     <loc>/reference/remove_unsuccesful_runs.html</loc>
   </url>
   <url>
+    <loc>/reference/replace_closest_value.html</loc>
+  </url>
+  <url>
+    <loc>/reference/replace_col_by_sequence.html</loc>
+  </url>
+  <url>
     <loc>/reference/rsr_df.html</loc>
   </url>
   <url>
     <loc>/reference/sample_lhs.html</loc>
+  </url>
+  <url>
+    <loc>/reference/sample_oat.html</loc>
+  </url>
+  <url>
+    <loc>/reference/sample_transect_i.html</loc>
   </url>
   <url>
     <loc>/reference/truncate.html</loc>
