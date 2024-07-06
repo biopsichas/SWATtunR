@@ -36,16 +36,42 @@ plot_dotty(sim_flow$parameter$values, obj_tbl$nse, run_ids = c(1, 2, 5), low_up 
 plot_dotty(sim_flow$parameter$values, obj_tbl$kge, trend = TRUE)
 ```
 
+```{r plot_dotty, echo=FALSE, out.width='100%', fig.align = 'center'}
+## Read the saved simulation results, plot to object, save to file and display
+# p <- plot_dotty(sim_flow$parameter$values, obj_tbl$kge, trend = TRUE)+
+#   theme(axis.text.y=element_blank(), 
+#         axis.ticks.y=element_blank(), 
+#         axis.title.y=element_blank())
+# ggsave(p, file='figs/dotty.png' , width=800, height=1200, units = 'px', dpi = 100)
+knitr::include_graphics('figs/dotty.png')
+```
+
 Dotty plots can also be created for multiple variables in the simulation list. In this case, the dotty plot will be displayed on the same plot with different colors for each variable. Trends can also be added to the plot. Water flow and water quality variables can be plotted together on the same plot.
 
 ```{r dotty_multi, message = FALSE, warning = FALSE, eval = FALSE}
 # Example of usage:
 plot_dotty(par = sim_flow$parameter$values, 
-           var = list(obj_tbl_list$flo_day_52$nse, 
-                      obj_tbl_list$no3_day_52_conc$nse,
-                      obj_tbl_list$gwd_day$nse), 
-           y_label =  c('Flow at 52r (m3/s)', "Nitrate at 52r (mgN/l)", "Groundwater depth (m)"),
+           var = list(obj_tbl_m$obj_tbl_list$flo_day_52$nse, 
+                      obj_tbl_m$obj_tbl_list$no3_day_52_conc$nse,
+                      obj_tbl_m$obj_tbl_list$gwd$nse), 
+           y_label =  c('Flow at 52r (m3/s)', 
+                        "Nitrate at 52r (mgN/l)", 
+                        "Groundwater depth (m)"),
            trend = TRUE)
+```
+
+```{r plot_dotty_m, echo=FALSE, out.width='100%', fig.align = 'center'}
+## Read the saved simulation results, plot to object, save to file and display
+# p <- plot_dotty(par = sim_flow$parameter$values, 
+#            var = list(obj_tbl_m$obj_tbl_list$flo_day_52$nse, 
+#                       obj_tbl_m$obj_tbl_list$no3_day_52_conc$nse,
+#                       obj_tbl_m$obj_tbl_list$gwd$nse), 
+#            y_label =  c('Flow at 52r (m3/s)', "Nitrate at 52r (mgN/l)", "Groundwater depth (m)"),
+#            trend = TRUE)+
+#   theme(axis.text.y=element_blank(),
+#         axis.ticks.y=element_blank())
+# ggsave(p, file='figs/dotty_m.png' , width=800, height=1200, units = 'px', dpi = 100)
+knitr::include_graphics('figs/dotty_m.png')
 ```
 
 ## 2. Simulation vs observed values time series {#hcp_step2}
@@ -63,10 +89,18 @@ To plot the results of selected variable sets simulation results versus observed
 - `x_label`: character. Label for the x-axis. Default is "Date".
 - `y_label`: character. Label for the y-axis. Default is "Discharge (m³/s)".
 
-```{r selected_sim, message = FALSE, warning = FALSE, eval = FALSE}
+```{r selected_sim1, message = FALSE, warning = FALSE, eval = FALSE}
 ##Simple example
-plot_selected_sim(sim_flow, obs, par_name = "flo_day_52", run_ids = c(1, 2, 3))
+plot_selected_sim(sim_flow, obs, par_name = "flo_day_52", run_ids = run_sel_ids)
+```
 
+```{r sim_ts,  echo=FALSE, out.width='100%', fig.align = 'center'}
+knitr::include_graphics('figs/sim_ts.png')
+```
+
+This function can also be used to plot the average monthly values of the selected variable set. In this case, the `period` argument should be set to "average monthly".
+
+```{r selected_sim2, message = FALSE, warning = FALSE, eval = FALSE}
 # Another example how all function arguments are used
 plot_selected_sim(sim = sim_flow,
                   obs = obs,
@@ -79,10 +113,14 @@ plot_selected_sim(sim = sim_flow,
                   x_label = "Month",
                   y_label = "Monthly flow average (m<sup>3</sup> s<sup>-1</sup>)")
 ```
+ 
+```{r ts_monthly,  echo=FALSE, out.width='100%', fig.align = 'center'}
+knitr::include_graphics('figs/ts_monthly.png')
+```
 
 ## 3. Plotting parameter identifiability {#hcp_step3}
 
-The plot below shows the ranges of parameter,s which perform better for a certain performance metric. The `run_fraction` defines the fraction of simulations which should be considered in the analysis (with 1000 runs this value should maybe not be lower than 0.2, too large values also do not make much sense). For 5000 runs I think 0.1 would be a good value (I think this is what Bjoern used in his publication).
+The parameter identifiability plot is prepared based on the methodology provided the article of @guse2020. The plot below shows the ranges of parameter,s which perform better for a certain performance metric. The `run_fraction` defines the fraction of simulations which should be considered in the analysis (with 1000 runs this value should maybe not be lower than *0.2*, too large values also do not make much sense). For 5000 runs *0.1* would be a good value.
 
 In case you used multiple variables in performance calculation, you can use `obj_tbl_list$var_name` to select the variable for which you want to plot parameter identifiability. Similar adjustment could be done for dotty plots.
 
@@ -90,11 +128,19 @@ In case you used multiple variables in performance calculation, you can use `obj
 # Usage example
 plot_parameter_identifiability(parameters = sim_flow$parameter$values,
                                objectives = 
-                                 select(obj_tbl, -starts_with(c('rank', 'run'))), 
+                                 select(obj_tbl, -starts_with(c('rank', 'run', 'rsr'))) 
                                ## This starts_with vector could be amended with
-                               ## other columns which should not be considered
-                               run_fraction = .2)
+                               ## other columns which should not be considered"
+                               )
+```
 
+```{r plot_identifiability, echo=FALSE, out.width='100%', fig.align = 'center'}
+## Read the saved simulation results, plot to object, save to file and display
+# p <- plot_parameter_identifiability(parameters = sim_flow$parameter$values,
+#                                objectives = 
+#                                  select(obj_tbl, -starts_with(c('rank', 'run', 'rsr'))))
+# ggsave(p, file='figs/identifiability.png' , width=800, height=600, units = 'px', dpi = 100)
+knitr::include_graphics('figs/identifiability.png')
 ```
 
 ## 4. Plotting parameter sensitivity {#hcp_step4}
@@ -132,10 +178,15 @@ sim_oat <- run_swatplus(project_path = model_path,
                                                   unit = cha_ids)),
                         parameter = par_oat[,3:ncol(par_oat)],
                         n_thread = n_cores)
-# save_file = '231128_sim_oat')
+# save_file = 'sim_oat')
 
 # To visualize the OAT runs e.g. for the parameter surlag:
-plot_oat(sim = sim_oat, obs = obs, variable = 'flo_day')
+plot_oat(sim = sim_oat, obs = obs, variable = 'flo_day_52')
 
 ```
 
+```{r oat_plot,  echo=FALSE, out.width='100%', fig.align = 'center'}
+knitr::include_graphics('figs/oat.png')
+```
+
+## References

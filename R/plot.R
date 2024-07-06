@@ -262,7 +262,9 @@ plot_selected_sim <- function(sim, obs = NULL, par_name = NULL, run_ids = NULL, 
 #'
 #' @param parameters A vector of parameter names.
 #' @param objectives A list of objective functions, each represented as a numeric vector.
-#' @param run_fraction A numeric value representing the fraction of runs to consider for threshold calculation. Default is NULL.
+#' @param run_fraction (optional) A numeric value representing the fraction of
+#' runs to consider for threshold calculation. Default \code{run_fraction = NULL},
+#' which defines this parameter according method provided in the function.
 #'
 #' @return A ggplot object visualizing the identifiability of parameters.
 #'
@@ -276,6 +278,19 @@ plot_selected_sim <- function(sim, obs = NULL, par_name = NULL, run_ids = NULL, 
 
 
 plot_parameter_identifiability <- function(parameters, objectives, run_fraction = NULL) {
+  if(is.null(run_fraction)) {
+    nb_run <- dim(parameters)[1]
+    if(nb_run >= 5000){
+      run_fraction <- 0.15 - ((nb_run - 5000)/100000)
+    } else if(nb_run >= 1000){
+      run_fraction <- 0.225 - ((nb_run - 1000)/40000)
+    } else if (nb_run >= 100){
+      run_fraction <- 0.5 - ((nb_run - 100)/3000)
+    } else {
+      run_fraction <- 0.5
+    }
+    message(paste0("The number of runs is ", nb_run, ". The 'run_fraction' parameter is set to ", run_fraction))
+  }
   thresholds <- map_dbl(objectives, ~ quantile(.x, 1 - run_fraction))
   plot_tbl <- map2(objectives, thresholds,
                    ~ calc_segment_diff(parameters, .x, .y)) %>%

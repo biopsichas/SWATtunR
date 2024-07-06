@@ -2,6 +2,7 @@
 title: "Introduction to SWATtunR"
 <!-- output: rmarkdown::html_vignette -->
 output: github_document
+bibliography: vignettes/ref.bib
 vignette: >
   %\VignetteIndexEntry{Introduction to SWATtunR}
   %\VignetteEngine{knitr::rmarkdown}
@@ -32,19 +33,19 @@ The goal of `SWATtunR` is to help with the [SWAT+ model](https://swat.tamu.edu/s
 
 - [SWATbuildR](https://git.ufz.de/optain/wp4-integrated-assessment/swat/bildr_script)^[For access please inquire at *christoph.schuerz@ufz.de*.] -
   R tool for building SWAT+ setups; 
-- [SWATprepR](https://biopsichas.github.io/SWATprepR/) - SWAT+ model input data preparation helper. 
+- [SWATprepR](https://biopsichas.github.io/SWATprepR/) - SWAT+ model input data preparation helper. The package is presented in the article @plunge2024b;
 - [SWATfarmR](http://chrisschuerz.github.io/SWATfarmR/) - R tool for
   preparing management schedules for SWAT model;
 - [SWATdoctR](https://git.ufz.de/schuerz/swatdoctr) - A collection of
   functions in R and routines for SWAT model calibration and model
-  diagnostics;
+  diagnostics. The package is presented in the article @plunge2024a;
 - [SWATrunR](https://chrisschuerz.github.io/SWATrunR/) - R tool for running 
 SWAT models for different parameters and scenarios. Please install branch names *remove_legacy*. It could be done using line like this `remotes::install_github("chrisschuerz/SWATrunR@remove_legacy")`
 - [SWATmeasR](https://nc.ufz.de/s/KA9Cr2bbtALGMHr?path=%2FWPs%20%26%20Tasks%2FWP4%2FTask%204.4%2FTools%20to%20share)^[For access please inquire at *christoph.schuerz@ufz.de*.] - R tool for implementing Natural/Small Water Retention Measures (NSWRMs) in the SWAT+ models and running scenarios.
 
 <img src="man/figures/swativerse_update.png" title="SWAT packages for R" alt="swativerse logo" width="80%" style="display: block; margin: auto;" />
 
-Detailed information about packages, workflow steps, input data, SWAT+ parameters, model calibration, validation, etc., could be found in the [SWAT+ modeling protocol](https://doi.org/10.5281/zenodo.7463395).
+Detailed information about packages, workflow steps, input data, SWAT+ parameters, model calibration, validation, etc., could be found in the [SWAT+ modeling protocol](https://doi.org/10.5281/zenodo.7463395) @optain2022.
 
 ## Installation
 
@@ -57,6 +58,13 @@ install.packages("remotes")
 # The installation of `SWATprepR`.
 remotes::install_github("biopsichas/SWATtunR")
 ```
-Text text text
+<p style="font-family: times, serif; font-size:11pt; font-style:italic">
+This work was carried out within the OPTAIN project (OPtimal strategies to retAIN and re-use water and nutrients in small agricultural catchments across different soil-climatic regions in Europe, cordis.europa.eu) which has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No. 862756 and the LIFE22-IPE-LT-LIFE-SIP-Vanduo project (Integrated water management in Lithuania, ref: LIFE22-IPE-LT-LIFE-SIPVanduo/ 101104645, cinea.ec.europa.eu), funded by the European Union LIFEprogram under the grant agreement No 101104645.
+</p>
 
 <img src="man/figures/eu.png" title="EU LIFE+ logo" alt="eu logo" width="40%" align="left" style="display: block; margin: auto;" />
+<img src="man/figures/optain.png" title="OPTAIN logo" alt="eu logo" width="30%" align="right" style="display: block; margin: auto;" />
+
+<br><br><br>  
+
+## References

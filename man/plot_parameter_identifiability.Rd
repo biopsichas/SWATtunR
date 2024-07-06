@@ -11,7 +11,9 @@ plot_parameter_identifiability(parameters, objectives, run_fraction = NULL)
 
 \item{objectives}{A list of objective functions, each represented as a numeric vector.}
 
-\item{run_fraction}{A numeric value representing the fraction of runs to consider for threshold calculation. Default is NULL.}
+\item{run_fraction}{(optional) A numeric value representing the fraction of
+runs to consider for threshold calculation. Default \code{run_fraction = NULL},
+which defines this parameter according method provided in the function.}
 }
 \value{
 A ggplot object visualizing the identifiability of parameters.
