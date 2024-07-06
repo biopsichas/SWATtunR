@@ -106,7 +106,7 @@ wq_val_period <- c('2018-12-31', '2022-12-31')
 
 The suggested list and ranges of SWAT+ parameters for hydrology calibration are divided into groups based on the primary processes they affect. Some groups are considered optional. These parameters help fine-tune the model to achieve accurate hydrological simulations, ensuring that various aspects of the hydrological cycle are properly represented.
 
-It is important to note that calibration and validation of all hydrology and water quality/load related parameters could be done in one step. For this, you need to define the nutrient parameters together with hydrology. Please refer to step 12 for an example of how to define sediment, nitrogen, and phosphorus parameters. The example here presents only hydrology parameters.
+It is important to note that calibration and validation of all hydrology and water quality/load related parameters could be done in one step. For this, you need to define the nutrient parameters together with hydrology. Please refer to [step 3](#hc_plus_step3) on the [Extend calibration](../articles/hc-plus.html) page for an example of how to define sediment, nitrogen, and phosphorus parameters. The example here presents only hydrology parameters.
 
 ```{r sampling, message = FALSE, warning = FALSE, eval = FALSE}
 par_bound <- tibble(
@@ -244,7 +244,7 @@ sim_flow_full <- remove_unsuccesful_runs(sim_flow_full_bck)
 # sim_flow <- SWATrunR::load_swat_run(paste0(model_path, '/',  paste0(save_file_name, '_q')))
 ```
 
-## 4a. (Optional) Getting concentrations {#hc_step4a}
+## 5. (Optional) Getting concentrations {#hc_step5}
 
 If you need to calculate and use concentrations together with flow values in the next steps, use the  [get_conc](../reference/get_conc.html) function. It has two optional arguments: `not_conc` and `sediment`. The `not_conc` argument is a regular expression that defines the variables which should not be converted to concentrations. By default, it is set to "^flo_day|^gwd". The `sediment` argument is a regular expression that defines the variables which should be identified as sediment variables. The default for this argument is "^sed".
 
@@ -255,7 +255,7 @@ sim_flow_full <- get_conc(sim_flow_full)
 ```
 
 
-## 5. Readjusting observation and simulation periods {#hc_step5}
+## 6. Readjusting observation and simulation periods {#hc_step6}
 
 To align the dates of the simulated and observed data for the calibration period (or validation), the [fix_dates](../reference/fix_dates.html) function could be used. This function adjusts the dates to ensure that the simulated data matches the observed data and can also trim the dataset to a specified time range. 
 
@@ -276,7 +276,7 @@ obs <- tmp$obs
 # obs2 <- tmp$obs
 ```
 
-## 6. (Optional) Calculating performance metrics {#hc_step6}
+## 7. Calculating performance metrics {#hc_step7}
 
 To calculate the performance metrics for the simulated discharge, the `sim` object containing the simulated discharge data and the `obs` object with the observed discharge data are required. The parameter `par_name` specifies the variable for which the performance metrics should be calculated; if not provided, it defaults to the first variable in the simulation list. For cases with multiple variables, specifying `par_name` is necessary. The `perf_metrics` parameter allows the selection of performance metrics for the calculation, which will influence the final ranking used in the selection of parameter sets in [step 7](#hc_step7). If `perf_metrics` is not provided, all available metrics will be used. The `period` parameter defines the time interval for calculating performance metrics, such as "week", "month," or "year". The `fn_summarize` parameter specifies the function to summarize data over the defined period, such as "mean", "median", "max", "min" or "sum". 
 
@@ -290,7 +290,7 @@ obj_tbl <- calculate_performance(sim_flow, obs)
 # "month", "sum")
 ```
 
-## 6a. Calculating performance metrics for multiple variables {#hc_step6a}
+## 7a. Calculating performance metrics for multiple variables {#hc_step7a}
 
 The performance metrics can also be applied to multiple variables within the simulation list. In this scenario, the performance metrics will be calculated separately for each variable, and subsequently, the mean of the performance ranks will be determined. Additionally, weights can be assigned to each variable in this process, allowing for a more nuanced evaluation that takes into account the relative importance of each variable.
 
@@ -313,7 +313,7 @@ obj_tbl_m <- calculate_performance_2plus(sim_flow_full, var_to_use,
                                          var_weights)
 ```
 
-## 7. Selecting the best parameter sets {#hc_step7}
+## 8. Selecting the best parameter sets {#hc_step8}
 
 To select the best-performing parameter sets for continuing next iteration of calibration or going into water quality (WQ) calibration or proceeding into validation, you can follow two methods. The first method is based on the rank of performance metrics. Filter the parameter sets to include only the best-performing ones. The number of best sets (`n_best`) parameters in [step 2](#hc_step2) determines this. If  `n_best = NULL` , then 20 the best sets are selected, otherwise this numebr is calculated based on specified ratio. The selected run IDs are obtained by arranging the parameter sets by their total rank and selecting the top fraction. 
 
@@ -342,3 +342,5 @@ You can examine the selected parameter sets by running the following code.
 print(paste0("Selected run ids are: ", paste(run_sel_ids, collapse = ", ")))
 obj_tbl_cal<- obj_tbl[run_sel_ids,]
 ```
+
+After this proceed to [Plot results](../articles/hc-plot.html) page for guidance of the visualization of the results. Also you can proceed to [Extend calibration](../articles/hc-plus.html) page for guidance on how to add additional parameters or build another iteration to the SWAT+ model calibration process.

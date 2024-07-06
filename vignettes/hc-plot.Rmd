@@ -189,4 +189,23 @@ plot_oat(sim = sim_oat, obs = obs, variable = 'flo_day_52')
 knitr::include_graphics('figs/oat.png')
 ```
 
+## 5. Plotting the calibration vs validation {#hcp_step5}
+
+To compare the calibration and validation results, you can use the [plot_calval_comparison](../reference/plot_calval_comparison.html) function. This function allows you to compare the calibration and validation results for the selected variable set. It could also be used to compare the results of different calibration runs.
+
+```{r calval, message = FALSE, warning = FALSE, eval = FALSE}
+# Example of usage:
+# Plot results on the time series figure for validation period
+plot_calval_comparison(obj_tbl_cal, obj_tbl_val, 
+                       indexes = c("nse", "kge", "pbias", "r2", "mae" ))
+```
+
+```{r plot_calval, echo=FALSE, out.width='100%', fig.align = 'center'}
+## Read the saved simulation results, plot to object, save to file and display
+# p <- plot_calval_comparison(obj_tbl_cal, obj_tbl_val, 
+#                        indexes = c("nse", "kge", "pbias", "r2", "mae" ))
+# ggsave(p, file='figs/calval.png' , width=800, height=600, units = 'px', dpi = 100)
+knitr::include_graphics('figs/calval.png')
+```
+
 ## References

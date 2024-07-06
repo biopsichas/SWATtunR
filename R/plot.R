@@ -1,3 +1,54 @@
+#' Plot Calibration-Validation Comparison
+#'
+#' This function takes calibration and validation tables and produces a
+#' comparison boxplot for various metrics.
+#'
+#' @param cal_tbl A data frame containing calibration performance results.
+#' @param val_tbl A data frame containing validation performance results.
+#' @param indexes (optional) An optional vector of metric names to filter and
+#' include in the comparison plot. Default \code{indexes = NULL} includes all
+#' metrics.
+#'
+#' @return A ggplot object representing the comparison between calibration and
+#' validation results for the specified metrics.
+#' @importFrom dplyr bind_rows mutate filter select ends_with
+#' @importFrom tidyr pivot_longer
+#' @importFrom ggplot2 ggplot geom_boxplot facet_wrap geom_jitter xlab guides theme_bw theme element_blank  guide_legend
+#'
+#' @export
+#' @examples
+#' \dontrun{
+#' plot_calval_comparison(obj_tbl_cal, obj_tbl_val, indexes = c("nse", "pbias"))
+#' }
+#' @keywords plot
+#' @seealso \code{\link{calculate_performance}}, \code{\link{calculate_performance_2plus}}
+#'
+
+plot_calval_comparison <- function(cal_tbl, val_tbl, indexes = NULL){
+  # Combine the results from calibration and validation period
+  comb_results <- bind_rows(cal_tbl %>% mutate(type = "calibration"),
+                            val_tbl %>% mutate(type = "validation")) %>%
+    select(-c(run_id, ends_with("tot"))) %>%
+    pivot_longer(-type, names_to = "metric", values_to = "value")
+  # Filter the results if only some metrics should be compared
+  if(!is.null(indexes)){
+    comb_results <- filter(comb_results, metric %in% indexes)
+  }
+
+  # Compare in the figure
+  fig <- ggplot(comb_results, aes(x = type, y = value, fill = type)) +
+    geom_boxplot() +
+    facet_wrap(~metric, scales = "free_y") +
+    geom_jitter(color="black", alpha=0.4) +
+    xlab('') +
+    guides(fill = guide_legend(title = NULL)) +
+    theme_bw() +
+    theme(axis.text.x = element_blank(),
+          axis.ticks.x = element_blank())
+  return(fig)
+}
+
+
 #' Function to plot OAT (One-At-A-Time) analysis results
 #'
 #' This function generates an interactive dygraph to visualize the results of an OAT analysis,
@@ -24,10 +75,7 @@
 #' plot_oat(sim_oat, obs = obs_data, variable = 'flo_day', round_values = 2)
 #' }
 #' @seealso \code{\link{plot_selected_sim}}, \code{\link{sample_oat}}, \code{\link[SWATrunR:run_swatplus]{https://chrisschuerz.github.io/SWATrunR/}}
-#'
-#' @references
-#' For more information on OAT analysis and SWATrunR, refer to the SWATR manual.
-#'
+
 
 plot_oat <- function(sim, obs = NULL, variable, round_values = 3) {
   if(!is.null(obs)) {

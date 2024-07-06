@@ -9,9 +9,9 @@ bibliography: ref.bib
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-After the first iteration of calibration additional parameters can be added to calibrate another processes in the model. Such are parameters related to water quality or sediment load variables. Following lines provide an example of how to add additional parameters to the SWAT+ model calibration process.
+After the first iteration of calibration additional parameters can be added to calibrate another processes in the model. Such are parameters related to water quality or sediment load variables. Following lines provide an example of how to add additional parameters to the SWAT+ model calibration process. Same packages should be loaded as in the [step 1](#hc_step1).
 
-## 1. Add additional parameters {#hc_plus_step1}
+## 1. Extract calibrated parameters {#hc_plus_step1}
 
 To add additional parameters to the SWAT+ model calibration process, you need to extract the parameter set that you want to combine with the nutrient parameters. The following code snippet shows how to extract the hydrology parameter set that you want to combine with the nutrient parameters.
 
@@ -21,4 +21,128 @@ To add additional parameters to the SWAT+ model calibration process, you need to
 
 par_q <- sim_flow$parameter$values[run_sel_ids,] %>%
   set_names(., sim_flow$parameter$definition$full_name)
+
 ```
+
+## 2. Define additional parameters {#hc_plus_step2}
+
+Draw a sample of `n_nutr` combinations for the nutrient parameters that should be calibrated and combine them with all selected hydrology parameter sets. Below are examples of how to define the nutrient parameters and their boundaries. For nitrogen, sediments, and phosphorus parameters, you can use one of these, combine them, or define your own.
+
+```{r add_nutr, message = FALSE, warning = FALSE, eval = FALSE}
+# Define the nitrogen parameters and their boundaries.
+par_nutr_bound <- tibble("n_updis.bsn | change = absval" = c(0, 100),
+                         # may affect crop yields, please check!
+                         "nperco.bsn | change = absval" = c(0, 1),
+                         "sdnco.bsn | change = absval" = c(0.75, 1.1),
+                         # "hlife_n.aqu | change = absval" = c(0, 200),
+                         # "no3_init.aqu | change = absval" = c(0, 30),
+                         "cmn.bsn | change = absval" = c(0.001, 0.003),
+                         "rsdco.bsn | change = absval" = c(0.02, 0.1))
+
+# Sediment parameters and their boundaries
+par_sed_bound <- tibble("cov.rte | change = absval" = c(0,10),
+                        "ch_clay.rte | change = absval" = c(0,100),
+                        "bedldcoef.rte | change = absval" = c(0,1),
+                        "slope_len.hru | change = absval" = c(10,150),
+                        "chs.rte | change = relchg" = c(-0.5,0.5),
+                        # "wd_rto.rte | change = relchg" = c(-0.5,0.5),
+                        "cherod.rte | change = absval" = c(0,0.6))
+
+# Phosphorus parameters and their boundaries
+par_phos_bound <- tibble("p_updis.bsn | change = absval" = c(0, 100), 
+                         # super sensitive but also affecting crop yields. 
+                         # Print out yields as well!
+                         "pperco.bsn | change = absval" = c(10, 17.5),
+                         "phoskd.bsn | change = absval" = c(100, 200), 
+                         "psp.bsn | change = absval" = c(0.01, 0.7))
+```
+
+## 3. Combine hydrology and additional parameters {#hc_plus_step3}
+
+To combine parameters into a single comprehensive parameter set, you need to take into account the `n_nutr` setting defined in [step 2](#hc_step2) of hard calibration. As each hydrology parameter set should be repeated with each nutrient (or additional) parameter set, you need to be careful with this parameter and the parameter set combination results to ensure the number of parameter sets is manageable. The following code snippet shows how to combine the hydrology parameter set with the nutrient parameter set.
+
+```{r add_comb, message = FALSE, warning = FALSE, eval = FALSE}
+# Combine parameters into one dataframa
+par_nutr_bound <- cbind(par_nutr_bound, par_sed_bound, par_phos_bound)
+
+# Nutrient parameter set repeated the number of times of selected hydr. params.
+n_nutr <- ifelse(length(n_nutr) == 0, 1000/(n_comb*n_best), n_nutr)
+
+par_nutr <- sample_lhs(par_nutr_bound, n_nutr) %>%
+  slice(rep(1:n(), each = nrow(par_q)))
+
+# The new parameter set is a combination of all hydrology parameter sets and
+# the sampled nutrient parameter sets.
+par_cal <- par_q %>%
+  slice(., rep(1:n(), n_nutr)) %>%
+  bind_cols(., par_nutr)
+```
+
+## 4. Run SWAT+ model with additional parameters {#hc_plus_step4}
+
+After combining the hydrology and nutrient parameter sets, you can run the SWAT+ model with the new parameter set. The following code snippet shows how to run the SWAT+ model with the new parameter set.
+
+
+```{r add_run, message = FALSE, warning = FALSE, eval = FALSE}
+# Read the observed water quality data to determine the period needed for the runs.
+obs_wq_full <- read_csv(wqobs_path)
+
+unlink(paste0(model_path, "/", save_file_name, '_wq'), recursive = TRUE) # Remove 
+# the previous saved runs if they exist.
+
+## Run simulations for the nutrient parameters.
+# check if you need to redefine start_date, end_date and start_date_print
+sim_wq_full_bck <- run_swatplus(project_path = model_path,
+                       output = list(
+                         flo_day = define_output(file = 'channel_sd_day',
+                                                 variable = 'flo_out',
+                                                 unit = cha_ids),
+                         no3_day = define_output(file = 'channel_sd_day',
+                                                 variable = 'no3_out',
+                                                 unit = cha_ids)
+                         ## please add parameters for other nutrients, sediments, 
+                         ## if you plan to use them.
+                         
+                         # ,orgn_day = define_output(file = 'channel_sd_day',
+                         #                         variable = 'orgn_out',
+                         #                         unit = cha_ids),
+                         # nh3_day = define_output(file = 'channel_sd_day',
+                         #                           variable = 'nh3_out',
+                         #                           unit = cha_ids),
+                         # no2_day = define_output(file = 'channel_sd_day',
+                         #                         variable = 'no2_out',
+                         #                         unit = cha_ids),
+                         # solp_day = define_output(file = 'channel_sd_day',
+                         #                         variable = 'solp_out',
+                         #                         unit = cha_ids),
+                         # sedp_day = define_output(file = 'channel_sd_day',
+                         #                          variable = 'sedp_out',
+                         #                          unit = cha_ids),
+                         # sed_out = define_output(file = 'channel_sd_day',
+                         #                          variable = 'sed_out',
+                         #                          unit = cha_ids)
+                       ),
+                       parameter = par_cal,
+                       start_date = start_date,
+                       end_date = end_date,
+                       start_date_print = as.Date(
+                         ifelse(length(start_date_print)==0, 
+                                min(obs_wq_full$date), start_date_print)),
+                       n_thread = n_cores,
+                       save_file = paste0(save_file_name, '_wq')
+)
+
+# If you have to remove the runs that did not finish, use the following code.
+sim_wq_full <- remove_unsuccesful_runs(sim_wq_full_bck)
+
+# If you need to get total nitrogen or total phosphorus, you need to have actived 
+# n parts saving in run_swatplus() function above. Following code will calculate
+# total nitrogen. You can adapt it to calculate total phosphorus as well
+# n_parts <- c("no3_day", "orgn_day", "nh3_day", "no2_day")
+# 
+# sim_wq_full$simulation$ntot_day <- 
+#   bind_cols(sim_wq_full$simulation[[1]]["date"], 
+#             Reduce("+", map(n_parts, ~sim_wq_full$simulation[[.x]][-1])))
+```
+
+After running the SWAT+ model with the new parameter set, you can proceed with the calibration. The calibration process is the same as from the [step 5](#hc_step5) of hard calibration. The only difference is that you need to use the water quality data instead of the flow data. Also visualization functions presented on [Plot results](../articles/hc-plot.html) work the same way.

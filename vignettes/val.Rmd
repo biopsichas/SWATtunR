@@ -1,0 +1,54 @@
+---
+title: "Validation"
+subtitle: "Workflow to validate calibrated models"
+output: html_document
+bibliography: ref.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+After the calibration process, the SWAT+ model should be validated to ensure that the model is not overfitted. The validation process is similar to the calibration process, but the validation data set is used instead of the calibration data set. The following lines provide an example of how to validate the SWAT+ model. It is important to mention, that model run during the final calibration step should cover both calibration and validation periods. 
+
+## 1. Validation preparation {#val_step1}
+
+To prepare validation data set is quite simple with [fix_dates](../reference/fix_dates.html) function, which cuts simulation results and observations to defined validation period. Following code snippet shows how to prepare validation data set. `wq_val_period` was defined select_best_print. Example could bewritten as `wq_val_period <- c("2010-01-01", "2014-12-31")`.
+
+
+```{r val_prep, message = FALSE, warning = FALSE, eval = FALSE}
+# Readjusting the dates of the simulated and observed data for validation period
+tmp <- fix_dates(sim_wq_full, obs_wq_full, trim_start = wq_val_period[1], 
+                 trim_end = wq_val_period[2])
+sim_wq_val <- tmp$sim
+obs_wq_val <- tmp$obs
+```
+
+## 2. Performance calculation {#val_step2}
+
+To calculate the performance of the SWAT+ model, you can use the same functions as in the calibration process. The following code snippet shows how to calculate the performance of the SWAT+ model for the validation period. `obj_tbl_cal` dataframe is obtained at the end of calibration and contains the best run ids \@ref(select_best_print).
+
+```{r val_perf, message = FALSE, warning = FALSE, eval = FALSE}
+# Calculate the performance metrics for validation period
+obj_tbl_val <- calculate_performance(sim_wq_val, obs_wq_val, par_name = "flo_day_52")
+
+# Filter the performance metrics for the selected calibration runs
+obj_tbl_val <- obj_tbl_val[obj_tbl_val$run_id %in% obj_tbl_cal$run_id,]
+```
+
+## 3. Performance visualization {#val_step3}
+
+To visualize the performance of the SWAT+ model, you can use the same functions as in the calibration process. Particularly, the [plot_calval_comparison](../reference/plot_calval_comparison.html) and [plot_selected_sim](../reference/plot_selected_sim.html) functions could be used to visualize the performance of the SWAT+ model for validation period. 
+
+## 4. Write out *'calibration.cal'* file {#val_step4}
+
+The final step is to write out the "calibration.cal" file, which could be supplied to the model to run already calibrated and validated model. Please don't forget to check master file [*'file.cio'*](https://swatplus.gitbook.io/io-docs/introduction/master-file-file.cio), if it has connection to *'calibration.cal'* on line 22. The following code snippet shows how to write out the *'calibration.cal'* file. 
+
+```{r val_write, message = FALSE, warning = FALSE, eval = FALSE}
+write_cal_file(par = par_table, 
+               write_path = 'your_path',
+               i_run = 1)
+``
+
+
+

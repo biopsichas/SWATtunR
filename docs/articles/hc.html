@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9013</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9014</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,6 +56,7 @@
     <a class="dropdown-item" href="../articles/hc.html">Run calibration</a>
     <a class="dropdown-item" href="../articles/hc-plot.html">Plot results</a>
     <a class="dropdown-item" href="../articles/hc-plus.html">Extend calibration</a>
+    <a class="dropdown-item" href="../articles/val.html">Validation</a>
   </div>
 </li>
 <li class="nav-item">
@@ -218,9 +219,9 @@ represented.</p>
 <p>It is important to note that calibration and validation of all
 hydrology and water quality/load related parameters could be done in one
 step. For this, you need to define the nutrient parameters together with
-hydrology. Please refer to step 12 for an example of how to define
-sediment, nitrogen, and phosphorus parameters. The example here presents
-only hydrology parameters.</p>
+hydrology. Please refer to <a href="#hc_plus_step3">step 3</a> on the <a href="../articles/hc-plus.html">Extend calibration</a> page for an
+example of how to define sediment, nitrogen, and phosphorus parameters.
+The example here presents only hydrology parameters.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">par_bound</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  <span class="co"># Snow (optional - use if average snow fall to precipitation ratio is higher </span></span>
@@ -377,7 +378,7 @@ are read to obtain the period needed for the runs.</p>
 <span><span class="co"># sim_flow &lt;- SWATrunR::load_swat_run(paste0(model_path, '/',  paste0(save_file_name, '_q')))</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="hc_step4a">4a. (Optional) Getting concentrations<a class="anchor" aria-label="anchor" href="#hc_step4a"></a>
+<h2 id="hc_step5">5. (Optional) Getting concentrations<a class="anchor" aria-label="anchor" href="#hc_step5"></a>
 </h2>
 <p>If you need to calculate and use concentrations together with flow
 values in the next steps, use the <a href="../reference/get_conc.html">get_conc</a> function. It has two
@@ -393,7 +394,7 @@ be identified as sediment variables. The default for this argument is
 <span><span class="va">sim_flow_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_conc.html">get_conc</a></span><span class="op">(</span><span class="va">sim_flow_full</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="hc_step5">5. Readjusting observation and simulation periods<a class="anchor" aria-label="anchor" href="#hc_step5"></a>
+<h2 id="hc_step6">6. Readjusting observation and simulation periods<a class="anchor" aria-label="anchor" href="#hc_step6"></a>
 </h2>
 <p>To align the dates of the simulated and observed data for the
 calibration period (or validation), the <a href="../reference/fix_dates.html">fix_dates</a> function could be used.
@@ -416,7 +417,7 @@ time range.</p>
 <span><span class="co"># obs2 &lt;- tmp$obs</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="hc_step6">6. (Optional) Calculating performance metrics<a class="anchor" aria-label="anchor" href="#hc_step6"></a>
+<h2 id="hc_step7">7. Calculating performance metrics<a class="anchor" aria-label="anchor" href="#hc_step7"></a>
 </h2>
 <p>To calculate the performance metrics for the simulated discharge, the
 <code>sim</code> object containing the simulated discharge data and the
@@ -444,7 +445,7 @@ data over the defined period, such as “mean”, “median”, “max”, “mi
 <span><span class="co"># "month", "sum")</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="hc_step6a">6a. Calculating performance metrics for multiple variables<a class="anchor" aria-label="anchor" href="#hc_step6a"></a>
+<h2 id="hc_step7a">7a. Calculating performance metrics for multiple variables<a class="anchor" aria-label="anchor" href="#hc_step7a"></a>
 </h2>
 <p>The performance metrics can also be applied to multiple variables
 within the simulation list. In this scenario, the performance metrics
@@ -455,7 +456,7 @@ nuanced evaluation that takes into account the relative importance of
 each variable.</p>
 </div>
 <div class="section level2">
-<h2 id="hc_step7">7. Selecting the best parameter sets<a class="anchor" aria-label="anchor" href="#hc_step7"></a>
+<h2 id="hc_step8">8. Selecting the best parameter sets<a class="anchor" aria-label="anchor" href="#hc_step8"></a>
 </h2>
 <p>To select the best-performing parameter sets for continuing next
 iteration of calibration or going into water quality (WQ) calibration or
@@ -492,6 +493,11 @@ code.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Selected run ids are: "</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">run_sel_ids</span>, collapse <span class="op">=</span> <span class="st">", "</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">obj_tbl_cal</span><span class="op">&lt;-</span> <span class="va">obj_tbl</span><span class="op">[</span><span class="va">run_sel_ids</span>,<span class="op">]</span></span></code></pre></div>
+<p>After this proceed to <a href="../articles/hc-plot.html">Plot
+results</a> page for guidance of the visualization of the results. Also
+you can proceed to <a href="../articles/hc-plus.html">Extend
+calibration</a> page for guidance on how to add additional parameters or
+build another iteration to the SWAT+ model calibration process.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

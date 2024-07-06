@@ -25,6 +25,9 @@
     <loc>/articles/soft-cal.html</loc>
   </url>
   <url>
+    <loc>/articles/val.html</loc>
+  </url>
+  <url>
     <loc>/authors.html</loc>
   </url>
   <url>
@@ -76,7 +79,13 @@
     <loc>/reference/fix_dates.html</loc>
   </url>
   <url>
+    <loc>/reference/format_swatplus_parameter.html</loc>
+  </url>
+  <url>
     <loc>/reference/get_conc.html</loc>
+  </url>
+  <url>
+    <loc>/reference/get_tbl_column.html</loc>
   </url>
   <url>
     <loc>/reference/group_values.html</loc>
@@ -92,6 +101,9 @@
   </url>
   <url>
     <loc>/reference/paste_runs.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_calval_comparison.html</loc>
   </url>
   <url>
     <loc>/reference/plot_dotty.html</loc>
@@ -118,6 +130,9 @@
     <loc>/reference/read_tbl.html</loc>
   </url>
   <url>
+    <loc>/reference/read_unit_conditions.html</loc>
+  </url>
+  <url>
     <loc>/reference/remove_unsuccesful_runs.html</loc>
   </url>
   <url>
@@ -139,10 +154,22 @@
     <loc>/reference/sample_transect_i.html</loc>
   </url>
   <url>
+    <loc>/reference/setup_calibration_cal.html</loc>
+  </url>
+  <url>
+    <loc>/reference/translate_parameter_constraints.html</loc>
+  </url>
+  <url>
     <loc>/reference/truncate.html</loc>
   </url>
   <url>
     <loc>/reference/update_par.html</loc>
+  </url>
+  <url>
+    <loc>/reference/write_calibration.html</loc>
+  </url>
+  <url>
+    <loc>/reference/write_cal_file.html</loc>
   </url>
   <url>
     <loc>/reference/write_tbl.html</loc>

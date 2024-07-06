@@ -27,9 +27,6 @@ comparing simulated data with observed data if provided.
 plot_oat(sim_oat, obs = obs_data, variable = 'flo_day', round_values = 2)
 }
 }
-\references{
-For more information on OAT analysis and SWATrunR, refer to the SWATR manual.
-}
 \seealso{
 \code{\link{plot_selected_sim}}, \code{\link{sample_oat}}, \code{\link[SWATrunR:run_swatplus]{https://chrisschuerz.github.io/SWATrunR/}}
 }

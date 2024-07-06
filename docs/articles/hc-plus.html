@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9013</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9014</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,6 +56,7 @@
     <a class="dropdown-item" href="../articles/hc.html">Run calibration</a>
     <a class="dropdown-item" href="../articles/hc-plot.html">Plot results</a>
     <a class="dropdown-item" href="../articles/hc-plus.html">Extend calibration</a>
+    <a class="dropdown-item" href="../articles/val.html">Validation</a>
   </div>
 </li>
 <li class="nav-item">
@@ -100,9 +101,9 @@ calibration of SWAT+ model (adding additional parameters)</h3>
 added to calibrate another processes in the model. Such are parameters
 related to water quality or sediment load variables. Following lines
 provide an example of how to add additional parameters to the SWAT+
-model calibration process.</p>
+model calibration process. Same packages should be loaded as in the <a href="#hc_step1">step 1</a>.</p>
 <div class="section level2">
-<h2 id="hc_plus_step1">1. Add additional parameters<a class="anchor" aria-label="anchor" href="#hc_plus_step1"></a>
+<h2 id="hc_plus_step1">1. Extract calibrated parameters<a class="anchor" aria-label="anchor" href="#hc_plus_step1"></a>
 </h2>
 <p>To add additional parameters to the SWAT+ model calibration process,
 you need to extract the parameter set that you want to combine with the
@@ -115,6 +116,141 @@ parameters.</p>
 <span></span>
 <span><span class="va">par_q</span> <span class="op">&lt;-</span> <span class="va">sim_flow</span><span class="op">$</span><span class="va">parameter</span><span class="op">$</span><span class="va">values</span><span class="op">[</span><span class="va">run_sel_ids</span>,<span class="op">]</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">set_names</span><span class="op">(</span><span class="va">.</span>, <span class="va">sim_flow</span><span class="op">$</span><span class="va">parameter</span><span class="op">$</span><span class="va">definition</span><span class="op">$</span><span class="va">full_name</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="hc_plus_step2">2. Define additional parameters<a class="anchor" aria-label="anchor" href="#hc_plus_step2"></a>
+</h2>
+<p>Draw a sample of <code>n_nutr</code> combinations for the nutrient
+parameters that should be calibrated and combine them with all selected
+hydrology parameter sets. Below are examples of how to define the
+nutrient parameters and their boundaries. For nitrogen, sediments, and
+phosphorus parameters, you can use one of these, combine them, or define
+your own.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Define the nitrogen parameters and their boundaries.</span></span>
+<span><span class="va">par_nutr_bound</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span><span class="st">"n_updis.bsn | change = absval"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span><span class="op">)</span>,</span>
+<span>                         <span class="co"># may affect crop yields, please check!</span></span>
+<span>                         <span class="st">"nperco.bsn | change = absval"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>                         <span class="st">"sdnco.bsn | change = absval"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.75</span>, <span class="fl">1.1</span><span class="op">)</span>,</span>
+<span>                         <span class="co"># "hlife_n.aqu | change = absval" = c(0, 200),</span></span>
+<span>                         <span class="co"># "no3_init.aqu | change = absval" = c(0, 30),</span></span>
+<span>                         <span class="st">"cmn.bsn | change = absval"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.001</span>, <span class="fl">0.003</span><span class="op">)</span>,</span>
+<span>                         <span class="st">"rsdco.bsn | change = absval"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.02</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Sediment parameters and their boundaries</span></span>
+<span><span class="va">par_sed_bound</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span><span class="st">"cov.rte | change = absval"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">10</span><span class="op">)</span>,</span>
+<span>                        <span class="st">"ch_clay.rte | change = absval"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">100</span><span class="op">)</span>,</span>
+<span>                        <span class="st">"bedldcoef.rte | change = absval"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>,</span>
+<span>                        <span class="st">"slope_len.hru | change = absval"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>,<span class="fl">150</span><span class="op">)</span>,</span>
+<span>                        <span class="st">"chs.rte | change = relchg"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.5</span>,<span class="fl">0.5</span><span class="op">)</span>,</span>
+<span>                        <span class="co"># "wd_rto.rte | change = relchg" = c(-0.5,0.5),</span></span>
+<span>                        <span class="st">"cherod.rte | change = absval"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0.6</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Phosphorus parameters and their boundaries</span></span>
+<span><span class="va">par_phos_bound</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span><span class="st">"p_updis.bsn | change = absval"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span><span class="op">)</span>, </span>
+<span>                         <span class="co"># super sensitive but also affecting crop yields. </span></span>
+<span>                         <span class="co"># Print out yields as well!</span></span>
+<span>                         <span class="st">"pperco.bsn | change = absval"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">17.5</span><span class="op">)</span>,</span>
+<span>                         <span class="st">"phoskd.bsn | change = absval"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">200</span><span class="op">)</span>, </span>
+<span>                         <span class="st">"psp.bsn | change = absval"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.7</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="hc_plus_step3">3. Combine hydrology and additional parameters<a class="anchor" aria-label="anchor" href="#hc_plus_step3"></a>
+</h2>
+<p>To combine parameters into a single comprehensive parameter set, you
+need to take into account the <code>n_nutr</code> setting defined in <a href="#hc_step2">step 2</a> of hard calibration. As each hydrology
+parameter set should be repeated with each nutrient (or additional)
+parameter set, you need to be careful with this parameter and the
+parameter set combination results to ensure the number of parameter sets
+is manageable. The following code snippet shows how to combine the
+hydrology parameter set with the nutrient parameter set.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Combine parameters into one dataframa</span></span>
+<span><span class="va">par_nutr_bound</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">par_nutr_bound</span>, <span class="va">par_sed_bound</span>, <span class="va">par_phos_bound</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Nutrient parameter set repeated the number of times of selected hydr. params.</span></span>
+<span><span class="va">n_nutr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">n_nutr</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fl">1000</span><span class="op">/</span><span class="op">(</span><span class="va">n_comb</span><span class="op">*</span><span class="va">n_best</span><span class="op">)</span>, <span class="va">n_nutr</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">par_nutr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sample_lhs.html">sample_lhs</a></span><span class="op">(</span><span class="va">par_nutr_bound</span>, <span class="va">n_nutr</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">slice</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu">n</span><span class="op">(</span><span class="op">)</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">par_q</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># The new parameter set is a combination of all hydrology parameter sets and</span></span>
+<span><span class="co"># the sampled nutrient parameter sets.</span></span>
+<span><span class="va">par_cal</span> <span class="op">&lt;-</span> <span class="va">par_q</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">slice</span><span class="op">(</span><span class="va">.</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu">n</span><span class="op">(</span><span class="op">)</span>, <span class="va">n_nutr</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">bind_cols</span><span class="op">(</span><span class="va">.</span>, <span class="va">par_nutr</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="hc_plus_step4">4. Run SWAT+ model with additional parameters<a class="anchor" aria-label="anchor" href="#hc_plus_step4"></a>
+</h2>
+<p>After combining the hydrology and nutrient parameter sets, you can
+run the SWAT+ model with the new parameter set. The following code
+snippet shows how to run the SWAT+ model with the new parameter set.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Read the observed water quality data to determine the period needed for the runs.</span></span>
+<span><span class="va">obs_wq_full</span> <span class="op">&lt;-</span> <span class="fu">read_csv</span><span class="op">(</span><span class="va">wqobs_path</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">model_path</span>, <span class="st">"/"</span>, <span class="va">save_file_name</span>, <span class="st">'_wq'</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># Remove </span></span>
+<span><span class="co"># the previous saved runs if they exist.</span></span>
+<span></span>
+<span><span class="co">## Run simulations for the nutrient parameters.</span></span>
+<span><span class="co"># check if you need to redefine start_date, end_date and start_date_print</span></span>
+<span><span class="va">sim_wq_full_bck</span> <span class="op">&lt;-</span> <span class="fu">run_swatplus</span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
+<span>                       output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>                         flo_day <span class="op">=</span> <span class="fu">define_output</span><span class="op">(</span>file <span class="op">=</span> <span class="st">'channel_sd_day'</span>,</span>
+<span>                                                 variable <span class="op">=</span> <span class="st">'flo_out'</span>,</span>
+<span>                                                 unit <span class="op">=</span> <span class="va">cha_ids</span><span class="op">)</span>,</span>
+<span>                         no3_day <span class="op">=</span> <span class="fu">define_output</span><span class="op">(</span>file <span class="op">=</span> <span class="st">'channel_sd_day'</span>,</span>
+<span>                                                 variable <span class="op">=</span> <span class="st">'no3_out'</span>,</span>
+<span>                                                 unit <span class="op">=</span> <span class="va">cha_ids</span><span class="op">)</span></span>
+<span>                         <span class="co">## please add parameters for other nutrients, sediments, </span></span>
+<span>                         <span class="co">## if you plan to use them.</span></span>
+<span>                         </span>
+<span>                         <span class="co"># ,orgn_day = define_output(file = 'channel_sd_day',</span></span>
+<span>                         <span class="co">#                         variable = 'orgn_out',</span></span>
+<span>                         <span class="co">#                         unit = cha_ids),</span></span>
+<span>                         <span class="co"># nh3_day = define_output(file = 'channel_sd_day',</span></span>
+<span>                         <span class="co">#                           variable = 'nh3_out',</span></span>
+<span>                         <span class="co">#                           unit = cha_ids),</span></span>
+<span>                         <span class="co"># no2_day = define_output(file = 'channel_sd_day',</span></span>
+<span>                         <span class="co">#                         variable = 'no2_out',</span></span>
+<span>                         <span class="co">#                         unit = cha_ids),</span></span>
+<span>                         <span class="co"># solp_day = define_output(file = 'channel_sd_day',</span></span>
+<span>                         <span class="co">#                         variable = 'solp_out',</span></span>
+<span>                         <span class="co">#                         unit = cha_ids),</span></span>
+<span>                         <span class="co"># sedp_day = define_output(file = 'channel_sd_day',</span></span>
+<span>                         <span class="co">#                          variable = 'sedp_out',</span></span>
+<span>                         <span class="co">#                          unit = cha_ids),</span></span>
+<span>                         <span class="co"># sed_out = define_output(file = 'channel_sd_day',</span></span>
+<span>                         <span class="co">#                          variable = 'sed_out',</span></span>
+<span>                         <span class="co">#                          unit = cha_ids)</span></span>
+<span>                       <span class="op">)</span>,</span>
+<span>                       parameter <span class="op">=</span> <span class="va">par_cal</span>,</span>
+<span>                       start_date <span class="op">=</span> <span class="va">start_date</span>,</span>
+<span>                       end_date <span class="op">=</span> <span class="va">end_date</span>,</span>
+<span>                       start_date_print <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span></span>
+<span>                         <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">start_date_print</span><span class="op">)</span><span class="op">==</span><span class="fl">0</span>, </span>
+<span>                                <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">obs_wq_full</span><span class="op">$</span><span class="va">date</span><span class="op">)</span>, <span class="va">start_date_print</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                       n_thread <span class="op">=</span> <span class="va">n_cores</span>,</span>
+<span>                       save_file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">save_file_name</span>, <span class="st">'_wq'</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># If you have to remove the runs that did not finish, use the following code.</span></span>
+<span><span class="va">sim_wq_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/remove_unsuccesful_runs.html">remove_unsuccesful_runs</a></span><span class="op">(</span><span class="va">sim_wq_full_bck</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># If you need to get total nitrogen or total phosphorus, you need to have actived </span></span>
+<span><span class="co"># n parts saving in run_swatplus() function above. Following code will calculate</span></span>
+<span><span class="co"># total nitrogen. You can adapt it to calculate total phosphorus as well</span></span>
+<span><span class="co"># n_parts &lt;- c("no3_day", "orgn_day", "nh3_day", "no2_day")</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># sim_wq_full$simulation$ntot_day &lt;- </span></span>
+<span><span class="co">#   bind_cols(sim_wq_full$simulation[[1]]["date"], </span></span>
+<span><span class="co">#             Reduce("+", map(n_parts, ~sim_wq_full$simulation[[.x]][-1])))</span></span></code></pre></div>
+<p>After running the SWAT+ model with the new parameter set, you can
+proceed with the calibration. The calibration process is the same as
+from the <a href="#hc_step5">step 5</a> of hard calibration. The only
+difference is that you need to use the water quality data instead of the
+flow data. Also visualization functions presented on <a href="../articles/hc-plot.html">Plot results</a> work the same way.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
