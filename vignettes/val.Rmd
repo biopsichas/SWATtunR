@@ -45,7 +45,7 @@ To visualize the performance of the SWAT+ model, you can use the same functions 
 The final step is to write out the "calibration.cal" file, which could be supplied to the model to run already calibrated and validated model. Please don't forget to check master file [*'file.cio'*](https://swatplus.gitbook.io/io-docs/introduction/master-file-file.cio), if it has connection to *'calibration.cal'* on line 22. The following code snippet shows how to write out the *'calibration.cal'* file. 
 
 ```{r val_write, message = FALSE, warning = FALSE, eval = FALSE}
-write_cal_file(par = par_table, 
+write_cal_file(par = par_flow, 
                write_path = 'your_path',
                i_run = 1)
 ``

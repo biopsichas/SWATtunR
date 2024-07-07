@@ -40,10 +40,25 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
+    <loc>/reference/add_obj.html</loc>
+  </url>
+  <url>
+    <loc>/reference/add_slope.html</loc>
+  </url>
+  <url>
     <loc>/reference/add_suffix_to_duplicate.html</loc>
   </url>
   <url>
+    <loc>/reference/add_value_range.html</loc>
+  </url>
+  <url>
     <loc>/reference/aggregate_aa.html</loc>
+  </url>
+  <url>
+    <loc>/reference/build_constraint_tbl.html</loc>
+  </url>
+  <url>
+    <loc>/reference/build_expression.html</loc>
   </url>
   <url>
     <loc>/reference/calculate_performance.html</loc>
@@ -73,6 +88,9 @@
     <loc>/reference/dotty_fig.html</loc>
   </url>
   <url>
+    <loc>/reference/evaluate_expression.html</loc>
+  </url>
+  <url>
     <loc>/reference/find_par_range.html</loc>
   </url>
   <url>
@@ -85,7 +103,28 @@
     <loc>/reference/get_conc.html</loc>
   </url>
   <url>
+    <loc>/reference/get_sol_texture.html</loc>
+  </url>
+  <url>
     <loc>/reference/get_tbl_column.html</loc>
+  </url>
+  <url>
+    <loc>/reference/get_value_range.html</loc>
+  </url>
+  <url>
+    <loc>/reference/grapes-.-grapes.html</loc>
+  </url>
+  <url>
+    <loc>/reference/grapes-and-and-grapes.html</loc>
+  </url>
+  <url>
+    <loc>/reference/grapes-and-grapes.html</loc>
+  </url>
+  <url>
+    <loc>/reference/grapes-slash-slash-grapes.html</loc>
+  </url>
+  <url>
+    <loc>/reference/grapes-_-grapes.html</loc>
   </url>
   <url>
     <loc>/reference/group_values.html</loc>
@@ -94,10 +133,16 @@
     <loc>/reference/hello.html</loc>
   </url>
   <url>
+    <loc>/reference/identify_sequence.html</loc>
+  </url>
+  <url>
     <loc>/reference/id_text_strings.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/init_cal.html</loc>
   </url>
   <url>
     <loc>/reference/paste_runs.html</loc>
@@ -133,6 +178,9 @@
     <loc>/reference/read_unit_conditions.html</loc>
   </url>
   <url>
+    <loc>/reference/remove_dummy.html</loc>
+  </url>
+  <url>
     <loc>/reference/remove_unsuccesful_runs.html</loc>
   </url>
   <url>
@@ -157,13 +205,22 @@
     <loc>/reference/setup_calibration_cal.html</loc>
   </url>
   <url>
+    <loc>/reference/tidy_constraint.html</loc>
+  </url>
+  <url>
     <loc>/reference/translate_parameter_constraints.html</loc>
+  </url>
+  <url>
+    <loc>/reference/translate_sequence.html</loc>
   </url>
   <url>
     <loc>/reference/truncate.html</loc>
   </url>
   <url>
     <loc>/reference/update_par.html</loc>
+  </url>
+  <url>
+    <loc>/reference/update_plant_par.html</loc>
   </url>
   <url>
     <loc>/reference/write_calibration.html</loc>
