@@ -246,7 +246,7 @@ sim_flow_full <- remove_unsuccesful_runs(sim_flow_full_bck)
 
 ## 5. (Optional) Getting concentrations {#hc_step5}
 
-If you need to calculate and use concentrations together with flow values in the next steps, use the  [get_conc](../reference/get_conc.html) function. It has two optional arguments: `not_conc` and `sediment`. The `not_conc` argument is a regular expression that defines the variables which should not be converted to concentrations. By default, it is set to "^flo_day|^gwd". The `sediment` argument is a regular expression that defines the variables which should be identified as sediment variables. The default for this argument is "^sed".
+If you need to calculate and use concentrations together with flow values in the next steps, use the  [get_conc](../reference/get_conc.html) function. It has two optional arguments: `not_conc` and `sediment`. The `not_conc` argument is a regular expression that defines the variables which should not be converted to concentrations. By default, it is set to "&#94;flo_day|&#94;gwd". The `sediment` argument is a regular expression that defines the variables which should be identified as sediment variables. The default for this argument is "&#94;sed".
 
 
 ```{r get_conc, message = FALSE, warning = FALSE, eval = FALSE}
@@ -294,7 +294,7 @@ obj_tbl <- calculate_performance(sim_flow, obs)
 
 The performance metrics can also be applied to multiple variables within the simulation list. In this scenario, the performance metrics will be calculated separately for each variable, and subsequently, the mean of the performance ranks will be determined. Additionally, weights can be assigned to each variable in this process, allowing for a more nuanced evaluation that takes into account the relative importance of each variable.
 
-```{r calc_perf_mv, message = FALSE, warning = FALSE, eval = FALSE, echo = FALSE}
+```{r calc_perf_mv, message = FALSE, warning = FALSE, eval = FALSE}
 
 # Example of usage:
 var_to_use <- c("flo_day_52",  "no3_day_52_conc", "gwd")

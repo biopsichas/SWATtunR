@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9015</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9016</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -385,10 +385,9 @@ values in the next steps, use the <a href="../reference/get_conc.html">get_conc<
 optional arguments: <code>not_conc</code> and <code>sediment</code>. The
 <code>not_conc</code> argument is a regular expression that defines the
 variables which should not be converted to concentrations. By default,
-it is set to “<sup>flo_day|</sup>gwd”. The <code>sediment</code>
-argument is a regular expression that defines the variables which should
-be identified as sediment variables. The default for this argument is
-“^sed”.</p>
+it is set to “^flo_day|^gwd”. The <code>sediment</code> argument is a
+regular expression that defines the variables which should be identified
+as sediment variables. The default for this argument is “^sed”.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get the concentrations for the daily discharge.</span></span>
 <span><span class="va">sim_flow_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_conc.html">get_conc</a></span><span class="op">(</span><span class="va">sim_flow_full</span><span class="op">)</span></span></code></pre></div>
@@ -454,6 +453,22 @@ mean of the performance ranks will be determined. Additionally, weights
 can be assigned to each variable in this process, allowing for a more
 nuanced evaluation that takes into account the relative importance of
 each variable.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Example of usage:</span></span>
+<span><span class="va">var_to_use</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"flo_day_52"</span>,  <span class="st">"no3_day_52_conc"</span>, <span class="st">"gwd"</span><span class="op">)</span></span>
+<span><span class="va">var_weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span><span class="op">)</span> <span class="co">## The sum of weights should be 1.</span></span>
+<span><span class="va">periods</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">q_cal_period</span>, <span class="va">wq_cal_period</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'2007-01-01'</span>, <span class="st">'2011-12-26'</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Read the another observed data</span></span>
+<span><span class="co"># In case you want to use water quality data, read it here before applying the </span></span>
+<span><span class="co"># following code.</span></span>
+<span><span class="va">obs2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="va">wqobs_path</span><span class="op">)</span> </span>
+<span><span class="va">obs3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="va">gwobs_path</span><span class="op">)</span> </span>
+<span></span>
+<span><span class="co"># Calculate the performance metrics for each variable separately.</span></span>
+<span><span class="va">obj_tbl_m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_performance_2plus.html">calculate_performance_2plus</a></span><span class="op">(</span><span class="va">sim_flow_full</span>, <span class="va">var_to_use</span>, </span>
+<span>                                         <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">obs</span>, <span class="va">obs2</span>, <span class="va">obs3</span><span class="op">)</span>, <span class="va">periods</span>, </span>
+<span>                                         <span class="va">var_weights</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="hc_step8">8. Selecting the best parameter sets<a class="anchor" aria-label="anchor" href="#hc_step8"></a>
@@ -468,7 +483,7 @@ determines this. If <code>n_best = NULL</code> , then 20 the best sets
 are selected, otherwise this numebr is calculated based on specified
 ratio. The selected run IDs are obtained by arranging the parameter sets
 by their total rank and selecting the top fraction.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">n_best</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">n_best</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fl">20</span><span class="op">/</span><span class="va">n_comb</span>, <span class="va">n_best</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">run_sel_ids</span> <span class="op">&lt;-</span> <span class="va">obj_tbl</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
@@ -484,13 +499,13 @@ and the absolute percent bias (PBIAS) is less than 15. After selecting
 the run IDs based on these criteria, you can examine the selected
 parameter sets by printing the run IDs and extracting the corresponding
 rows from the <code>obj_tbl</code> data frame.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">run_sel_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu">str_remove</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">obj_tbl</span><span class="op">$</span><span class="va">nse</span> <span class="op">&gt;</span> <span class="fl">0.5</span> <span class="op">&amp;</span> </span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">run_sel_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_remove.html" class="external-link">str_remove</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">obj_tbl</span><span class="op">$</span><span class="va">nse</span> <span class="op">&gt;</span> <span class="fl">0.5</span> <span class="op">&amp;</span> </span>
 <span>                              <span class="va">obj_tbl</span><span class="op">$</span><span class="va">kge</span> <span class="op">&gt;</span> <span class="fl">0.5</span> <span class="op">&amp;</span> </span>
 <span>                              <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">obj_tbl</span><span class="op">$</span><span class="va">pbias</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">15</span><span class="op">)</span><span class="op">)</span>, <span class="st">'run_'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>You can examine the selected parameter sets by running the following
 code.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Selected run ids are: "</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">run_sel_ids</span>, collapse <span class="op">=</span> <span class="st">", "</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">obj_tbl_cal</span><span class="op">&lt;-</span> <span class="va">obj_tbl</span><span class="op">[</span><span class="va">run_sel_ids</span>,<span class="op">]</span></span></code></pre></div>
 <p>After this proceed to <a href="../articles/hc-plot.html">Plot
