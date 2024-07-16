@@ -1,7 +1,7 @@
 Package: SWATtunR
 Type: Package
 Title: Soft & Hard Calibration, Validation Package for SWAT+ models
-Version: 0.0.1.9016
+Version: 0.0.1.9017
 Authors@R: c(
     person("Svajunas", "Plunge", , "svajunas.plunge@gmail.com", role = c("aut", "cre"),
         comment = c(ORCID = '0000-0001-8897-3349')),

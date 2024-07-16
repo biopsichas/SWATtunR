@@ -1,7 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/reference/hello.html</loc>
+    <loc>/404.html</loc>
+  </url>
+  <url>
+    <loc>/articles/hc-plot.html</loc>
+  </url>
+  <url>
+    <loc>/articles/hc-plus.html</loc>
+  </url>
+  <url>
+    <loc>/articles/hc.html</loc>
+  </url>
+  <url>
+    <loc>/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>/articles/qa.html</loc>
+  </url>
+  <url>
+    <loc>/articles/sc-crops.html</loc>
+  </url>
+  <url>
+    <loc>/articles/sc-wy.html</loc>
+  </url>
+  <url>
+    <loc>/articles/soft-cal.html</loc>
+  </url>
+  <url>
+    <loc>/articles/val.html</loc>
+  </url>
+  <url>
+    <loc>/authors.html</loc>
+  </url>
+  <url>
+    <loc>/index.html</loc>
+  </url>
+  <url>
+    <loc>/LICENSE-text.html</loc>
+  </url>
+  <url>
+    <loc>/news/index.html</loc>
   </url>
   <url>
     <loc>/reference/add_obj.html</loc>
@@ -25,15 +64,6 @@
     <loc>/reference/build_expression.html</loc>
   </url>
   <url>
-    <loc>/reference/calc_fdc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_fdc_rsr.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_segment_diff.html</loc>
-  </url>
-  <url>
     <loc>/reference/calculate_performance.html</loc>
   </url>
   <url>
@@ -41,6 +71,15 @@
   </url>
   <url>
     <loc>/reference/calculate_wyr.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calc_fdc.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calc_fdc_rsr.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calc_segment_diff.html</loc>
   </url>
   <url>
     <loc>/reference/copy_file_version.html</loc>
@@ -79,9 +118,6 @@
     <loc>/reference/grapes-.-grapes.html</loc>
   </url>
   <url>
-    <loc>/reference/grapes-_-grapes.html</loc>
-  </url>
-  <url>
     <loc>/reference/grapes-and-and-grapes.html</loc>
   </url>
   <url>
@@ -91,13 +127,19 @@
     <loc>/reference/grapes-slash-slash-grapes.html</loc>
   </url>
   <url>
+    <loc>/reference/grapes-_-grapes.html</loc>
+  </url>
+  <url>
     <loc>/reference/group_values.html</loc>
   </url>
   <url>
-    <loc>/reference/id_text_strings.html</loc>
+    <loc>/reference/hello.html</loc>
   </url>
   <url>
     <loc>/reference/identify_sequence.html</loc>
+  </url>
+  <url>
+    <loc>/reference/id_text_strings.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
@@ -184,51 +226,12 @@
     <loc>/reference/update_plant_par.html</loc>
   </url>
   <url>
-    <loc>/reference/write_cal_file.html</loc>
-  </url>
-  <url>
     <loc>/reference/write_calibration.html</loc>
   </url>
   <url>
+    <loc>/reference/write_cal_file.html</loc>
+  </url>
+  <url>
     <loc>/reference/write_tbl.html</loc>
-  </url>
-  <url>
-    <loc>/articles/soft-cal.html</loc>
-  </url>
-  <url>
-    <loc>/articles/hc-plot.html</loc>
-  </url>
-  <url>
-    <loc>/articles/hc-plus.html</loc>
-  </url>
-  <url>
-    <loc>/articles/hc.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/articles/sc-crops.html</loc>
-  </url>
-  <url>
-    <loc>/articles/sc-wy.html</loc>
-  </url>
-  <url>
-    <loc>/articles/val.html</loc>
-  </url>
-  <url>
-    <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
   </url>
 </urlset>

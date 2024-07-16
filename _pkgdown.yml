@@ -15,3 +15,7 @@ articles:
   - hc-plot
   - hc-plus
   - val
+- title: Quality Assurance
+  navbar: Quality Assurance
+  contents:
+  - qa
