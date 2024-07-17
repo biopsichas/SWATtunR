@@ -1,5 +1,5 @@
 ---
-title: "Quality Assurance"
+title: "Preparation"
 subtitle: "Workflow for SWAT+ model setup verification"
 output: html_document
 bibliography: ref.bib
@@ -30,7 +30,7 @@ install.packages('remotes')
 remotes::install_git('https://git.ufz.de/schuerz/swatdoctr')
 ```
 
-Following libraries are required for this workflow. Please load them with the following code.
+Load of `SWATdoctR` with the following line. This is the only package needed for the workflow.
 
 ```{r qa_libraries, eval = FALSE}
 library(SWATdoctR)  
@@ -62,17 +62,32 @@ add_kill_op(model_path)
 
 ## 4. Running the SWAT+ model (all plant stress factors deactivated) {#qa_step4}
 
-With `run_swat_verification()` SWAT+ simulations are performed for the model setup in the `model_path`, which will be used in the verification steps. The simulations for the analysis steps 1. to 3. above are preformed without plant stress activated. The simulation results are saved in the same folder where the SWAT+ project is located. The verification is an iterative step, where the simulation has to be repeated after identified issues in a model setup are fixed and verification steps are repeated. Every time the simulation is repeated it is saved with a new file name (to have all previous steps documented), with a name that follows the syntax *'\<project_name\>\_nostr\_\<version\>.rds'*. Automatically the new version is always increased by 1 with respect to the largest version number found in the folder. You can delete previous versions manually from the folder.
+With `run_swat_verification` SWAT+ simulations are performed for the model setup in the `model_path`, which will be used in the verification steps. The simulations for the analysis steps 1. to 3. above are preformed without plant stress activated. The simulation results are saved in the same folder where the SWAT+ project is located. The verification is an iterative step, where the simulation has to be repeated after identified issues in a model setup are fixed and verification steps are repeated. 
 
+Every time the simulation is repeated it is saved with a new file name (to have all previous steps documented), with a name that follows the syntax *'\<project_name\>\_nostr\_\<version\>.rds'*. It is also important to note that the outputs from the run_swat_verification function, depending on the setup, could be multiple gigabytes in size, which might cause `R` to break and restart. Therefore, archiving results is crucial. Automatically the new version is always increased by 1 with respect to the largest version number found in the folder. You can delete previous versions manually from the folder.
 
 ```{r qa_run, eval = FALSE}
+## Running SWAT+ model setup and saving outputs required for the workflow
 sim_nostress <- run_swat_verification(project_path = model_path,
                                       outputs = c('wb', 'mgt', 'plt'),
                                       years_skip = 3,
                                       nostress = 1)
 
+## Saving results into the file
 file_version <- get_file_version(parent_dir, save_name, '_nostr_') + 1
-saveRDS(sim_nostress, file = paste0(parent_dir,'/', save_name, '_nostr_', file_version,'.rds'))
+saveRDS(sim_nostress, file = paste0(parent_dir,'/', save_name, '_nostr_', 
+                                    file_version,'.rds'))
 ```
 
-More coming soon...
+Following lines could be used to load saved results from the file.
+
+```{r qa_load, eval = FALSE}
+file_version <- get_file_version(parent_dir, save_name, '_nostr_')
+sim_nostress <- readRDS(file = paste0(parent_dir,'/', 
+                                      save_name, '_nostr_', 
+                                      file_version,'.rds'))
+```
+
+The following analyses in [step 1](../articles/qa-st1.html), [step 2](../articles/qa-st2.html) and [step 3](../articles/qa-st4.html) use the file version file_version of `sim_nostress`.
+
+
