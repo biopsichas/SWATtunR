@@ -93,6 +93,234 @@ get_conc <- function(sim, not_conc = '^flo_day|^gwd', sediment = '^sed_'){
   return(sim)
 }
 
+#' Convert load and discharge time series into a concentration time series.
+#'
+#' Calculate a time series of concentration values from time series of
+#' load and discharge.
+#'
+#' @param load Data frame with a date column and one or many columns with load
+#'   values. The number of load columns must be the same as the number of
+#'   discharge columns in the data frame `flow`.
+#' @param flow Data frame with a date column and one or many columns with
+#' discharge values. The number of flow columns must be the same as the number
+#' of load columns in the data frame `load`.
+#' @param load_unit Unit of the load values provided as a text string in the
+#'   format `'mass time-1`. Default is `'kg day-1'`.
+#' @param flow_unit Unit of the discharge values provided as a text string in
+#' the format `'volume time-1`. Default is `'m3 s-1'`.
+#' @param out_unit Unit of the concentration values provided as a text string in
+#' the format `'mass volume-1`. Default is `'mg L-1'`.
+#'
+#' @importFrom dplyr bind_cols filter inner_join %>%
+#' @importFrom lubridate is.Date
+#' @importFrom purrr map_lgl
+#' @importFrom stringr str_detect str_replace
+#' @importFrom tibble as_tibble
+#' @importFrom tidyselect any_of
+#' @importFrom units as_units
+#'
+#' @return A table with date column and calculated concentration values.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Example usage:
+#' date_load <- seq(as.Date('2000-01-01'), as.Date('2000-12-31'), by = '2 week')
+#' date_flow <- seq(as.Date('2000-01-01'), as.Date('2000-12-31'), by = 'day')
+#'
+#' l_df <- data.frame(date = date_load,
+#'                    value = runif(length(date_load)))
+#'
+#' f_df <- data.frame(date = date_flow,
+#'                    value = runif(length(date_flow)))
+#'
+#' conc <- load_to_conc(load = l_df, flow = f_df, load_unit = 'tons day-1')
+#' }
+#' @keywords data manipulation
+#'
+load_to_conc <- function(load, flow,
+                         load_unit = 'kg day-1', flow_unit = 'm3 s-1',
+                         out_unit = 'mg L-1') {
+  # Get the names of the date columns
+  date_col_load <- names(which(map_lgl(load, ~ is.Date(.x))))
+  date_col_flow <- names(which(map_lgl(flow, ~ is.Date(.x))))
+
+  if(length(date_col_load) == 0) {
+    stop("No date column found in 'load'.")
+  }
+  if(length(date_col_load) > 1) {
+    stop("More than one date columns found in 'load'.")
+  }
+  if(length(date_col_flow) == 0) {
+    stop("No date column found in 'flow'.")
+  }
+  if(length(date_col_flow) > 1) {
+    stop("More than one date columns found in 'flow'.")
+  }
+
+  names(load)[names(df) == date_col_load] <- 'date'
+  names(flow)[names(df) == date_col_flow] <- 'date'
+
+  # Check date columns for duplicate entries.
+  if(any(duplicated(load$date))) {
+    stop("Duplicated date entries were found in 'load'.")
+  }
+  if(any(duplicated(flow$date))) {
+    stop("Duplicated date entries were found in 'flow'.")
+  }
+
+  # Generate a vector with dates which are available in load and flow
+  if ('unit' %in% names(load) & 'unit' %in% names(flow)) {
+    join_var <- c('unit', 'date')
+  } else {
+    join_var <- 'date'
+  }
+  dates_avail <- inner_join(load[join_var], flow[join_var], by = join_var)
+
+  # Filter only dates where data in load and flow are available
+  load <- filter(load, date %in% dates_avail$date)
+  load <- select(load, - any_of(join_var))
+  flow <- filter(flow, date %in% dates_avail$date)
+  flow <- select(flow, - any_of(join_var))
+
+  # Add 1000 if unit is tons. This workaround was introduced as
+  # metric tons in package units are not exactly 1000 kg.
+  if(str_detect(load_unit, 'tons')) {
+    # install_unit('tons', '1000 kg', 'Metric tons')
+    c1 <- 1000
+    load_unit <- str_replace(load_unit, 'tons', 'kg')
+  } else {
+    c1 <- 1
+  }
+
+  # Get conversion factor from units
+  l <- as_units(1, load_unit)
+  f <- as_units(1, flow_unit)
+  c <- c1*l/f
+  units(c) <- out_unit
+  c <- as.numeric(c)
+
+  # Calculate concentration tibble from load flow and conversion factor
+  conc <- as_tibble(c* as.matrix(load) / as.matrix(flow))
+  conc <- bind_cols(dates_avail, conc)
+
+  return(conc)
+}
+
+#' Convert concentration and discharge time series into a load time series.
+#'
+#' Calculate a time series of load values from time series of
+#' concentration and discharge.
+#'
+#' @param conc Data frame with a date column and one or many columns with
+#' concentration values. The number of concentration columns must be the same as
+#' the number of discharge columns in the data frame `flow`.
+#' @param flow Data frame with a date column and one or many columns with
+#' discharge values. The number of flow columns must be the same as the number
+#' of concentration columns in the data frame `conc`.
+#' @param conc_unit Unit of the concentration values provided as a text string in
+#' the format `'mass volume-1`. Default is `'mg L-1'`.
+#' @param flow_unit Unit of the discharge values provided as a text string in
+#' the format `'volume time-1`. Default is `'m3 s-1'`.
+#' @param out_unit Unit of the load values provided as a text string in the
+#'   format `'mass time-1`. Default is `'kg day-1'`.
+#'
+#' @importFrom dplyr bind_cols filter inner_join %>%
+#' @importFrom lubridate is.Date
+#' @importFrom purrr map_lgl
+#' @importFrom stringr str_detect str_replace
+#' @importFrom tibble as_tibble
+#' @importFrom tidyselect any_of
+#' @importFrom units as_units
+#'
+#' @return A table with date column and calculated concentration values.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Example usage:
+#' date_conc <- seq(as.Date('2000-01-01'), as.Date('2000-12-31'), by = '2 week')
+#' date_flow <- seq(as.Date('2000-01-01'), as.Date('2000-12-31'), by = 'day')
+#'
+#' c_df <- data.frame(date = date_conc,
+#'                    value = runif(length(date_conc)))
+#'
+#' f_df <- data.frame(date = date_flow,
+#'                    value = runif(length(date_flow)))
+#'
+#' load <- conc_to_load(conc = c_df, flow = f_df, out_unit = 'tons day-1')
+#' }
+#' @keywords data manipulation
+#'
+conc_to_load <- function(conc, flow,
+                         conc_unit = 'mg L-1', flow_unit = 'm3 s-1',
+                         out_unit = 'kg day-1') {
+  # Get the names of the date columns
+  date_col_conc <- names(which(map_lgl(conc, ~ is.Date(.x))))
+  date_col_flow <- names(which(map_lgl(flow, ~ is.Date(.x))))
+
+  if(length(date_col_conc) == 0) {
+    stop("No date column found in 'conc'.")
+  }
+  if(length(date_col_conc) > 1) {
+    stop("More than one date columns found in 'conc'.")
+  }
+  if(length(date_col_flow) == 0) {
+    stop("No date column found in 'flow'.")
+  }
+  if(length(date_col_flow) > 1) {
+    stop("More than one date columns found in 'flow'.")
+  }
+
+  names(conc)[names(df) == date_col_conc] <- 'date'
+  names(flow)[names(df) == date_col_flow] <- 'date'
+
+  # Check date columns for duplicate entries.
+  if(any(duplicated(conc$date))) {
+    stop("Duplicated date entries were found in 'conc'.")
+  }
+  if(any(duplicated(flow$date))) {
+    stop("Duplicated date entries were found in 'flow'.")
+  }
+
+  # Generate a vector with dates which are available in load and flow
+  if ('unit' %in% names(conc) & 'unit' %in% names(flow)) {
+    join_var <- c('unit', 'date')
+  } else {
+    join_var <- 'date'
+  }
+  dates_avail <- inner_join(conc[join_var], flow[join_var], by = join_var)
+
+  # Filter only dates where data in conc and flow are available
+  conc <- filter(conc, date %in% dates_avail$date)
+  conc <- select(conc, - any_of(join_var))
+  flow <- filter(flow, date %in% dates_avail$date)
+  flow <- select(flow, - any_of(join_var))
+
+  # Add 1000 if unit is tons. This workaround was introduced as
+  # metric tons in package units are not exactly 1000 kg.
+  if(str_detect(out_unit, 'tons')) {
+    # install_unit('tons', '1000 kg', 'Metric tons')
+    c1 <- 1000
+    out_unit <- str_replace(out_unit, 'tons', 'kg')
+  } else {
+    c1 <- 1
+  }
+
+  # Get conversion factor from units
+  c <- as_units(1, conc_unit)
+  f <- as_units(1, flow_unit)
+  l <- c*f/c1
+  units(l) <- out_unit
+  l <- as.numeric(l)
+
+  # Calculate concentration tibble from load flow and conversion factor
+  load <- as_tibble(l* as.matrix(conc) * as.matrix(flow))
+  load <- bind_cols(dates_avail, load)
+
+  return(load)
+}
+
 # Generating parameter samples  ---------------------------------------------------------------------
 
 #' Sample parameters space
