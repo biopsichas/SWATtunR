@@ -1,7 +1,7 @@
 Package: SWATtunR
 Type: Package
-Title: Soft & Hard Calibration, Validation Package for SWAT+ models
-Version: 0.0.2
+Title: Soft Calibration, Hard Calibration, and Validation for SWAT+ Models
+Version: 0.1.0.9000
 Authors@R: c(
     person("Svajunas", "Plunge", , "svajunas.plunge@gmail.com", role = c("aut", "cre"),
         comment = c(ORCID = '0000-0001-8897-3349')),
@@ -35,6 +35,7 @@ Imports:
     scales,
     stats,
     stringr,
+    units,
     xts
 Suggests: 
     knitr,
