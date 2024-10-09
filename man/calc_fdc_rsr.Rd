@@ -29,5 +29,6 @@ fdc_sim <- calc_fdc(runif(100))
 fdc_obs <- calc_fdc(runif(100))
 rsr_values <- calc_fdc_rsr(fdc_sim, fdc_obs, c(5, 20, 70, 95))
 }
+
 }
-\keyword{internal}
+\keyword{helper}

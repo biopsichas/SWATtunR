@@ -413,13 +413,13 @@ sample_oat <- function(par, par_center = 1, n_t = 10) {
 #' (e.g. `list(nse_q = NSE, pb_q = pbias)`). In this case the column names of
 #' returned table will be those names. If the list is unnamed then the function
 #' names will be the column names.
-#' @return A table with the calculated goodness-of-fit values.
 #'
-#' @importFrom dplyr mutate group_by summarize_all left_join select everything row_number %>%
-#' @importFrom lubridate month floor_date
-#' @importFrom purrr map_dbl map2 reduce
-#' @importFrom stats cor
-#' @importFrom readr parse_number
+#' @returns A table with the calculated goodness-of-fit values.
+#'
+#' @importFrom dplyr bind_cols filter inner_join mutate select %>%
+#' @importFrom lubridate is.Date
+#' @importFrom purrr map_lgl
+#' @importFrom tidyselect any_of
 #'
 #' @export
 #'
@@ -507,6 +507,8 @@ calc_gof <- function(sim, obs, funs) {
 #' @param obs Data frame with one value column.
 #' @param fun Goodness-of-fit function
 #'
+#' @importFrom purrr map_dbl
+#'
 #' @returns A vector of goodness-of-fit values for each column of `sim`
 #'   calculated with `fun`
 #' @export
@@ -515,6 +517,76 @@ calc_gof <- function(sim, obs, funs) {
 #'
 calc_gof_i <- function(sim, obs, fun) {
   map_dbl(sim, ~ fun(.x, obs[[1]]))
+}
+
+#' Rank lines in a table of goodness-of-fit values.
+#'
+#' `rank_gof()` ranks each column of a goodness-of-fit table either by absolute
+#' ranks or normalized GOF values and calculates a total rank for each line.
+#'
+#' @param gof_tbl Table with goodness-of-fit values, where each column provides
+#'   the values for all `run`s of one GOF index
+#' @param weights (optional) weights vector to apply different weights to
+#'   the goodness-of-fit indices for the calculation of the total rank.
+#' @param type Either `'rank'` to calculate absolute ranks or `'norm'` to use
+#'   normalized values of the indices.
+#'
+#' @importFrom dplyr arrange bind_cols mutate select %>%
+#' @importFrom purrr map map2 pmap_dbl
+#' @importFrom tidyselect any_of
+#'
+#' @returns A rank table for all goodness-of-fit columns and a total rank.
+#'
+#' @export
+#'
+rank_gof <- function(gof_tbl, weights = NULL, type = 'rank') {
+  runs <- select(gof_tbl, any_of('run'))
+  gof_tbl <- select(gof_tbl, -any_of('run'))
+
+  if(type == 'rank') {
+    rank_tbl <- gof_tbl %>%
+      map(., rank) %>%
+      bind_cols(.)
+  } else {
+    rank_tbl <- gof_tbl %>%
+      map(., normalize) %>%
+      bind_cols(.)
+  }
+  if(! is.null(weights)) {
+    if(length(weights) != ncol(gof_tbl)) {
+      stop("'weights' must be the same length as the number of columns of 'gof_tbl'.")
+    }
+    weights <- weights / sum(weights)
+  } else {
+    weights <- rep(1, ncol(gof_tbl)) / ncol(gof_tbl)
+  }
+
+  rank_tot <- map2(rank_tbl, weights, ~ .x*.y) %>%
+    pmap_dbl(., sum)
+
+  if(type == 'rank') {
+    rank_tot <- round(rank_tot)
+  }
+
+  rank_tbl <- rank_tbl %>%
+    mutate(run = runs[[1]],
+           rank_tot = rank_tot,
+           .before = 1) %>%
+    arrange(., rank_tot)
+
+  return(rank_tbl)
+}
+
+#' Normalize values in vector between 0 and 1
+#'
+#' @param x Numeric vector
+#'
+#' @returns A vector with normalized values.
+#'
+#' @keywords internal
+#'
+normalize <- function(x) {
+  (x - min(x)) / (max(x) - min(x))
 }
 
 #' Calculate All Performance Metrics
