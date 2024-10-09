@@ -326,6 +326,8 @@ plot_selected_sim <- function(sim, obs = NULL, par_name = NULL, run_ids = NULL, 
 
 
 plot_parameter_identifiability <- function(parameters, objectives, run_fraction = NULL) {
+  objectives <- select(objectives, - any_of('run'))
+
   if(is.null(run_fraction)) {
     nb_run <- dim(parameters)[1]
     if(nb_run >= 5000){
