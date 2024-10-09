@@ -158,23 +158,25 @@ load_to_conc <- function(load, flow,
     stop("More than one date columns found in 'flow'.")
   }
 
-  names(load)[names(df) == date_col_load] <- 'date'
-  names(flow)[names(df) == date_col_flow] <- 'date'
+  names(load)[names(load) == date_col_load] <- 'date'
+  names(flow)[names(load) == date_col_flow] <- 'date'
 
-  # Check date columns for duplicate entries.
-  if(any(duplicated(load$date))) {
-    stop("Duplicated date entries were found in 'load'.")
-  }
-  if(any(duplicated(flow$date))) {
-    stop("Duplicated date entries were found in 'flow'.")
-  }
-
-  # Generate a vector with dates which are available in load and flow
+  # If unit column is in tables use unit and date as group/join variables
   if ('unit' %in% names(load) & 'unit' %in% names(flow)) {
     join_var <- c('unit', 'date')
   } else {
     join_var <- 'date'
   }
+
+  # Check date columns for duplicate entries.
+  if(anyDuplicated(load[, join_var])) {
+    stop("Duplicated date entries were found in 'load'.")
+  }
+  if(anyDuplicated(flow[, join_var])) {
+    stop("Duplicated date entries were found in 'flow'.")
+  }
+
+  # Generate a vector with dates which are available in load and flow
   dates_avail <- inner_join(load[join_var], flow[join_var], by = join_var)
 
   # Filter only dates where data in load and flow are available
@@ -272,23 +274,25 @@ conc_to_load <- function(conc, flow,
     stop("More than one date columns found in 'flow'.")
   }
 
-  names(conc)[names(df) == date_col_conc] <- 'date'
-  names(flow)[names(df) == date_col_flow] <- 'date'
+  names(conc)[names(conc) == date_col_conc] <- 'date'
+  names(flow)[names(flow) == date_col_flow] <- 'date'
 
-  # Check date columns for duplicate entries.
-  if(any(duplicated(conc$date))) {
-    stop("Duplicated date entries were found in 'conc'.")
-  }
-  if(any(duplicated(flow$date))) {
-    stop("Duplicated date entries were found in 'flow'.")
-  }
-
-  # Generate a vector with dates which are available in load and flow
+  # If unit column is in tables use unit and date as group/join variables
   if ('unit' %in% names(conc) & 'unit' %in% names(flow)) {
     join_var <- c('unit', 'date')
   } else {
     join_var <- 'date'
   }
+
+  # Check date columns for duplicate entries.
+  if(anyDuplicated(conc[, join_var])) {
+    stop("Duplicated date entries were found in 'conc'.")
+  }
+  if(anyDuplicated(conc[, join_var])) {
+    stop("Duplicated date entries were found in 'flow'.")
+  }
+
+  # Generate a vector with dates which are available in load and flow
   dates_avail <- inner_join(conc[join_var], flow[join_var], by = join_var)
 
   # Filter only dates where data in conc and flow are available
@@ -394,6 +398,36 @@ sample_oat <- function(par, par_center = 1, n_t = 10) {
 
 
 # Evaluate model performance ---------------------------------------------------
+
+calc_gof <- function(sim, obs, funs) {
+  # Get the names of the date columns
+  date_col_sim <- names(which(map_lgl(sim, ~ is.Date(.x))))
+  date_col_obs <- names(which(map_lgl(obs, ~ is.Date(.x))))
+
+  if(length(date_col_sim) == 0) {
+    stop("No date column found in 'sim'.")
+  }
+  if(length(date_col_sim) > 1) {
+    stop("More than one date columns found in 'sim'.")
+  }
+  if(length(date_col_obs) == 0) {
+    stop("No date column found in 'obs'.")
+  }
+  if(length(date_col_obs) > 1) {
+    stop("More than one date columns found in 'obs'.")
+  }
+
+  names(sim)[names(sim) == date_col_sim] <- 'date'
+  names(obs)[names(obs) == date_col_obs] <- 'date'
+
+  # Check date columns for duplicate entries.
+  if(any(duplicated(sim$date))) {
+    stop("Duplicated date entries were found in 'sim'.")
+  }
+  if(any(duplicated(obs$date))) {
+    stop("Duplicated date entries were found in 'obs'.")
+  }
+}
 
 #' Calculate All Performance Metrics
 #'
