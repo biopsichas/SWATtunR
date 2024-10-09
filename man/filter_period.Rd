@@ -22,5 +22,10 @@ The table \code{tbl} with the filtered rows based on the \code{time_window}.
 \code{filter_period()} filters rows from a table which has one date column, where
 the dates are in the time range within the \code{time_window}.
 }
+\examples{
+\dontrun{
+flow_sim <- filter_period(tbl = flow_sim, time_window = c(2010, 2015))
+}
+}
 \keyword{data}
 \keyword{manipulation}

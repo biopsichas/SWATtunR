@@ -228,6 +228,7 @@ fix_dates <- function(runr_obj, obs_obj, trim_start = NULL, trim_end = NULL){
 #'
 #' @export
 #'
+#' @examples
 #' \dontrun{
 #' flow_sim <- filter_period(tbl = flow_sim, time_window = c(2010, 2015))
 #' }
