@@ -20,5 +20,6 @@ This function calculates the flow duration curve for a given vector or dataframe
 \dontrun{
 fdc <- calc_fdc(c(3, 1, 4, 1, 5, 9, 2, 6, 5))
 }
+
 }
-\keyword{internal}
+\keyword{helper}

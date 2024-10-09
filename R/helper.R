@@ -222,20 +222,58 @@ fix_dates <- function(runr_obj, obs_obj, trim_start = NULL, trim_end = NULL){
 #' @return a tibble with sorted values and their corresponding exceedance
 #' probabilities.
 #'
+#' @importFrom dplyr group_split mutate select %>%
+#' @importFrom purrr list_rbind map map2
 #' @importFrom tibble tibble
-#' @importFrom dplyr mutate %>%
+#' @importFrom tidyselect any_of
 #'
 #' @examples
 #' \dontrun{
 #' fdc <- calc_fdc(c(3, 1, 4, 1, 5, 9, 2, 6, 5))
 #' }
-#' @keywords internal
-
+#'
+#' @export
+#' @keywords helper
+#'
 calc_fdc <- function(x) {
   if(is.vector(x)) {
     x <- tibble(value = x)
   }
+  x <- select(x, - any_of('date'))
 
+  if('unit' %in% names(x)) {
+    u_i <- unique(x$unit)
+    x <- x %>%
+      mutate(unit = factor(unit, u_i)) %>%
+      group_split(., unit) %>%
+      map(., ~ select(.x, -unit))
+    x <- x %>%
+      map(., calc_fdc_i) %>%
+      map2(., u_i, ~ mutate(.x, unit = .y, .before = 1)) %>%
+      list_rbind(.)
+
+  } else {
+    x <- calc_fdc_i(x)
+  }
+
+  return(x)
+}
+
+#' Calculate Flow Duration Curve (FDC) for list element i
+#'
+#' Calculate the flow duration curve for a given vector or dataframe.
+#'
+#' @param x A vector or a tibble with flow values.
+#'
+#' @return a tibble with sorted values and their corresponding exceedance
+#' probabilities.
+#'
+#' @importFrom dplyr mutate %>%
+#' @importFrom tibble as_tibble
+#'
+#' @keywords internal
+#'
+calc_fdc_i <- function(x) {
   n <- nrow(x)
 
   x %>%
@@ -266,9 +304,10 @@ calc_fdc <- function(x) {
 #' fdc_obs <- calc_fdc(runif(100))
 #' rsr_values <- calc_fdc_rsr(fdc_sim, fdc_obs, c(5, 20, 70, 95))
 #' }
-#' @keywords internal
-
-
+#'
+#' @export
+#' @keywords helper
+#'
 calc_fdc_rsr <- function(fdc_sim, fdc_obs, quantile_splits, out_tbl = 'long') {
   if(all(quantile_splits <= 1)) {
     quantile_splits <- 100 * quantile_splits
