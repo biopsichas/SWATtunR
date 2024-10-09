@@ -25,7 +25,7 @@ nh3_sim  <- sim$simulation$nh3_day
 no2_sim  <- sim$simulation$no2_day
 orgn_sim <- sim$simulation$orgn_day
 
-ntot_sim <- add_variables(no3_sim, nh3_sim, no2_sim, orgn_sim)
+ntot_sim <- sum_variables(no3_sim, nh3_sim, no2_sim, orgn_sim)
 }
 
 }
