@@ -399,7 +399,56 @@ sample_oat <- function(par, par_center = 1, n_t = 10) {
 
 # Evaluate model performance ---------------------------------------------------
 
+#' Calculate a goodness-of-fit table
+#'
+#' `calc_gof()` calculates goodness-of-fit inices for simulated time series
+#' `sim` and observations `obs` applying the functions passed as a list
+#' with `funs`.
+#'
+#' @param sim Data frame with one date column and one or many columns with
+#'   values of the simulated variable.
+#' @param obs Data frame with one date and one value column.
+#' @param funs List of functions which are applied to calculate the
+#'   goodnes-of-fit values. The list can be a named list
+#' (e.g. `list(nse_q = NSE, pb_q = pbias)`). In this case the column names of
+#' returned table will be those names. If the list is unnamed then the function
+#' names will be the column names.
+#' @return A table with the calculated goodness-of-fit values.
+#'
+#' @importFrom dplyr mutate group_by summarize_all left_join select everything row_number %>%
+#' @importFrom lubridate month floor_date
+#' @importFrom purrr map_dbl map2 reduce
+#' @importFrom stats cor
+#' @importFrom readr parse_number
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' date_flow <- seq(as.Date('2000-01-01'), as.Date('2000-12-31'), by = 'day')
+#'
+#' flow_sim <- data.frame(date = date_flow,
+#'                        run_1 = runif(length(date_flow)),
+#'                        run_2 = runif(length(date_flow))
+#'                        )
+#' flow_obs <- data.frame(date = date_flow,
+#'                        qobs = runif(length(date_flow))
+#'                        )
+#'
+#' obj_tbl <- calc_gof(sim = flow_sim, obs = flow_obs, funs = list(cor_q = cor))
+#' }
+#'
+#' @keywords calculate
+#'
 calc_gof <- function(sim, obs, funs) {
+  fun_names <- as.character(substitute(funs))[-1]
+  list_names <- names(funs)
+  fun_names[nchar(list_names) > 0] <- list_names[nchar(list_names) > 0]
+
+  if(ncol(obs) != 2) {
+    stop("'obs' must consist of one date and one variable column.")
+  }
+
   # Get the names of the date columns
   date_col_sim <- names(which(map_lgl(sim, ~ is.Date(.x))))
   date_col_obs <- names(which(map_lgl(obs, ~ is.Date(.x))))
@@ -420,13 +469,52 @@ calc_gof <- function(sim, obs, funs) {
   names(sim)[names(sim) == date_col_sim] <- 'date'
   names(obs)[names(obs) == date_col_obs] <- 'date'
 
+  # If unit column is in tables use unit and date as group/join variables
+  if ('unit' %in% names(sim) & 'unit' %in% names(obs)) {
+    join_var <- c('unit', 'date')
+  } else {
+    join_var <- 'date'
+  }
+
   # Check date columns for duplicate entries.
-  if(any(duplicated(sim$date))) {
-    stop("Duplicated date entries were found in 'sim'.")
+  if(anyDuplicated(sim[, join_var])) {
+    stop("Duplicated date entries were found in 'load'.")
   }
-  if(any(duplicated(obs$date))) {
-    stop("Duplicated date entries were found in 'obs'.")
+  if(anyDuplicated(sim[, join_var])) {
+    stop("Duplicated date entries were found in 'flow'.")
   }
+
+  # Generate a vector with dates which are available in load and flow
+  dates_avail <- inner_join(sim[join_var], obs[join_var], by = join_var)
+
+  # Filter only dates where data in load and flow are available
+  sim <- filter(sim, date %in% dates_avail$date)
+  sim <- select(sim, - any_of(join_var))
+  obs <- filter(obs, date %in% dates_avail$date)
+  obs <- select(obs, - any_of(join_var))
+
+  gofs <- map(funs, ~ calc_gof_i(sim, obs, .x)) %>%
+    bind_cols(., .name_repair = ~ fun_names) %>%
+    mutate(., name = names(sim), .before = 1)
+
+  return(gofs)
+}
+
+#' Calculate goodness-of-fit values for one function
+#'
+#' @param sim Data frame with one or many columns with values of the simulated
+#'   variable.
+#' @param obs Data frame with one value column.
+#' @param fun Goodness-of-fit function
+#'
+#' @returns A vector of goodness-of-fit values for each column of `sim`
+#'   calculated with `fun`
+#' @export
+#'
+#' @keywords internal
+#'
+calc_gof_i <- function(sim, obs, fun) {
+  map_dbl(sim, ~ fun(.x, obs[[1]]))
 }
 
 #' Calculate All Performance Metrics
