@@ -495,7 +495,7 @@ calc_gof <- function(sim, obs, funs) {
 
   gofs <- map(funs, ~ calc_gof_i(sim, obs, .x)) %>%
     bind_cols(., .name_repair = ~ fun_names) %>%
-    mutate(., name = names(sim), .before = 1)
+    mutate(., run = names(sim), .before = 1)
 
   return(gofs)
 }
