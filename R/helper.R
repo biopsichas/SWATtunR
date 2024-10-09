@@ -15,8 +15,9 @@
 #' @return A string with grouped values. For numeric inputs, ranges are collapsed
 #' and separated by the specified separator. Non-numeric inputs are concatenated
 #' with ', '. If all values are NA, an empty string is returned.
+#'
 #' @keywords internal
-
+#'
 group_values <- function(vals, sep = ':', n_trunc = Inf) {
   if(all(is.na(vals))) {
     ''
@@ -209,6 +210,57 @@ fix_dates <- function(runr_obj, obs_obj, trim_start = NULL, trim_end = NULL){
          Please check the observation data and correct this.")
   }
   return(list(sim=runr_obj, obs=obs_obj))
+}
+
+#' Filter a time period for a variable time series table.
+#'
+#' `filter_period()` filters rows from a table which has one date column, where
+#' the dates are in the time range within the `time_window`.
+#'
+#' @param tbl Variable time series table, were one column is of type date and
+#'   all other columns are numeric values
+#' @param time_window Vector of length 2 which provides the start and end dates
+#'   of the time window to be filtered. Must be in any format such as
+#'   `c(2000, 2010)`, or `c(20000101, 20101231)`, or e.g.
+#'   `c('2000-01-01', '2010-12-31')`
+#'
+#' @returns The table `tbl` with the filtered rows based on the `time_window`.
+#'
+#' @export
+#'
+#' \dontrun{
+#' flow_sim <- filter_period(tbl = flow_sim, time_window = c(2010, 2015))
+#' }
+#' @keywords data manipulation
+filter_period <- function(tbl, time_window) {
+  date_col <- names(which(map_lgl(tbl, is.Date)))
+
+  if(length(date_col) != 1) {
+    stop("Exactly one column in 'tbl' must be of type 'Date'.")
+  }
+
+  if(length(time_window) != 2) {
+    stop("'time_window' must be of length 2 providing a start and an end date.")
+  }
+  if(nchar(time_window[1]) != nchar(time_window[1])) {
+    stop("The formats of start and end date of 'time_window' differ.")
+  }
+  if(nchar(time_window[1]) == 4) {
+    time_window[1] <- paste0(as.character(time_window[1]), '-01-01')
+    time_window[2] <- paste0(as.character(time_window[2]), '-12-31')
+  }
+
+  time_window <- as.Date(time_window)
+
+  if (time_window[1] > time_window[2]) {
+    stop("The first value of 'time_window' is greater than the second value.")
+  }
+
+  tbl <- filter(tbl,
+                !!sym(date_col) >= time_window[1],
+                !!sym(date_col) <= time_window[2])
+
+  return(tbl)
 }
 
 # Flow duration curve calculation functions ------------------------------------
