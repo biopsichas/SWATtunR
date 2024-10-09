@@ -627,4 +627,35 @@ find_par_range <- function(par, sim, obj, rel_rng) {
               y = sim_interpol$y))
 }
 
-
+#' Sum values of simulated variables
+#'
+#' `sum_variables()` sums the values of provided simulated variable tables.
+#' The `date` and the `unit` columns are excluded. All other elements are summed
+#' element wise. This is useful e.g. to calculate total Nitrogen from simulated
+#' N fractions.
+#'
+#' @param ... Variable tables which should be summed up.
+#' @importFrom dplyr bind_cols select
+#' @importFrom purrr map
+#' @return Returns a variable table with element wise summed values.
+#'
+#' @examples
+#' \dontrun{
+#' no3_sim  <- sim$simulation$no3_day
+#' nh3_sim  <- sim$simulation$nh3_day
+#' no2_sim  <- sim$simulation$no2_day
+#' orgn_sim <- sim$simulation$orgn_day
+#'
+#' ntot_sim <- add_variables(no3_sim, nh3_sim, no2_sim, orgn_sim)
+#' }
+#'
+#' @export
+#' @keywords helper
+#'
+sum_variables <- function(...) {
+  date <- select(..1, any_of(c('unit', 'date')))
+  var_list <- map(list(...), ~ select(.x, - any_of(c('unit', 'date'))))
+  var_tbl <- Reduce('+', var_list)
+  var_tbl <- bind_cols(date, var_tbl)
+  return(var_tbl)
+}
