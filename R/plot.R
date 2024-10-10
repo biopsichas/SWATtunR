@@ -810,3 +810,166 @@ plot_esco_range <- function(sim, obs_wy_ratio, rel_wyr_lim = 0.05) {
     theme_bw()
 }
 
+#' View interactive time series of simulation results and observations
+#'
+#' This function plots interactive time series comparing simulated data with observed data.
+#'
+#' @param sim Data frame with one date column and one or many columns with
+#'   values of the simulated variable.
+#' @param obs (optional) Data frame with one date and one value column.
+#'   Default `obs = NULL`, only simulations are plotted.
+#' @param run_ids (optional) Integer vector of run IDs to plot.
+#' Default \code{run_ids = NULL} requires input of run_sel.
+#' @param run_sel (optional) Integer vector of run IDs to emphasize in the plot.
+#'  Default \code{run_sel = NULL} requires input of run_ids.
+#' @param plot_bands (optional) Logical. If TRUE, includes lower and upper bands of results.
+#' Default \code{plot_bands = TRUE}.
+#' @param period (optional) Character defining the time step for aggregation. Options include "day", "week",
+#' "month", "year", etc. Use "average monthly" for multi-annual monthly values.
+#' Default \code{period = NULL} provides no aggregation. See [lubridate::floor_date](https://www.rdocumentation.org/packages/lubridate/versions/1.3.3/topics/floor_date) for details.
+#' @param fn_summarize Function to summarize time intervals. Default \code{fn_summarize ="mean"}, other examples are "median", "sum".
+#' See [dplyr::summarise](https://dplyr.tidyverse.org/reference/summarise.html) for details.
+#' @param x_label (optional) Character for x axis label. Default \code{x_label = "Date"}.
+#' @param y_label (optional) Character for y axis label. Default \code{y_label = "Discharge (m³/s)"}.
+#'
+#' @return Interactive plot of simulated and observed data.
+#' @export
+#'
+#' @importFrom dplyr mutate group_by summarize_all select left_join bind_cols
+#' @importFrom tibble add_column
+#' @importFrom xts xts
+#' @importFrom dygraphs dygraph dyRangeSelector dySeries dyHighlight
+#' @importFrom lubridate is.Date month floor_date
+#' @examples
+#' \dontrun{
+#' plot_selected_sim(sim_flow, obs = obs, run_sel = c(95), run_ids = run_sel_ids,
+#' period = "average monthly", plot_bands = TRUE)
+#' }
+#' @keywords plot
+
+view_timeseries <- function(sim, obs = NULL, run_ids = NULL, run_sel = NULL, plot_bands = TRUE,
+                            period = NULL, fn_summarize = 'mean',
+                            x_label = 'Date', y_label = "Discharge (m<sup>3</sup> s<sup>-1</sup>)") {
+
+  # Change the time step to the period of interest.
+  if(!is.null(period)) {
+    if(period == "average monthly"){
+      sim <- mutate(sim, date = month(date)) %>%
+        group_by(date) %>%
+        summarize_all(get(fn_summarize))
+      obs <- mutate(obs, date = month(date)) %>%
+        group_by(date) %>%
+        summarize_all(get(fn_summarize))
+    } else {
+      sim <- mutate(sim, date = floor_date(date , period)) %>%
+        group_by(date) %>%
+        summarize_all(get(fn_summarize))
+      obs <- mutate(obs, date = floor_date(date , period)) %>%
+        group_by(date) %>%
+        summarize_all(get(fn_summarize))
+    }
+  }
+
+
+  if(is.null(run_ids) & is.null(run_sel)) {
+    stop("At least one of 'run_ids' or 'run_sel' must be provided.")
+  }
+  if(!is.Date(sim[[1]])){
+    if(!is.null(period) && period != "average monthly"){
+      stop("The first column of 'sim' must by of type 'Date'.")
+    }
+  }
+
+  dy_tbl <- select(sim, date)
+
+  if(!is.null(obs)) {
+    if(!is.Date(obs[[1]])){
+      if(!is.null(period) && period != "average monthly"){
+        stop("The first column of 'obs' must by of type 'Date'.")
+      }
+    }
+    names(obs) <- c('date', 'obs')
+    dy_tbl <- left_join(dy_tbl, obs, by = 'date')
+  }
+
+  nchar_run <- nchar(names(sim)[2]) - 4
+
+  if(!is.null(run_sel)) {
+    run_sel <- paste0('run_', sprintf(paste0('%0', nchar_run, 'd'), as.numeric(run_sel)))
+    dy_tbl <- add_column(dy_tbl, sim_sel = sim[, run_sel])
+  }
+
+  if(!is.null(run_ids)) {
+    run_ids <- paste0('run_', sprintf(paste0('%0', nchar_run, 'd'), as.numeric(run_ids)))
+    sim_ids <- sim[, run_ids]
+    if(plot_bands) {
+      sim_upr <- apply(sim_ids, 1, max)
+      sim_lwr <- apply(sim_ids, 1, min)
+      dy_tbl <- add_column(dy_tbl, upr   = sim_upr, lwr   = sim_lwr,
+                           upr_l = sim_upr, lwr_l = sim_lwr)
+    } else {
+      dy_tbl <- bind_cols(dy_tbl, sim_ids)
+    }
+  }
+
+  if (is.null(period) || period != "average monthly") {
+    dy_xts <- xts(dy_tbl[,-1], order.by = dy_tbl[,1][[1]])
+  } else {
+    dy_xts <- xts(dy_tbl[,-1], order.by = seq(as.Date("00-01-01"), by = "month", length.out = 12))
+  }
+
+  dy_plt <- dy_xts %>%
+    dygraph(., xlab = x_label, ylab = y_label) %>%
+    dyRangeSelector(height = 30)
+
+  if(!is.null(obs)) {
+    dy_plt <- dy_plt %>%
+      dySeries('obs', color = 'black', drawPoints = TRUE,
+               pointSize = 2, strokeWidth = 0.75)
+  }
+
+  if(plot_bands) {
+    if(!is.null(run_ids) & !is.null(run_sel)) {
+      dy_plt <- dy_plt %>%
+        dySeries(c("lwr", "sim_sel", "upr"), label = "sim_sel",
+                 color =  "#A50F15", strokeWidth = 1.2,
+                 drawPoints = TRUE, pointSize = 2) %>%
+        dySeries("lwr_l", label = "lower", color =  "#CB181D",
+                 strokePattern = 'dashed') %>%
+        dySeries("upr_l", label = "upper", color =  "#CB181D",
+                 strokePattern = 'dashed')
+    } else if (is.null(run_ids)) {
+      dy_plt <- dy_plt %>%
+        dySeries("sim_sel", label = "sim_sel",
+                 color =  "#A50F15", strokeWidth = 1.2,
+                 drawPoints = TRUE, pointSize = 2)
+    } else {
+      dy_plt <- dy_plt %>%
+        dySeries(c("lwr", "upr_l", "upr"), label = "upper",
+                 color =  "#CB181D", strokePattern = 'dashed') %>%
+        dySeries("lwr_l", label = "lower", color =  "#CB181D",
+                 strokePattern = 'dashed')
+    }
+  } else {
+    col_pal <- c("#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33",
+                 "#A65628", "#F781BF", "#999999", "#1B9E77", "#D9D9D9")
+    if(!is.null(run_ids)) {
+      for(i in 1:length(run_ids)) {
+        dy_plt <- dy_plt %>%
+          dySeries(run_ids[i], label = run_ids[i],
+                   color =  col_pal[i], strokeWidth = 1)
+      }
+      dy_plt <- dy_plt %>%
+        dyHighlight(highlightSeriesBackgroundAlpha = 0.6,
+                    hideOnMouseOut = TRUE)
+    }
+    if (!is.null(run_sel)) {
+      dy_plt <- dy_plt %>%
+        dySeries("sim_sel", label = "sim_sel",
+                 color =  "#A50F15", strokeWidth = 1.2,
+                 drawPoints = TRUE, pointSize = 2)
+    }
+  }
+
+  return(dy_plt)
+}
