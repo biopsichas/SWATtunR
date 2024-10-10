@@ -751,3 +751,41 @@ sum_variables <- function(...) {
   var_tbl <- bind_cols(date, var_tbl)
   return(var_tbl)
 }
+
+#' Convert run_names to integer ID values
+#'
+#' @param run_names Character vector providing the run names
+#'
+#' @returns An integer vector with the run IDs
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' run_sel <- paste0('run_', sprintf('%04d', c(1,36, 598, 2311)))
+#' run_to_id(run_sel)
+#' }
+#'
+run_to_id <- function(run_names) {
+  as.integer(sub('run_', '', run_names))
+}
+
+#' Convert run ID values to run names
+#'
+#' @param run_ids Integer vector with the run IDs
+#' @param id_max  Largest value for run IDs (defines the number of leading zeros)
+#'
+#' @returns An character vector with the run names
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' run_sel <- c(1,36, 598, 2311)
+#' run_to_id(run_sel)
+#' }
+#'
+id_to_run <- function(run_ids, id_max) {
+  n_char <- nchar(as.character(id_max))
+  paste0('run_', sprintf(paste0('%0', n_char, 'd'), run_ids))
+}
