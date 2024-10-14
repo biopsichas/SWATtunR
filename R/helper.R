@@ -789,3 +789,54 @@ id_to_run <- function(run_ids, id_max) {
   n_char <- nchar(as.character(id_max))
   paste0('run_', sprintf(paste0('%0', n_char, 'd'), run_ids))
 }
+
+#' Check and fix position of date column in a table
+#'
+#' @param tbl Data frame which for which date column is checked and fixed.
+#'
+#' @importFrom dplyr relocate
+#' @importFrom lubridate is.Date
+#' @importFrom purrr map_lgl
+#'
+#' @returns The `tbl` where the date column is put into first position and
+#'   renamed to 'date'
+#'
+#' @keywords internal
+#'
+check_date_col <- function(tbl) {
+  tbl_name <- as.character(substitute(tbl))
+
+  date_col <- names(which(map_lgl(tbl, ~ is.Date(.x))))
+
+  if(length(date_col) == 0) {
+    stop("No date column found in '", tbl_name, "'.")
+  }
+
+  if(length(date_col) > 1) {
+    stop("More than one date columns found in '", tbl_name, "'.")
+  }
+
+  names(tbl)[names(tbl) == date_col] <- 'date'
+  tbl <- relocate(tbl, date, .before = 1)
+
+  return(tbl)
+}
+
+#' Check a point value shape value if it is a correct value between 0 and 25
+#'
+#' @param shape Point shape value. To be a correct value it must be one of 0:25.
+#' Any other value returns NA
+#'
+#' @returns The correct point shape value or NA.
+#'
+#' @keywords internal
+#'
+check_point_shape <- function(shape) {
+  if(is.null(shape)) {
+    NA
+  } else if(shape %in% 0:25) {
+    shape
+  } else {
+    NA
+  }
+}

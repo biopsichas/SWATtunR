@@ -819,11 +819,11 @@ plot_esco_range <- function(sim, obs_wy_ratio, rel_wyr_lim = 0.05) {
 #' @param obs (optional) Data frame with one date and one value column.
 #'   Default `obs = NULL`, only simulations are plotted.
 #' @param run_ids (optional) Integer vector of run IDs to plot.
-#' Default \code{run_ids = NULL} requires input of run_sel.
+#' Default `run_ids = NULL` requires input of run_sel.
 #' @param run_sel (optional) Integer vector of run IDs to emphasize in the plot.
-#'  Default \code{run_sel = NULL} requires input of run_ids.
+#'  Default `run_sel = NULL` requires input of run_ids.
 #' @param plot_bands (optional) Logical. If TRUE, includes lower and upper bands of results.
-#' Default \code{plot_bands = TRUE}.
+#' Default `plot_bands = TRUE`.
 #' @param period (optional) Character defining the time step for aggregation. Options include "day", "week",
 #' "month", "year", etc. Use "average monthly" for multi-annual monthly values.
 #' Default \code{period = NULL} provides no aggregation. See [lubridate::floor_date](https://www.rdocumentation.org/packages/lubridate/versions/1.3.3/topics/floor_date) for details.
@@ -972,4 +972,264 @@ view_timeseries <- function(sim, obs = NULL, run_ids = NULL, run_sel = NULL, plo
   }
 
   return(dy_plt)
+}
+
+
+#' Plot time series of simulation results and observations
+#'
+#' `plot_timeseries()` plots a time series comparing simulated data with observed data.
+#'
+#' @param sim Data frame with one date column and one or many columns with
+#'   values of the simulated variable.
+#' @param obs (optional) Data frame with one date and one value column.
+#'   Default `obs = NULL`, only simulations are plotted.
+#' @param run_sel (optional) Integer value or name of simulation run which
+#'   should be plotted as 'selected' run. Default `run_sel = NULL` no run
+#'   is plotted as 'selected' run. In this case `run_ids` must be selected for
+#'   plotting.
+#' @param run_ids (optional) Integer vector or character vector of run IDs
+#'   or run names to plot. Default `run_ids = NULL`. In this case only the
+#'   'seleced' simulation run from `run_sel` is plotted. If `plot_band = TRUE`
+#'   the selected `run_ids` are used to calculate and plot the upper and lower
+#'   boundaries of the plotted band. If `plot_band = FALSE` a maximum number of
+#'   10 `run_ids` can be selected for plotting.
+#' @param plot_bands (optional) If TRUE, upper and lower boundary values are
+#'   calculated from the selected `run_ids` and a band is plotted for them. If
+#'   FALSE the individual selected runs from `run_ids` are plotted.
+#'   Default `plot_bands = TRUE`.
+#' @param sim_pointshape (optional) Integer value defining the shape of the points to be
+#'   plotted for the simulated time series of `run_sel`. The value must be a
+#'   value between 0 and 25. For all other inputs no points will be plotted.
+#'   Default is `sim_pointshape = 1`.
+#' @param obs_pointshape (optional) Integer value defining the shape of the points to be
+#'   plotted for the observation time series. The value must be a
+#'   value between 0 and 25. For all other inputs no points will be plotted.
+#'   Default is `obs_pointshape = 1`.
+#' @param sim_linetype (optional) Type of the line to be plotted for the
+#'   simulated time series. The linetype must be one of 'blank', 'solid',
+#'   'dashed', 'dotted', 'dotdash', 'longdash`, or 'twodash'. When 'blank' no
+#'   line will be plotted. Default is `sim_linetype = 'solid'`.
+#' @param obs_linetype Type of the line to be plotted for the
+#'   observation time series. The linetype must be one of 'blank', 'solid',
+#'   'dashed', 'dotted', 'dotdash', 'longdash`, or 'twodash'. When 'blank' no
+#'   line will be plotted. Default is `obs_linetype = 'dotted'`.
+#' @param run_sel_color (optional) Color of the line and points plotted for the
+#'   simulation time series `run_sel`. Default `run_sel_color = '#A50F15'`.
+#' @param run_ids_color (optional) Colors of the lines plotted for the
+#'   simulation time series selected with `run_ids`. The colors are only used
+#'   when `plot_band = FALSE` and individual timeseries are plotted. The color
+#'   vector must be of the same length as the selected runs in `run_ids`.
+#'   Default `run_ids_color = NULL` where a default color pallete is used.
+#' @param obs_color (optional) Color of the line and points of the plotted
+#'   observation time series. Default `obs_color = 'black'`.
+#' @param band_color (optional) Color of the band plotted fur the `run_ids`. The color is
+#'   only used when `plot_band = TRUE`. Default `band_color = '#CB181D'`.
+#' @param band_alpha (optional) Transparency value of the band plotted fur the
+#'   `run_ids`. The value is only used when `plot_band = TRUE`.
+#'   The value must be set between 0 and 1. Default `band_alpha = 0.2`.
+#' @param run_sel_label (optional) Label which is plotted in the legend to
+#'   indicate the selected simulation run `run_sel`. Default is
+#'   `run_sel_label = 'Simulation'`.
+#' @param obs_label (optional) Label which is plotted in the legend to
+#'   indicate the observation time series. Default is
+#'   `run_obs = 'Observation'`.
+#' @param band_label (optional) Label which is plotted in the legend to
+#'   indicate the simulation band for the `run_ids`. Default is
+#'   `band_label = 'Simulated range'`.
+#' @param x_label (optional) x-Axis label. Default is `x_label = 'Date'`.
+#' @param y_label (optional) y-Axis label. Default is `x_label = expression(Discharge~(m^3~s^{-1}))`.
+#' @param legend_pos (optional) Position of the legend inside of the plot panel.
+#' @param split_years  (optional) Integer value which is used to split the
+#'   time series into time intervals of the length `split_years` to plot those
+#'   time periods in separate plot panels. This has an advantage for plotting
+#'   long time series. Default `split_years = NULL` and the entire time series
+#'   is plotted in one plot panel.
+#' @param free_y If `split_years` is defined the y-Axis can be scaled individually
+#'   for all plot panels if `free_y = TRUE`. Default `free_y = FALSE` and all
+#'   plot panels have the same y plot range.
+#'
+#' @import ggplot2
+#'
+#' @importFrom dplyr bind_cols filter left_join mutate select %>%
+#' @importFrom lubridate days year years
+#' @importFrom patchwork wrap_plots
+#' @importFrom purrr map map_dbl map2
+#' @importFrom tibble tibble
+#' @importFrom tidyr pivot_longer
+#'
+#' @returns A ggplot object of the plotted time series.
+#'
+#' @export
+#'
+plot_timeseries <- function(sim, obs = NULL, run_sel = NULL, run_ids = NULL,
+                            plot_band = TRUE, sim_pointshape = 1, obs_pointshape = 1,
+                            sim_linetype = 'solid', obs_linetype = 'dotted',
+                            run_sel_color = '#A50F15', run_ids_color = NULL,
+                            obs_color = 'black', band_color = '#CB181D', band_alpha = 0.2,
+                            run_sel_label = 'Simulation', obs_label = 'Observation',
+                            band_label = 'Simulated range',
+                            x_label = 'Date', y_label = expression(Discharge~(m^3~s^{-1})),
+                            legend_pos = c(1,0.99,0.99), split_years = NULL, free_y = FALSE) {
+  sim <- check_date_col(sim)
+  obs <- check_date_col(obs)
+
+  if(is.null(run_ids) & is.null(run_sel)) {
+    stop("At least one of 'run_ids' or 'run_sel' must be provided.")
+  }
+
+  if(plot_band & is.null(run_ids)) {
+    message("No 'run_ids' defined. 'plot_band = TRUE' will be ignored.")
+  }
+
+  plt_tbl <- select(sim, date)
+
+  col_pal <- c()
+
+  if(!is.null(obs)) {
+    names(obs) <- c('date', 'obs')
+    plt_tbl <- left_join(plt_tbl, obs, by = 'date')
+
+    col_pal <- c(col_pal, obs_color)
+  }
+
+  nchar_run <- nchar(names(sim)[2]) - 4
+
+  if(!is.null(run_sel)) {
+    if(is.numeric(run_sel)) {
+      run_sel <- paste0('run_', sprintf(paste0('%0', nchar_run, 'd'), run_sel))
+    }
+    sim_sel <- sim[, run_sel]
+    names(sim_sel) <- 'sim_sel'
+    plt_tbl <- bind_cols(plt_tbl, sim_sel)
+
+    col_pal <- c(col_pal, run_sel_color)
+  }
+
+  if(!is.null(run_ids)) {
+    if(length(run_ids) > 10 & !plot_band) {
+      stop("More than 10 'run_ids' were selected for individual plotting. \n",
+           "For more than 10 'run_ids' please use 'plot_band = TRUE'.")
+    }
+    if(run_ids[1] != 'all') {
+      if(is.numeric(run_ids)) {
+        run_ids <- paste0('run_', sprintf(paste0('%0', nchar_run, 'd'), run_ids))
+      }
+      sim_ids <- sim[, run_ids]
+    } else {
+      sim_ids <- select(sim, - date)
+    }
+    if(plot_band) {
+      sim_upr <- apply(sim_ids, 1, max)
+      sim_lwr <- apply(sim_ids, 1, min)
+      sim_ids <- tibble(date = sim$date, upr = sim_upr, lwr = sim_lwr)
+    } else {
+      plt_tbl <- bind_cols(plt_tbl, sim_ids)
+
+      if(is.null(run_ids_color)) {
+        col_pal <- c(col_pal, c("#377EB8", "#4DAF4A", "#984EA3", "#FF7F00",
+                                "#FFFF33", "#A65628", "#F781BF", "#999999",
+                                "#1B9E77", "#D9D9D9")[1:length(run_ids)]
+        )
+
+      } else if (length(run_ids_color) == length(run_ids)) {
+        col_pal <- c(col_pal, run_ids_color)
+      } else {
+        stop("Please provide the same number of 'run_id_color's",
+             " as the number of 'run_ids'.")
+      }
+    }
+  }
+
+  def_linetype <- c(rep(sim_linetype, sum(grepl('sim_sel|run_', names(plt_tbl)))))
+
+  if('obs' %in% names(plt_tbl)) {
+    def_linetype <- c(obs_linetype, def_linetype)
+  }
+
+  plt_tbl <- plt_tbl %>%
+    pivot_longer(., cols = - date) %>%
+    mutate(name = ifelse(name == 'sim_sel', run_sel_label, name),
+           name = ifelse(name == 'obs', obs_label, name)) %>%
+    mutate(name = factor(name, levels = unique(name)))
+
+  obs_pointshape <- check_point_shape(obs_pointshape)
+  sim_pointshape <- check_point_shape(sim_pointshape)
+
+  def_pointshape <- c()
+  if(obs_label %in% unique(plt_tbl$name)) {
+    def_pointshape <- c(def_pointshape, obs_pointshape)
+  }
+  if(run_sel_label %in% unique(plt_tbl$name)) {
+    def_pointshape <- c(def_pointshape, sim_pointshape)
+  }
+  if(!plot_band) {
+    def_pointshape <- c(def_pointshape, rep(NA, length(run_ids)))
+  }
+
+  gg_plt <- ggplot() +
+    labs(x = x_label, y = y_label) +
+    theme_bw() +
+    theme(legend.title = element_blank(),
+          legend.position = 'inside',
+          legend.position.inside = legend_pos[c(2,3)],
+          legend.justification = legend_pos[c(2,3)],
+          legend.direction = 'horizontal',
+          legend.spacing.y = unit(-0.25, 'cm')
+    )
+
+  if(plot_band & !is.null(run_ids)) {
+    gg_plt <- gg_plt +
+      geom_line(data = sim_ids, aes(x = date, y = lwr), alpha = 0.2,
+                color = band_color) +
+      geom_line(data = sim_ids, aes(x = date, y = upr), alpha = 0.2,
+                color = band_color) +
+      geom_ribbon(data = sim_ids, aes(x = date, ymin = lwr, ymax = upr,
+                                      fill = band_label), alpha = 0.2) +
+      scale_fill_manual(values = band_color)
+  }
+
+  gg_plt <- gg_plt +
+    geom_point(data = plt_tbl, aes(x = date, y = value, color = name, shape = name), na.rm=TRUE) +
+    geom_line(data = plt_tbl, aes(x = date, y = value, color = name, linetype = name), na.rm=TRUE) +
+    scale_color_manual(name = 'name', values = col_pal) +
+    scale_linetype_manual(name = 'name', values = def_linetype) +
+    scale_shape_manual(values = def_pointshape)
+
+  if(!is.null(split_years)) {
+    yrs <- unique(year(plt_tbl$date))
+    n_yrs <- max(yrs) - min(yrs)
+    start_dates <- c(plt_tbl$date[1],
+                     plt_tbl$date[1] +
+                       years(seq(split_years, n_yrs, split_years)))
+    end_dates <- c(plt_tbl$date[1] +
+                     years(seq(split_years, n_yrs + split_years, split_years)) - days(1))
+    end_dates <- unique(end_dates)
+    gg_plt <- map2(start_dates, end_dates, ~ gg_plt + scale_x_date(limits = c(.x, .y)))
+
+    if(free_y) {
+      max_vals <- map2(start_dates, end_dates,
+                       ~ filter(plt_tbl, date >= .x & date <= .y)) %>%
+        map(., ~select(.x, - date)) %>%
+        map(., unlist) %>%
+        map_dbl(., ~1.1*max(.x))
+
+      gg_plt <- map2(gg_plt, max_vals, ~ .x + scale_y_continuous(limits = c(0, .y)))
+    }
+
+    for(i in 1:length(gg_plt)) {
+      if(i != 1) {
+        gg_plt[[i]] <- gg_plt[[i]] + theme(axis.title.y = element_blank())
+      }
+      if(i != legend_pos[1]) {
+        gg_plt[[i]] <- gg_plt[[i]] + theme(legend.position = 'none')
+      }
+      if(i != length(gg_plt)) {
+        gg_plt[[i]] <- gg_plt[[i]] + theme(axis.title.x = element_blank())
+      }
+    }
+
+    gg_plt <- wrap_plots(gg_plt, ncol = 1)
+  }
+
+  return(gg_plt)
 }
