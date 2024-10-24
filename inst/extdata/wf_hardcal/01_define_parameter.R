@@ -5,7 +5,8 @@
 # -------------------------------------------------------------------------
 
 # Load required R packages ------------------------------------------------
-library(SWATrunR)
+library(SWATtunR)
+library(tibble)
 
 # Parameter definition ----------------------------------------------------
 # Number parameter combinations
