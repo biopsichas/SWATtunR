@@ -396,6 +396,157 @@ sample_oat <- function(par, par_center = 1, n_t = 10) {
   return(par_oat)
 }
 
+#' Group the values of a parameter in the file hydrology.hyd.
+#'
+#' This is useful for applying different parameter ranges e.g. to parameters
+#' such as perco, cn3_swf, or latq_co which have different initial values
+#' based on runoff or leaching potential.
+#'
+#' @param par_name Name of the parameter for which values should be grouped
+#' @param model_path path to the SWAT+ model project folder which contains the
+#'   file hydrology.hyd
+#'
+#' @returns A vector with unique indices of the parameter value groups assigned
+#'   to each HRU.
+#' @export
+#'
+group_hydr_values <- function(par_name, model_path) {
+  hyd_hyd <- read_tbl(paste0(model_path, '/hydrology.hyd'))
+
+  unique_values <- sort(unique(hyd_hyd[[par_name]]))
+  value_group <- map_int(hyd_hyd[[par_name]], ~ which(.x == unique_values))
+  unique_values <- paste(paste0(1:length(unique_values), ' = ', unique_values), collapse = ', ')
+
+  comment(value_group) <- unique_values
+
+  cat('Following unique initial', par_name, 'values were identified',
+      'and grouped:', '\n')
+  cat(unique_values, '\n')
+
+  return(value_group)
+}
+
+
+
+#' Translate the normalized sampled values of a parameter to ranges of groups
+#' of that parameter (e.g. when perco should have different ranges based on the
+#' initial values of perco in all HRUs)
+#'
+#' @param par_tbl Table with the sampled parameter combinations
+#' @param par_name Name of the parameter which should be translated
+#' @param par_bound List of parameter boundaries to which the normalized values
+#'   should be transformed to.
+#' @param par_group (named) Integer vector which defines the groups to which each
+#'   spatial unit belongs to.
+#'
+#' @importFrom dplyr bind_cols %>%
+#' @importFrom purrr map map2_lgl set_names
+#' @importFrom stringr str_detect str_extract str_remove str_split str_trim
+#' @importFrom tibble add_column
+#'
+#' @returns The table with the parameter samples, where the normalized parameter
+#'   is replaced by several columns with the updated parameter boundaries and
+#'   correct names assigned, so that the parameter boundaries are correctly applied.
+#' @export
+#'
+translate_to_boundaries <- function(par_tbl, par_name,  par_bound, par_group) {
+  stopifnot(length(par_bound) == length(unique(par_group)))
+
+  if (is.null(names(par_bound))) {
+    names(par_bound) <- as.character(1:length(par_bound))
+  }
+
+  attr <- attributes(par_group)
+  if(!is.null(attr)) {
+    par_init_vals <- attr %>%
+      str_split(., ', ', simplify = T) %>%
+      str_remove(., '[0-9]+ = ') %>%
+      as.numeric(.)
+
+    is_in_bound <- map2_lgl(par_init_vals, par_bound, ~ .x >= .y[1] & .x <= .y[2])
+
+    if(any(!is_in_bound)) {
+      stop("The following boundaries in 'par_bound' do not cover their initial values:",
+           paste(names(par_bound)[!is_in_bound], collapse = ', '))
+    }
+  }
+
+  par_pos <- which(names(par_tbl) == par_name)
+
+  if(length(par_pos) == 0) {
+    stop("Parameter '", par_name, "' not found in 'par_tbl'.")
+  }
+
+  if (str_detect(par_name, 'unit')) {
+    stop("'par_name' has already a 'unit' condition assigned!")
+  }
+
+  norm_vals <- par_tbl[[par_name]]
+
+  if(any(norm_vals < 0) | any(norm_vals > 1)) {
+    stop("Values of parameter '", par_name, "' must be in the range 0 to 1.")
+  }
+
+  if (str_detect(par_name, '::')) {
+    par_rest <- str_trim(str_extract(par_name, '::.*'))
+    par_lbl <- str_trim(str_remove(par_name, '::.*'))
+  } else {
+    par_lbl <- str_trim(str_remove(par_name, '\\..*'))
+    par_rest <- paste0('::', par_name)
+  }
+
+  unit_str <- map(sort(unique(par_group)), ~ which(par_group == .x)) %>%
+    map(build_unit_string)
+
+  par_tbl_add <- map(par_bound, ~ norm_vals * (max(.x) - min(.x)) + min(.x)) %>%
+    bind_cols(.) %>%
+    set_names(paste0(par_lbl, '_', names(.), par_rest, unit_str))
+
+  par_tbl <- par_tbl[,-par_pos]
+  par_tbl <- add_column(par_tbl, par_tbl_add, .before = par_pos)
+
+  return(par_tbl)
+}
+
+#' Build the text string with the 'unit' definition to be added to a parameter
+#' name
+#'
+#' @param vals Vector of unit IDs
+#'
+#' @importFrom purrr map2_chr
+#'
+#' @returns A text string with the unit definition.
+#'
+#' @keywords internal
+#'
+build_unit_string <- function(vals) {
+  vals <- sort(vals)
+  diff_vals <- diff(vals)
+
+  end_seq   <- unique(c(vals[diff_vals != 1], vals[length(vals)]))
+  start_seq <- unique(c(vals[1], vals[which(diff_vals != 1) + 1]))
+
+  map2_chr(start_seq, end_seq, ~paste_runs(.x, .y, sep = ':')) %>%
+    paste(., collapse = ', ') %>%
+    paste0(' | unit = c(', ., ')')
+}
+
+#' Paste run indexes if start and end of sequence differ. Otherwise only use
+#' start value
+#'
+#' @param strt Numeric start value of sequence
+#' @param end  Numeric end value of sequence
+#'
+#' @keywords internal
+#'
+paste_runs <- function(strt, end, sep) {
+  if(strt == end) {
+    as.character(strt)
+  } else {
+    paste(strt, end, sep = sep)
+  }
+}
+
 
 # Evaluate model performance ---------------------------------------------------
 
