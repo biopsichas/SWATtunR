@@ -15,6 +15,8 @@ n_combinations <- 100
 # Path to the SWAT+ project folder.
 model_path <- ''
 
+model_path <- 'C:/TxtInOut/'
+
 # Define parameter boundaries ---------------------------------------------
 # Suggested list and ranges of SWAT+ parameters for the calibration of
 # different output variables.
@@ -101,11 +103,11 @@ cn3_groups   <- group_hydr_values('cn3_swf', model_path)
 latq_groups  <- group_hydr_values('latq_co', model_path)
 
 # Define parameter boundaries in which the parameter values should vary for
-# the different linitial values.
+# the different initial values.
 # The list can be a named list, the names defined here will be added to the
 # parameter names for differentiation. If unnamed the indexes _1, _2, and _3
 # will be added to the parameter names instead.
-perco_bound <- list(low = c(0.05, 0.30), mod = c(0.30, 0.60))
+perco_bound <- list(low = c(0.05, 0.30), mod = c(0.30, 0.60), high = c(0.50, 0.95))
 cn3_bound   <- list(low = c(0.0, 0.30), mod = c(0.15, 0.45), high = c(0.50, 0.95))
 latq_bound  <- list(low = c(0.01, 0.30), mod = c(0.10, 0.40), high = c(0.5, 0.90))
 

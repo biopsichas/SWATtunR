@@ -450,7 +450,13 @@ group_hydr_values <- function(par_name, model_path) {
 #' @export
 #'
 translate_to_boundaries <- function(par_tbl, par_name,  par_bound, par_group) {
-  stopifnot(length(par_bound) == length(unique(par_group)))
+
+  if(length(par_bound) != length(unique(par_group))) {
+    stop(paste0("Error in translation of parameter values for", par_name, ":\n",
+                "'par_bound' has ", length(par_bound), " elements.\n",
+                "'par_group' has ", length(unique(par_group)), " elements.\n",
+                "Please provide the same number of elements for both input arguments."))
+  }
 
   if (is.null(names(par_bound))) {
     names(par_bound) <- as.character(1:length(par_bound))
