@@ -6,8 +6,8 @@
 library(SWATrunR)
 
 # Load parameter and simulation output definitions ------------------------
-source('~/workflow/01_parameter_definition.R')
-source('~/workflow/02_output_definition.R')
+source('./workflow/01_parameter_definition.R')
+source('./workflow/02_output_definition.R')
 
 # Parameter definition ----------------------------------------------------
 # Path to the SWAT+ project folder.
@@ -41,6 +41,7 @@ run_swatplus(project_path     = model_path,
              end_date         = end_date,
              start_date_print = start_date_print,
              n_thread         = n_cores,
+             save_path        = save_path,
              save_file        = save_file_name,
              return_output    = FALSE,
              split_units      = FALSE, # better set TRUE for large number of units

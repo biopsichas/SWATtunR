@@ -12,13 +12,13 @@ library(tidyverse)
 # Paths to simulation and observation data
 # E.g. load the simulations with the last time stamp, if default
 # save_file names in simulation runs is used.
-sims <- list.files('~/simulation/', pattern = '[0-9]{12}')
-sim_path <- paste0('~/simulation/', sims[length(sims)])
+sims <- list.files('./simulation/', pattern = '[0-9]{12}')
+sim_path <- paste0('./simulation/', sims[length(sims)])
 
 # E.g. path to discharge observations
-flow_path <- '~/observation/q.csv'
+flow_path <- './observation/q.csv'
 # E.g. path to in-stream nitrate observations
-ntot_path <- '~/observation/ntot.csv'
+ntot_path <- './observation/ntot.csv'
 
 # Define time period to analyze (E.g. calibration or validation period)
 # Periods for different variables can be different, but calibration and

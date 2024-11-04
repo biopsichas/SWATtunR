@@ -14,7 +14,6 @@ n_combinations <- 100
 
 # Path to the SWAT+ project folder.
 model_path <- ''
-model_path <- 'C:/TxtInOut/'
 
 # Define parameter boundaries ---------------------------------------------
 # Suggested list and ranges of SWAT+ parameters for the calibration of
