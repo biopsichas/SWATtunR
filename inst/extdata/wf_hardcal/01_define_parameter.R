@@ -1,7 +1,13 @@
 # -------------------------------------------------------------------------
 # Step 1: Define the parameter set which is used in the SWAT simulations
 #
-# This is a template and must be adjusted to the individual SWAT project
+# This is a template and must be adjusted to the individual SWAT project.
+#
+# The template includes a routine to account for the different initial
+# parameter values of perco, cn3_swf, and latq_co in a SWAT+ model setup.
+# If you prefer to use only one global value for those parameters remove
+# the lines 83 and following from this script and adjust the parameter
+# values of those 3 parameters in the parameter_boundaries table.
 # -------------------------------------------------------------------------
 
 # Load required R packages ------------------------------------------------
@@ -14,8 +20,6 @@ n_combinations <- 100
 
 # Path to the SWAT+ project folder.
 model_path <- ''
-
-model_path <- 'C:/TxtInOut/'
 
 # Define parameter boundaries ---------------------------------------------
 # Suggested list and ranges of SWAT+ parameters for the calibration of
@@ -107,6 +111,10 @@ latq_groups  <- group_hydr_values('latq_co', model_path)
 # The list can be a named list, the names defined here will be added to the
 # parameter names for differentiation. If unnamed the indexes _1, _2, and _3
 # will be added to the parameter names instead.
+#
+# Only provide the same numbers of ranges as numbers of individual parameters
+# identified in the lines 105 to 107. Otherwise an error will occur in the
+# following routine.
 perco_bound <- list(low = c(0.05, 0.30), mod = c(0.30, 0.60), high = c(0.50, 0.95))
 cn3_bound   <- list(low = c(0.0, 0.30), mod = c(0.15, 0.45), high = c(0.50, 0.95))
 latq_bound  <- list(low = c(0.01, 0.30), mod = c(0.10, 0.40), high = c(0.5, 0.90))
