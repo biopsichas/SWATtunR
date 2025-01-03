@@ -49,7 +49,7 @@ initialize_hardcal <- function(project_name, path, model_path,
   # Add model_path to run script and copy into project.
   f01 <- readLines(paste0(wf_path, '/01_define_parameter.R'))
   line_id <- grepl("model_path <- ''", f01)
-  f03[line_id] <- paste0("model_path <- '", model_path, "'")
+  f01[line_id] <- paste0("model_path <- '", model_path, "'")
   writeLines(f01, paste0(project_path, '/workflow/01_define_parameter.R'))
 
   # Add model_path to run script and copy into project.
