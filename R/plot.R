@@ -489,12 +489,21 @@ plot_phu_yld_bms <- function(sim_result, x_label, yield = NULL,
     facet_grid(cols = vars(plant_name)) +
     scale_x_discrete(labels = x_label) +
     scale_fill_manual(values = col_pal) +
-    labs(y = 'Bio mass (t/ha)', x = 'days_mat absval change') +
-    theme_bw() +
+    labs(y = 'Bio mass (t/ha)') +
+    theme_bw()+
     theme(strip.background = element_blank(),
           strip.text = element_blank(),
-          axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
           legend.position = 'none')
+
+  if(length(unique(bms$name)) != 1){
+    gg_bms <- gg_bms +
+      labs(x = 'days_mat absval change') +
+      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  } else {
+    gg_bms <- gg_bms +
+      theme(axis.title.x = element_blank(),
+            axis.text.x = element_blank())
+  }
 
   # Put the PHU plot and the yield plot together
   grid.arrange(gg_phu, gg_yld, gg_bms, ncol = 1)
