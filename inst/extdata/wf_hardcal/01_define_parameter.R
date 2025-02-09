@@ -116,8 +116,8 @@ latq_groups  <- group_hydr_values('latq_co', model_path)
 # identified in the lines 105 to 107. Otherwise an error will occur in the
 # following routine.
 perco_bound <- list(low = c(0.05, 0.30), mod = c(0.30, 0.60), high = c(0.50, 0.95))
-cn3_bound   <- list(low = c(0.0, 0.30), mod = c(0.15, 0.45), high = c(0.50, 0.95))
-latq_bound  <- list(low = c(0.01, 0.30), mod = c(0.10, 0.40), high = c(0.5, 0.90))
+cn3_bound   <- list(low = c(0.00, 0.30), mod = c(0.15, 0.45), high = c(0.50, 0.95))
+latq_bound  <- list(low = c(0.01, 0.30), mod = c(0.10, 0.40), high = c(0.50, 0.90))
 
 # Add the additional parameter columns to the parameter table and remove the
 # column with the respective normalized parameter values.

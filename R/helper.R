@@ -1,5 +1,4 @@
 # Different parameter values for groupings -------------------------------------
-
 #' ID Grouping Functions for Parameter Names
 #'
 #' This function groups values for parameter names, sorting and concatenating
@@ -114,104 +113,6 @@ id_text_strings <- function(par, par_groups, hyd){
 }
 
 # Performance calculation ------------------------------------------------------
-
-#' Fix the dates
-#'
-#' Adjust the periods of the observation and simulation data so that they match.
-#'
-#' @param runr_obj SWATrunR object
-#' @param obs_obj Observation dataframe with two columns named "date" and "value"
-#' @param trim_start (optional) The starting date to trim the data times series.
-#'  Default \code{trim_start = NULL}. Example: trim_start = "2010-01-01"
-#' @param trim_end (optional) The ending date to trim the data times series.
-#' Default \code{trim_end = NULL}. Example trim_end = "2015-01-01"
-#' @importFrom dplyr filter %>%
-#' @importFrom tidyr drop_na
-#'
-#' @return list with two elements: "simulation" SWATrunR object and
-#' "observation" dataframe with the same dates period.
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' my_obj <- fix_dates(runr_obj = sim_flow, obs_obj = obs_wq,
-#' trim_start = "2010-01-01", trim_end = "2015-01-01")
-#' }
-#' @keywords data manipulation
-
-fix_dates <- function(runr_obj, obs_obj, trim_start = NULL, trim_end = NULL){
-  # Just to be sure observations has the same date format as simulation
-  obs_obj$date <- as.Date(obs_obj$date)
-
-  if(sum(is.na(obs_obj$value)) | sum(is.na(obs_obj$date)) > 0){
-    warning(paste0("There are", sum(is.na(obs_obj$value)) + sum(is.na(obs_obj$date)),
-                   "missing values in the observation data. Lines with missing
-                   values will be removed."))
-    obs_obj <- obs_obj %>% drop_na()
-  }
-  # Name for the first simulation parameter saved
-  n <- names(runr_obj$simulation)
-  # Get the dates of the simulation
-  all_sim_dates <- runr_obj[["simulation"]][[n[1]]][["date"]]
-  cat(paste0("Simulation period ",min(all_sim_dates), " - ", max(all_sim_dates),
-             ", \n observation period is ", min(obs_obj$date), " - ",
-             max(obs_obj$date), ".\n"))
-  # Filter the observation data to the same time period as the simulation data
-  if(min(all_sim_dates)>max(obs_obj$date) | max(all_sim_dates)<min(obs_obj$date)){
-    stop("Simulation and observed data period do not overlap.")
-  }
-  obs_obj <- obs_obj %>%
-    filter(date >= min(all_sim_dates) &
-             date <= max(all_sim_dates) &
-             date %in% all_sim_dates)
-  for (n1 in n){
-    # Filter the simulation data to the same time period as the observation data
-    runr_obj[["simulation"]][[n1]] <- runr_obj[["simulation"]][[n1]] %>%
-      filter(date %in% obs_obj$date)
-  }
-
-  # Providing the output period
-  all_sim_dates <- runr_obj[["simulation"]][[n[1]]][["date"]]
-
-  # Trim simulation and observation data to given dates
-  if(!is.null(trim_start)|!is.null(trim_end)){
-    # making sure of format
-    trim_start <- as.Date(trim_start)
-    trim_end <- as.Date(trim_end)
-
-    #
-    if(min(all_sim_dates)>trim_start | is.null(trim_start)){
-      trim_start <- min(all_sim_dates)
-    }
-    if(max(all_sim_dates)<trim_end | is.null(trim_end)){
-      trim_end <- max(all_sim_dates)
-    }
-    # Filter the simulation data to the same time period as the observation data
-    for (n1 in n){
-      runr_obj[["simulation"]][[n1]] <- runr_obj[["simulation"]][[n1]] %>%
-        filter(date >= trim_start,
-               date <= trim_end)
-    }
-    # Providing the output period
-    all_sim_dates <- runr_obj[["simulation"]][[n[1]]][["date"]]
-
-    obs_obj <- obs_obj %>%
-      filter(date %in% all_sim_dates)
-
-  }
-
-  print(paste0("Simulation and observation period is filtered to ",
-               min(all_sim_dates), " - ", max(all_sim_dates), "."))
-  # Check if the number of rows in the observation and simulation data match
-  if(nrow(obs_obj) != nrow(runr_obj[["simulation"]][[n[1]]])){
-    stop("Function fix_dates() failed. The number of rows in the observation
-  and simulation data do not match. This might be due to the fact that the
-       multible observations for one day are present in the observation data.
-         Please check the observation data and correct this.")
-  }
-  return(list(sim=runr_obj, obs=obs_obj))
-}
-
 #' Filter a time period for a variable time series table.
 #'
 #' `filter_period()` filters rows from a table which has one date column, where
