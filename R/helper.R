@@ -546,32 +546,133 @@ update_par <- function(par, par_up, change){
   return(par)
 }
 
-#' Aggregate and Average Annually
+#' Aggregate time series table
 #'
-#' This function takes a data frame containing a date column and other numerical
-#' columns, aggregates the data annually, and then computes the average of the
-#' annual sums.
+#' `aggregate_time()` aggregates tables with a `date` column and multiple value
+#' columns to coarser time steps, which are defined by `time` using the function
+#' defined by `fun`.
 #'
-#' @param tbl A data frame that contains a 'date' column and other numerical columns.
-#' @importFrom dplyr mutate select group_by summarise everything across
-#' @importFrom lubridate year
-#' @return A numeric vector with the mean of the annual sums for each column in the input data frame.
+#' @param tbl A data frame that contains a 'date' column and multiple numerical
+#'   columns.
+#' @param time A function or a vector of functions to define the time intervals
+#'   to which `tbl` is aggregated. Must be one or more of the `lubridate`
+#'   functions `year`, `month`, `day`, or `yday`.
+#' @param fun Aggregation function (e.g. `sum`, `mean`, `min`, or `max`).
+#' @param average Should values be averaged after the aggregation? When e.g.
+#'   the time interval is defined by `time = c(year, month)`, `average = TRUE`,
+#'   will first aggregate to year and month and then average to mean monthy
+#'   values.
+#'
+#' @importFrom data.table as.data.table
+#' @importFrom dplyr bind_cols distinct left_join mutate select %>%
+#' @importFrom lubridate day month yday year
+#' @importFrom purrr map map_chr set_names
+#' @importFrom tibble tibble
+#' @importFrom tidyselect any_of
+#'
+#' @returns A tibble with the aggregated value columns and added time interval
+#'   columns.
 #'
 #' @examples
 #' \dontrun{
-#' flo <- aggregate_aa(sim$simulation$flo)
+#' library(tidyverse)
+#' library(lubridate)
+#'
+#' # Generate dummy table
+#'
+#' date <- seq(ymd(19700101), ymd(20101231), by = 'day')
+#'
+#' n <- 100
+#'
+#' tbl <- map(1:n, ~ runif(length(date))) %>%
+#' set_names(id_to_run(1:n)) %>%
+#' bind_cols(.)
+#'
+#' tbl <- bind_cols(date = date, tbl)
+#'
+#' # Calculate maximum values for days of the year
+#' aggregate_time(tbl, time = yday, fun = max)
+#'
+#' # Calculate mean monthly sums
+#' aggregate_time(tbl, time = c(year, month), fun = sum, average = TRUE)
+#'
+#' # Calculate average annual sums
+#' aggregate_time(tbl, time = year, fun = sum, average = TRUE)
+#'
 #' }
-#' @keywords internal
+#'
+#' @export
+#'
+aggregate_time <- function(tbl, time = year, fun = sum, average = FALSE) {
+  date <- tbl$date
+  date_comps <- map(c(time), ~.x(date))
+  time_steps <- map_chr(date_comps, guess_time_step)
 
-aggregate_aa <- function(tbl) {
-  tbl %>%
-    mutate(year = year(date)) %>%
-    select(-date) %>%
-    group_by(year) %>%
-    summarise(across(.cols = everything(), .fns = sum)) %>%
-    summarise(across(.cols = everything(), .fns = mean)) %>%
-    select(-year) %>%
-    unlist(.)
+  if('yday' %in% time_steps & any(c('day', 'month') %in% time_steps)) {
+    stop("When 'yday' is used you cannot use 'day' or 'month'.")
+  }
+
+  date_comps <- date_comps %>%
+    set_names(time_steps) %>%
+    bind_cols() %>%
+    select(any_of(c('year', 'month', 'yday', 'day')))
+
+  time_steps <- names(date_comps)
+
+  if('month' %in% names(date_comps)) {
+    date_comps$month <- month.abb[date_comps$month]
+  }
+
+  group_var <- apply(date_comps, 1, paste, collapse = '-')
+
+  date_comps <- bind_cols(date_comps, grp = group_var) %>%
+    distinct(., grp, .keep_all = TRUE)
+
+  tbl <- tbl %>%
+    select(., -date) %>%
+    mutate(grp = group_var, .before = 1) %>%
+    as.data.table(.) %>%
+    .[,lapply(.SD,fun),by=grp] %>%
+    tibble(.)
+
+  tbl <- left_join(date_comps, tbl, by = 'grp') %>%
+    select(-grp)
+
+  if(average) {
+    time_steps <- time_steps[-1]
+
+    tbl <- tbl %>%
+      select(-1) %>%
+      as.data.table(.) %>%
+      .[,lapply(.SD,mean),by=time_steps] %>%
+      tibble(.)
+  }
+
+  return(tbl)
+}
+
+#' Guess the time step of a vector of values (e.g. years, days,...)
+#'
+#' @param x Numeric vector with year, month, or day values
+#'
+#' @returns A text string indicating the guessed time interval
+#'
+#' @keywords internal
+#'
+guess_time_step <- function(x) {
+  d_x <- diff(x)
+  min_d_x <- min(d_x)
+  mean_int <- mean(diff(which(d_x != 0)))
+  if(is.nan(mean_int)) mean_int <- length(x)
+  if(mean_int > 31) {
+    'year'
+  } else if(mean_int > 1) {
+    'month'
+  } else if(min_d_x < -31) {
+    'yday'
+  } else {
+    'day'
+  }
 }
 
 #' Find Parameter Range for Simulation

@@ -4,7 +4,7 @@
 \alias{id_to_run}
 \title{Convert run ID values to run names}
 \usage{
-id_to_run(run_ids, id_max)
+id_to_run(run_ids, id_max = NULL)
 }
 \arguments{
 \item{run_ids}{Integer vector with the run IDs}
@@ -20,7 +20,7 @@ Convert run ID values to run names
 \examples{
 \dontrun{
 run_sel <- c(1,36, 598, 2311)
-run_to_id(run_sel)
+id_to_run(run_sel)
 }
 
 }
