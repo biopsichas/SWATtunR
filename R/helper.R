@@ -87,29 +87,32 @@ truncate <- function(x, n, side = 'left') {
 }
 
 
-#' Generate ID Text Strings for Parameter Names
+#' Generate 'unit' condition for parameter definition from ID vector
 #'
-#' This function generates ID text strings to be included in parameter names based on
-#' parameter groups and hydrology data.
+#' `id_to_unit()` generates a 'unit' condition for  `SWATrunR` parameter
+#' definitions from an ID vector. This is useful when e.g. a vector of HRU IDs
+#' is given and a parameter change change should be defined for those units
 #'
-#' @param par A character vector specifying the parameter name. Example 'perco'.
-#' @param par_groups A vector of groups identified based on parameter value.
-#' Example: init_perco <- c(low = 0.01, mod = 0.50, high = 0.95)
-#' @param hyd A data frame containing 'hydrology.hyd' data.
-#' @importFrom purrr map_vec
+#' @param ids Numeric ID vector.
 #'
-#' @return A vector of HRU ID text strings separated into groups according to
-#' provided values.
+#' @returns Character string with unit condition based on the given IDs.
+#'
 #' @export
+#'
 #' @examples
 #' \dontrun{
-#' hyd_hyd <- read_tbl(paste0(model_path, '/hydrology.hyd'))
-#' init_perco <- c(low = 0.01, mod = 0.50, high = 0.95)
-#' id_text_strings('perco', init_perco, hyd_hyd)
+#' # HRU IDs e.g. same land use
+#' hru_ids <- c(1, 3, 4, 5, 28, 37:43, 58)
+#'
+#' # E.g. define a change of cn2
+#' cn2_chg <- c('cn2_agri::cn2.hru | change = abschg' = - 5)
+#'
+#' # Add unit condition
+#' names(cn2_chg) <- paste(names(cn2_chg), id_to_unit(hru_ids))
 #' }
 
-id_text_strings <- function(par, par_groups, hyd){
-  map_vec(par_groups, ~group_values(which(hyd[[par]] == .x)))
+id_to_unit <- function(ids){
+  paste0('| unit = c(', group_values(ids), ')')
 }
 
 # Performance calculation ------------------------------------------------------
