@@ -683,11 +683,16 @@ run_to_id <- function(run_names) {
 #' @examples
 #' \dontrun{
 #' run_sel <- c(1,36, 598, 2311)
-#' run_to_id(run_sel)
+#' id_to_run(run_sel)
 #' }
 #'
-id_to_run <- function(run_ids, id_max) {
-  n_char <- nchar(as.character(id_max))
+id_to_run <- function(run_ids, id_max = NULL) {
+  if(is.null(id_max)) {
+    n_char <- nchar(as.character(max(run_ids)))
+    warning("Number of leading zeros guessed based on 'run_sel'")
+  } else {
+    n_char <- nchar(as.character(id_max))
+  }
   paste0('run_', sprintf(paste0('%0', n_char, 'd'), run_ids))
 }
 
