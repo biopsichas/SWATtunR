@@ -1,53 +1,115 @@
-#' Plot Calibration-Validation Comparison
+#' Plot goodness of fit (GOF) tables
 #'
-#' This function takes calibration and validation tables and produces a
-#' comparison boxplot for various metrics.
+#' `plot_gof()` plots summary boxplots of one or a list of GOF tables as
+#' ggplots.
 #'
-#' @param cal_tbl A data frame containing calibration performance results.
-#' @param val_tbl A data frame containing validation performance results.
-#' @param indexes (optional) An optional vector of metric names to filter and
-#' include in the comparison plot. Default \code{indexes = NULL} includes all
-#' metrics.
 #'
-#' @return A ggplot object representing the comparison between calibration and
-#' validation results for the specified metrics.
-#' @importFrom dplyr bind_rows mutate filter select ends_with
+#' @param gof_tbls A data.frame containing goodness of fit values, or a list of
+#'   such tables.
+#' @param gofs (optional) A character vector indicating selected GOFs to plot.
+#'   Default is `NULL` and all GOFs in the provided `gof_tbls` are plotted
+#' @param colors (optional) A character vector to define the fill colors of the
+#'   boxes. Must be the same length as the number of tables to plot. Default is
+#'   `NULL` and a default color pallette is used.
+#' @param n_col (optional) Number of columns of plot panels to plot. Default is
+#'   `n_col = 3`
+#'
+#' @returns A ggplot object with boxplots of GOF values.
+#'
+#' @importFrom dplyr bind_rows filter mutate select %>%
+#' @importFrom purrr map2
 #' @importFrom tidyr pivot_longer
-#' @importFrom ggplot2 ggplot geom_boxplot facet_wrap geom_jitter xlab guides theme_bw theme element_blank  guide_legend
+#' @importFrom tidyselect any_of
+#' @importFrom ggplot2 aes element_blank element_text facet_wrap geom_boxplot
+#'   geom_jitter ggplot rel scale_fill_manual theme theme_bw
 #'
 #' @export
+#'
 #' @examples
 #' \dontrun{
-#' plot_calval_comparison(obj_tbl_cal, obj_tbl_val, indexes = c("nse", "pbias"))
-#' }
-#' @keywords plot
-#' @seealso \code{\link{calculate_performance}}, \code{\link{calculate_performance_2plus}}
+#' library(SWATrunR)
 #'
-
-plot_calval_comparison <- function(cal_tbl, val_tbl, indexes = NULL){
-  # Combine the results from calibration and validation period
-  comb_results <- bind_rows(cal_tbl %>% mutate(type = "calibration"),
-                            val_tbl %>% mutate(type = "validation")) %>%
-    select(-c(run_id, ends_with("tot"))) %>%
-    pivot_longer(-type, names_to = "metric", values_to = "value")
-  # Filter the results if only some metrics should be compared
-  if(!is.null(indexes)){
-    comb_results <- filter(comb_results, metric %in% indexes)
+#' # Generate dummy gof table
+#' n <- 50
+#' gof_cal <- data.frame(run   = id_to_run(1:n, n),
+#'                       nse   = runif(n, 0.4, 0.7),
+#'                       pbias = runif(n, -25, 0),
+#'                       kge   = runif(n, 0.5, 0.8))
+#'
+#' # Plot single glof table
+#' plot_gof(gof_cal)
+#'
+#' # Plot list of gof tables
+#' gof_val <- data.frame(run   = id_to_run(1:n, n),
+#'                       nse   = runif(n, 0.2, 0.55),
+#'                       pbias = runif(n, -20, 10),
+#'                       kge   = runif(n, 0.3, 0.55))
+#'
+#' gof_tbls <- list(calibration = gof_cal, validation = gof_val)
+#'
+#' plot_gof(gof_tbls)
+#' }
+#'
+#' @keywords plot
+#'
+#' @seealso \code{\link{calc_gof}}
+#'
+plot_gof <- function(gof_tbls, gofs = NULL , colors = NULL, n_col = 3) {
+  if(is.data.frame(gof_tbls)) {
+    gof_tbls <- gof_tbls %>%
+      mutate(., name = '')
+  } else if (is.list(gof_tbls)) {
+    if(!is.data.frame(gof_tbls[[1]])) {
+      stop("'gof_tbls' must be either a table or a list of tables.")
+    }
+    if(is.null(names(gof_tbls))) {
+      names(gof_tbls) <- paste0('tbl_', 1:length(gof_tbls))
+    }
+    if(length(unique(names(gof_tbls))) != length(gof_tbls)) {
+      stop("All tables in 'gof_tbls' must have unique names.")
+    }
+    gof_tbls <- gof_tbls %>%
+      map2(., names(gof_tbls), ~ mutate(.x, name = .y)) %>%
+      bind_rows(.)
   }
 
-  # Compare in the figure
-  fig <- ggplot(comb_results, aes(x = type, y = value, fill = type)) +
-    geom_boxplot() +
-    facet_wrap(~metric, scales = "free_y") +
-    geom_jitter(color="black", alpha=0.4) +
-    xlab('') +
-    guides(fill = guide_legend(title = NULL)) +
-    theme_bw() +
-    theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank())
-  return(fig)
-}
+  gof_tbls <- gof_tbls %>%
+    select(-any_of('run')) %>%
+    pivot_longer(cols = -name, names_to = "gof", values_to = "value")
 
+  if(!is.null(gofs)){
+    gof_tbls <- filter(gof_tbls, gof %in% gofs)
+  }
+
+  gof_tbls <- mutate(gof_tbls,
+                     name = factor(name, levels = unique(name)),
+                     gof  = factor(gof,  levels = unique(gof)))
+
+  if(!is.null(colors)) {
+    if(length(colors) < length(unique(gof_tbls$name))) {
+      stop("Not enough 'colors' defined to plot 'gof_tbls'.")
+    }
+    col_pal <- colors
+  } else {
+    col_pal <- c("#80B1D3", "#FB8072", "#FFED6F", "#8DD3C7", "#BEBADA",
+                 "#FDB462", "#FCCDE5", "#D9D9D9", "#BC80BD", "#A65628")
+  }
+
+  ggplot(gof_tbls, aes(x = name, y = value, fill = name)) +
+    geom_boxplot() +
+    geom_jitter(color="black", alpha=0.4) +
+    scale_fill_manual(values = col_pal) +
+    facet_wrap(.~gof, scales = "free_y", ncol = n_col, strip.position = 'left') +
+    theme_bw() +
+    theme(axis.title = element_blank(),
+          axis.ticks.x = element_blank(),
+          axis.text.x = element_text(size = rel(1.2)),
+          strip.background = element_blank(),
+          strip.text = element_text(size = rel(1)),
+          strip.placement = "outside",
+          legend.position = 'none')
+
+}
 
 #' Function to plot OAT (One-At-A-Time) analysis results
 #'
