@@ -4,13 +4,7 @@
 \alias{plot_phu_yld_bms}
 \title{Plot PHU, yield, and biomass over days to maturity}
 \usage{
-plot_phu_yld_bms(
-  sim_result,
-  x_label,
-  yield = NULL,
-  yield_min = NULL,
-  yield_max = NULL
-)
+plot_phu_yld_bms(sim_result, yield_obs = NULL)
 }
 \arguments{
 \item{sim_result}{The simulation results containing PHU, yield, and biomass data.}

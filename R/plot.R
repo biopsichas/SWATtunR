@@ -270,20 +270,20 @@ plot_parameter_identifiability <- function(parameters, objectives, run_fraction 
 #' @importFrom ggplot2 ggplot geom_boxplot geom_hline facet_grid scale_x_discrete
 #' scale_fill_manual coord_cartesian labs theme_bw theme element_blank aes
 #' element_text vars
-#' @importFrom dplyr filter select arrange mutate left_join
-#' @importFrom tidyr pivot_longer starts_with
-#' @importFrom tibble enframe
-#' @importFrom lubridate year
+#' @importFrom dplyr filter select arrange join_by left_join mutate rename %>%
 #' @importFrom gridExtra grid.arrange
+#' @importFrom lubridate year
+#' @importFrom stringr str_detect str_remove_all
+#' @importFrom tibble tibble
+#' @importFrom tidyr pivot_longer
+#' @importFrom tidyselect starts_with
+#' @import ggplot2
+#'
 #' @export
-#' @examples
-#' \dontrun{
-#' plot_phu_yld_bms(ylds_phu_dmat, dmat_chg, yield_mean, yield_min, yield_max)
-#' }
+#'
 #' @keywords plot
 
-plot_phu_yld_bms <- function(sim_result, x_label, yield = NULL,
-                             yield_min = NULL, yield_max = NULL) {
+plot_phu_yld_bms <- function(sim_result, yield_obs = NULL) {
   # mgtout also prints the skipped years, therefore limit to the years after the
   # skipped time period
   start_year <- year(sim_result$run_info$simulation_period$start_date)
@@ -297,24 +297,54 @@ plot_phu_yld_bms <- function(sim_result, x_label, yield = NULL,
 
   sim_years <- start_year:end_year
 
+  col_pal <- c("#7570B3", "#8DD3C7", "#666666", "#FFFFB3", "#D95F02", "#66A61E",
+               "#BEBADA", "#FB8072", "#80B1D3", "#E7298A", "#FDB462", "#B3DE69",
+               "#A6761D", "#FCCDE5", "#D9D9D9", "#BC80BD", "#CCEBC5", "#FFED6F",
+               "#1B9E77", "#E6AB02")
+
+  par_name <- sim_result$parameter$definition %>%
+    filter(str_detect(par_name, 'dmat')) %>%
+    select(par_name, name) %>%
+    mutate(name = str_remove_all(name, "==|'|[:space:]+"))
+
+  par_val <- sim_result$parameter$values %>%
+    select(par_name$par_name) %>%
+    set_names(par_name$name) %>%
+    mutate(name = names(sim_result$simulation[[1]])[-(1:3)]) %>%
+    pivot_longer(., cols = -name, names_to = 'plant_name', values_to = 'phu')
+
+  if(is.null(yield_obs)) {
+    yield_obs <- tibble(plant_name = character())
+  }
+
+  yield_obs <- left_join(par_name, yield_obs,
+                         by = join_by(name == plant_name)) %>%
+    rename(plant_name = name)
+
+  if(!'yield_min' %in% names(yield_obs)) {
+    yield_obs$yield_min <- NA_real_
+  }
+  if(!'yield_max' %in% names(yield_obs)) {
+    yield_obs$yield_max <- NA_real_
+  }
+  if(!'yield_mean' %in% names(yield_obs)) {
+    yield_obs$yield_mean <- NA_real_
+  }
+
   # Prepare the simulations of PHU fractions for plotting
   phu <- sim_result$simulation$phu %>%
     filter(year %in% sim_years) %>%
     select(-year, -hru) %>%
     pivot_longer(., cols = - plant_name) %>%
-    arrange(plant_name)
+    left_join(., par_val, by = join_by(plant_name, name)) %>%
+    mutate(phu = factor(phu))
 
-  col_pal <- c("#7570B3", "#8DD3C7", "#666666", "#FFFFB3", "#D95F02", "#66A61E",
-               "#BEBADA", "#FB8072", "#80B1D3", "#E7298A", "#FDB462", "#B3DE69",
-               "#A6761D", "#FCCDE5", "#D9D9D9", "#BC80BD", "#CCEBC5", "#FFED6F",
-               "#1B9E77", "#E6AB02")
   #Plot PHU fractions per crop over the days_mat changes
   gg_phu <- ggplot(data = phu) +
-    geom_boxplot(aes(x = name, y = value, fill = name)) +
+    geom_boxplot(aes(x = phu, y = value, fill = name)) +
     geom_hline(yintercept = 1, linetype = 'dashed') +
     geom_hline(yintercept = 1.25, linetype = 'dashed') +
-    facet_grid(cols = vars(plant_name)) +
-    scale_x_discrete(labels = x_label) +
+    facet_grid(cols = vars(plant_name), scales = 'free_x') +
     scale_fill_manual(values = col_pal) +
     coord_cartesian(ylim = c(0, 2)) +
     labs(y = 'PHU fraction at harves/kill') +
@@ -329,24 +359,13 @@ plot_phu_yld_bms <- function(sim_result, x_label, yield = NULL,
     select(-year, -hru) %>%
     pivot_longer(., cols = - plant_name) %>%
     mutate(value = value/1000) %>%
-    arrange(plant_name)
-
-  yld_mean <- enframe(yield, name = 'plant_name', value = 'yield_mean') %>%
-    mutate(plant_name = as.character(plant_name))
-  yld_min  <- enframe(yield_min, name = 'plant_name', value = 'yield_min') %>%
-    mutate(plant_name = as.character(plant_name))
-  yld_max  <- enframe(yield_max, name = 'plant_name', value = 'yield_max') %>%
-    mutate(plant_name = as.character(plant_name))
-
-  yld_obs <- left_join(yld_mean, yld_min, by = 'plant_name') %>%
-    left_join(., yld_max, by = 'plant_name') %>%
-    filter(plant_name %in% yld$plant_name)
+    left_join(., par_val, by = join_by(plant_name, name)) %>%
+    mutate(phu = factor(phu))
 
   #Plot yields per crop over the days_mat changes
   gg_yld <- ggplot(data = yld) +
-    geom_boxplot(aes(x = name, y = value, fill = name)) +
-    facet_grid(cols = vars(plant_name)) +
-    scale_x_discrete(labels = x_label) +
+    geom_boxplot(aes(x = phu, y = value, fill = name)) +
+    facet_grid(cols = vars(plant_name), scales = 'free_x') +
     scale_fill_manual(values = col_pal) +
     labs(y = 'Yield (t/ha)', x = 'days_mat absval change') +
     theme_bw() +
@@ -355,11 +374,11 @@ plot_phu_yld_bms <- function(sim_result, x_label, yield = NULL,
           strip.background = element_blank(),
           strip.text = element_blank(),
           legend.position = 'none') +
-    geom_hline(data = yld_obs, aes(yintercept = yield_mean), color = "tomato3",
+    geom_hline(data = yield_obs, aes(yintercept = yield_mean), color = "tomato3",
                linetype = "solid", linewidth = 1) +
-    geom_hline(data = yld_obs, aes(yintercept = yield_min), color = "tomato1",
+    geom_hline(data = yield_obs, aes(yintercept = yield_min), color = "tomato1",
                linetype = "dashed") +
-    geom_hline(data = yld_obs, aes(yintercept = yield_max), color = "tomato1",
+    geom_hline(data = yield_obs, aes(yintercept = yield_max), color = "tomato1",
                linetype = "dashed") +
     labs(caption = "Red lines represent observed values.")
 
@@ -369,14 +388,13 @@ plot_phu_yld_bms <- function(sim_result, x_label, yield = NULL,
     select(-year, -hru) %>%
     pivot_longer(., cols = - plant_name) %>%
     mutate(value = value/1000) %>%
-    arrange(plant_name)
+    left_join(., par_val, by = join_by(plant_name, name)) %>%
+    mutate(phu = factor(phu))
 
   #Plot yields per crop over the days_mat changes
   gg_bms <- ggplot(data = bms) +
-    geom_boxplot(aes(x = name, y = value, fill = name)) +
-    facet_grid(cols = vars(plant_name)) +
-    facet_grid(cols = vars(plant_name)) +
-    scale_x_discrete(labels = x_label) +
+    geom_boxplot(aes(x = phu, y = value, fill = name)) +
+    facet_grid(cols = vars(plant_name), scales = 'free_x') +
     scale_fill_manual(values = col_pal) +
     labs(y = 'Bio mass (t/ha)') +
     theme_bw()+
