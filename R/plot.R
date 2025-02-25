@@ -404,7 +404,7 @@ plot_phu_yld_bms <- function(sim_result, yield_obs = NULL) {
 
   if(length(unique(bms$name)) != 1){
     gg_bms <- gg_bms +
-      labs(x = 'days_mat absval change') +
+      labs(x = 'days_mat') +
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
   } else {
     gg_bms <- gg_bms +
