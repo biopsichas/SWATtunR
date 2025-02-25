@@ -255,21 +255,20 @@ plot_parameter_identifiability <- function(parameters, objectives, run_fraction 
 
 #' Plot PHU, yield, and biomass over days to maturity
 #'
-#' This function generates boxplots to visualize Plant Heat Units (PHU) fractions,
-#' yields, and biomass over changes in days to maturity.
+#' This function generates boxplots to visualize Plant Heat Units (PHU)
+#' fractions, yields, and biomass over changes in days to maturity.
 #'
-#' @param sim_result The simulation results containing PHU, yield, and biomass data.
-#' @param x_label Labels for the x-axis representing changes in days to maturity.
-#' @param yield (optional) The mean yield values for each crop.
-#' Default \code{yield = NULL}.
-#' @param yield_min (optional) The minimum observed yield values for each crop.
-#' Default \code{yield_min = NULL}
-#' @param yield_max (optional) The maximum observed yield values for each crop.
-#' Default \code{yield_max = NULL}
-#' @return A combined ggplot object showing boxplots for PHU fractions, yields, and biomass.
-#' @importFrom ggplot2 ggplot geom_boxplot geom_hline facet_grid scale_x_discrete
-#' scale_fill_manual coord_cartesian labs theme_bw theme element_blank aes
-#' element_text vars
+#' @param sim_result The simulation results containing PHU, yield, and biomass
+#'   data.
+#' @param yield_obs (optional) Data.frame with observed min, max, and mean yield
+#'   values for each crop. Default \code{yield = NULL}.
+#'
+#' @returns A combined ggplot object showing boxplots for PHU fractions, yields,
+#'   and biomass.
+#'
+#' @importFrom ggplot2 ggplot geom_boxplot geom_hline facet_grid
+#'   scale_x_discrete scale_fill_manual coord_cartesian labs theme_bw theme
+#'   element_blank aes element_text vars
 #' @importFrom dplyr filter select arrange join_by left_join mutate rename %>%
 #' @importFrom gridExtra grid.arrange
 #' @importFrom lubridate year
@@ -422,13 +421,11 @@ plot_phu_yld_bms <- function(sim_result, yield_obs = NULL) {
 #' observed yields (if available).
 #'
 #' @param sim_result The simulation results containing yield data.
-#' @param yield (optional) The mean yield values for each crop.
-#' Default \code{yield = NULL}.
-#' @param yield_min (optional) The minimum observed yield values for each crop.
-#' Default \code{yield_min = NULL}
-#' @param yield_max (optional) The maximum observed yield values for each crop.
-#' Default \code{yield_max = NULL}
-#' @return A combined ggplot object showing dottty plots for 4 parameters.
+#' @param yield_obs (optional) Data.frame with observed min, max, and mean yield
+#'   values for each crop. Default \code{yield = NULL}.
+#'
+#' @returns A combined ggplot object showing dottty plots for 4 parameters.
+#'
 #' @importFrom tidyr pivot_longer
 #' @importFrom stringr str_remove
 #' @importFrom ggplot2 labs
@@ -443,7 +440,7 @@ plot_phu_yld_bms <- function(sim_result, yield_obs = NULL) {
 #' }
 #' @keywords plot
 
-plot_dotty_yields <- function(sim_result, yield = NULL, yield_min = NULL, yield_max = NULL) {
+plot_dotty_yields <- function(sim_result, yield_obs = NULL) {
   ##Years to filter
   start_year <- year(sim_result$run_info$simulation_period$start_date)+
     sim_result$run_info$simulation_period$years_skip
@@ -466,7 +463,7 @@ plot_dotty_yields <- function(sim_result, yield = NULL, yield_min = NULL, yield_
     rename(yield = value)
 
   plt_list <- map(unique(yld$parameter),
-                  ~ dotty_fig(yld[yld$parameter == .x,], yield, yield_min, yield_max))
+                  ~ dotty_fig(yld[yld$parameter == .x,], yield_obs))
 
   plt_list[[length(plt_list)]] <- plt_list[[length(plt_list)]] +
     labs(caption = "Red lines represent observed values")
@@ -496,18 +493,7 @@ plot_dotty_yields <- function(sim_result, yield = NULL, yield_min = NULL, yield_
 #' @keywords plot
 
 
-dotty_fig <- function(sim_yield, yield = NULL, yield_min = NULL, yield_max = NULL){
-  yld_mean <- enframe(yield, name = 'plant_name', value = 'yield_mean') %>%
-    mutate(plant_name = as.character(plant_name))
-  yld_min  <- enframe(yield_min, name = 'plant_name', value = 'yield_min') %>%
-    mutate(plant_name = as.character(plant_name))
-  yld_max  <- enframe(yield_max, name = 'plant_name', value = 'yield_max') %>%
-    mutate(plant_name = as.character(plant_name))
-
-  yld_obs <- left_join(yld_mean, yld_min, by = 'plant_name') %>%
-    left_join(., yld_max, by = 'plant_name') %>%
-    filter(plant_name %in% sim_yield$plant_name)
-
+dotty_fig <- function(sim_yield, yld_obs = NULL){
   df_rng <- sim_yield %>%
     group_by(plant_name, parameter, values) %>%
     summarise(yld_50  = quantile(yield, probs = 0.5),
