@@ -2,7 +2,7 @@
 % Please edit documentation in R/prepare.R
 \name{sample_lhs}
 \alias{sample_lhs}
-\title{Sample parameters space}
+\title{Sample parameters with Latin Hypercube Sampling (LHS)}
 \usage{
 sample_lhs(par, n)
 }

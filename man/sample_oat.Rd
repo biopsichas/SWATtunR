@@ -2,7 +2,7 @@
 % Please edit documentation in R/prepare.R
 \name{sample_oat}
 \alias{sample_oat}
-\title{Sample OAT Function}
+\title{Sample parameter values one-at-a-time (OAT)}
 \usage{
 sample_oat(par, par_center = 1, n_t = 10)
 }

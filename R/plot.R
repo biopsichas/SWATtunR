@@ -302,7 +302,7 @@ plot_phu_yld_bms <- function(sim_result, yield_obs = NULL) {
                "#1B9E77", "#E6AB02")
 
   par_name <- sim_result$parameter$definition %>%
-    filter(str_detect(par_name, 'dmat')) %>%
+    filter(str_detect(par_name, 'days_mat')) %>%
     select(par_name, name) %>%
     mutate(name = str_remove_all(name, "==|'|[:space:]+"))
 

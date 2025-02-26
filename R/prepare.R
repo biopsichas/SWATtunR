@@ -366,7 +366,7 @@ sample_days_mat <- function(crop_names, change_min = -60, change_max = 90,
   # Generate the parameter input table with the changes for all crops and
   # convert the names into SWATrunR syntax
   par_dmat <- map_df(dmat_init, ~ .x + dmat_chg) %>%
-    set_names(., paste0('dmat_', names(.),
+    set_names(., paste0('days_mat_', names(.),
                         '::days_mat.pdb | change = absval | name = ' ,
                         names(.)))
 
@@ -382,7 +382,7 @@ sample_days_mat <- function(crop_names, change_min = -60, change_max = 90,
 #'
 #' @importFrom dplyr  %>%
 #' @importFrom stringr str_remove
-#' @importFrom tidyr pivot_longer
+#' @importFrom tidyr pivot_wider
 #' @importFrom purrr set_names
 #'
 #' @export

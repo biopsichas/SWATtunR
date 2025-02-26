@@ -4,19 +4,13 @@
 \alias{plot_dotty_yields}
 \title{Plot Dotty Yields}
 \usage{
-plot_dotty_yields(sim_result, yield = NULL, yield_min = NULL, yield_max = NULL)
+plot_dotty_yields(sim_result, yield_obs = NULL)
 }
 \arguments{
 \item{sim_result}{The simulation results containing yield data.}
 
-\item{yield}{(optional) The mean yield values for each crop.
-Default \code{yield = NULL}.}
-
-\item{yield_min}{(optional) The minimum observed yield values for each crop.
-Default \code{yield_min = NULL}}
-
-\item{yield_max}{(optional) The maximum observed yield values for each crop.
-Default \code{yield_max = NULL}}
+\item{yield_obs}{(optional) Data.frame with observed min, max, and mean yield
+values for each crop. Default \code{yield = NULL}.}
 }
 \value{
 A combined ggplot object showing dottty plots for 4 parameters.

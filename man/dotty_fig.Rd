@@ -4,7 +4,7 @@
 \alias{dotty_fig}
 \title{Make a dotty plot}
 \usage{
-dotty_fig(sim_yield, yield = NULL, yield_min = NULL, yield_max = NULL)
+dotty_fig(sim_yield, yld_obs = NULL)
 }
 \arguments{
 \item{sim_yield}{a dataframe with yield data}

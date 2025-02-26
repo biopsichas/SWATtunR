@@ -7,29 +7,18 @@
 plot_phu_yld_bms(sim_result, yield_obs = NULL)
 }
 \arguments{
-\item{sim_result}{The simulation results containing PHU, yield, and biomass data.}
+\item{sim_result}{The simulation results containing PHU, yield, and biomass
+data.}
 
-\item{x_label}{Labels for the x-axis representing changes in days to maturity.}
-
-\item{yield}{(optional) The mean yield values for each crop.
-Default \code{yield = NULL}.}
-
-\item{yield_min}{(optional) The minimum observed yield values for each crop.
-Default \code{yield_min = NULL}}
-
-\item{yield_max}{(optional) The maximum observed yield values for each crop.
-Default \code{yield_max = NULL}}
+\item{yield_obs}{(optional) Data.frame with observed min, max, and mean yield
+values for each crop. Default \code{yield = NULL}.}
 }
 \value{
-A combined ggplot object showing boxplots for PHU fractions, yields, and biomass.
+A combined ggplot object showing boxplots for PHU fractions, yields,
+and biomass.
 }
 \description{
-This function generates boxplots to visualize Plant Heat Units (PHU) fractions,
-yields, and biomass over changes in days to maturity.
-}
-\examples{
-\dontrun{
-plot_phu_yld_bms(ylds_phu_dmat, dmat_chg, yield_mean, yield_min, yield_max)
-}
+This function generates boxplots to visualize Plant Heat Units (PHU)
+fractions, yields, and biomass over changes in days to maturity.
 }
 \keyword{plot}
