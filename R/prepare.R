@@ -232,7 +232,7 @@ conc_to_load <- function(conc, flow,
 
 # Generating parameter samples  ---------------------------------------------------------------------
 
-#' Sample parameters space
+#' Sample parameters with Latin Hypercube Sampling (LHS)
 #'
 #' This function samples the parameter space using Latin Hypercube Sampling (LHS).
 #'
@@ -267,7 +267,7 @@ sample_lhs <- function(par, n) {
     map2_df(., par, ~ (.x * (.y[2] - .y[1]) + .y[1])) # Scale parameter ranges
 }
 
-#' Sample OAT Function
+#' Sample parameter values one-at-a-time (OAT)
 #'
 #' Generates a set of OAT (One-At-a-Time) samples based on provided parameter centers and boundaries.
 #'
@@ -299,6 +299,106 @@ sample_oat <- function(par, par_center = 1, n_t = 10) {
   par_oat <- map_df(1:n_c, ~ sample_transect_i(par, par_center, par_transect, .x))
 
   return(par_oat)
+}
+
+#' Sample days to maturity values
+#'
+#' `sample_days_mat()` reads the initial days to maturity values for the
+#' selected `crop_names` from the unchanged plants.plt file (saved in
+#' ./backup/plants.plt) and generates a parameter table which can be used with
+#' the `SWATrunR` function `run_swatplus()` perform simulations with changed
+#' days to maturity values for the selected crops.
+#'
+#' @param crop_names Character vector with names of selected crops. All crops
+#'   must be defined in the plants.plt backup file saved in ./backup/plants.plt
+#' @param change_min Minimum value of change for the days to maturity. Default
+#'   is -60.
+#' @param change_max Minimum value of change for the days to maturity. Default
+#'   is 90.
+#' @param change_step Minimum value of change for the days to maturity. Default
+#'   is 10.
+#'
+#' @returns A parameter input table for the input argument `parameter` of the
+#'   `SWATrunR` function `run_swatplus()`.
+#'
+#' @export
+#'
+#' @importFrom dplyr filter mutate select %>%
+#' @importFrom purrr map_df set_names
+#' @importFrom tibble deframe
+#'
+#' @examples
+#' \dontrun{
+#' library(SWATtunR)
+#'
+#' # Crops for which days to maturity values are sampled
+#' crop_names <- c('csil', 'wbar', 'sgbt', 'wwht')
+#'
+#' # Generate a days to maturity parameter table
+#' par_dmat <- sample_dmat(crop_names)
+#'
+#' par_dmat
+#' }
+sample_days_mat <- function(crop_names, change_min = -60, change_max = 90,
+                        change_step = 10) {
+  # Reading the plants.plt input file from the initial unchanged backup file
+  plants_plt <- read_tbl(file_path = './backup/plants.plt')
+
+  # Check if all crop_names are defined in plants.plt
+  crop_missing <- !crop_names %in% plants_plt$name
+
+  if(any(crop_missing)) {
+    stop("The following 'crop_name's are not defined in 'plants.plt':\n",
+         paste(crop_names[crop_missing], collapse = ', '))
+  }
+
+  # Get a vector with days_mat initial values for the selected crops
+  dmat_init <- plants_plt %>%
+    filter(name %in% crop_names) %>%
+    select(name, days_mat) %>%
+    ## if days_mat is 0, set it to 110 (the default value in the SWAT+ code)
+    mutate(days_mat = ifelse(days_mat == 0, 110, days_mat)) %>%
+    deframe() %>%
+    .[match(names(.), crop_names)]
+
+  dmat_chg <- round(seq(change_min, change_max, change_step))
+
+  # Generate the parameter input table with the changes for all crops and
+  # convert the names into SWATrunR syntax
+  par_dmat <- map_df(dmat_init, ~ .x + dmat_chg) %>%
+    set_names(., paste0('dmat_', names(.),
+                        '::days_mat.pdb | change = absval | name = ' ,
+                        names(.)))
+
+  return(par_dmat)
+}
+
+#' Rearrange parameter change tables to SWATrunR format
+#'
+#' @param par_tbl A table with parameter changes where the first column is
+#' 'plant_name' and the following columns are the parameters change definitions.
+#'
+#' @returns The resturctured SWATrunR parameter table
+#'
+#' @importFrom dplyr  %>%
+#' @importFrom stringr str_remove
+#' @importFrom tidyr pivot_longer
+#' @importFrom purrr set_names
+#'
+#' @export
+#'
+prepare_plant_parameter <- function(par_tbl) {
+  crop_names <- par_tbl$plant_name
+  par_names  <- str_remove(names(par_tbl)[-1], '\\..*')
+  par_names  <- paste0(rep(par_names, each = length(crop_names)), '_',
+                       rep(crop_names, length(par_names)))
+  par_tbl    <- pivot_wider(par_tbl,
+                            names_from = plant_name,
+                            values_from = matches('.pdb'),
+                            names_glue = "{.value} | name = {plant_name}") %>%
+    set_names(paste0(par_names, '::', names(.)))
+
+  return(par_tbl)
 }
 
 #' Group the values of a parameter in the file hydrology.hyd.
