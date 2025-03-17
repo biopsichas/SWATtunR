@@ -31,7 +31,7 @@ save_file_name <- paste0(format(Sys.time(), '%Y%m%d%H%M'), '_sim')
 # Path where the simulation results are saved.
 # Default the simulations are saved in the calibration project
 # in the sub-folder /simulation
-save_path <- '~/simulation'
+save_path <- './simulation'
 
 # Perform simulation runs
 run_swatplus(project_path     = model_path,
