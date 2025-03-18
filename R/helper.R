@@ -850,3 +850,15 @@ check_point_shape <- function(shape) {
     NA
   }
 }
+
+#' Add a time stamp to the save name
+#'
+#' @param save_name Name of the saved simulation run
+#'
+#' @returns The name of the simulation run with an added time stamp
+#'
+#' @export
+#'
+add_timestamp <- function(save_name) {
+  paste0(format(Sys.time(), '%Y%m%d%H%M'), save_name)
+}
