@@ -860,5 +860,5 @@ check_point_shape <- function(shape) {
 #' @export
 #'
 add_timestamp <- function(save_name) {
-  paste0(format(Sys.time(), '%Y%m%d%H%M'), save_name)
+  paste0(format(Sys.time(), '%Y%m%d%H%M'),'_', save_name)
 }
