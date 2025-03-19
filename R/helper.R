@@ -1,3 +1,33 @@
+#' Calculate water yield ratio
+#'
+#' Calculate the water yield ratio from simulated average annual water balance
+#' components. The simulation run must provide
+#' \describe{
+#'     \item{precip}{Variable out of 'basin_wb_aa' output file.}
+#'     \item{surq_cha}{Variable out of 'basin_wb_aa' output file.}
+#'     \item{surq_res}{Variable out of 'basin_wb_aa' output file.}
+#'     \item{latq_cha}{Variable out of 'basin_wb_aa' output file.}
+#'     \item{latq_res}{Variable out of 'basin_wb_aa' output file.}
+#'     \item{qtile}{Variable out of 'basin_wb_aa' output file.}
+#'     \item{flo}{Variable out of ''basin_aqu_aa' output file.}
+#'   }
+#'
+#' @param sim A SWATrunR simulation run with the above listed simulated
+#'   variables.
+#'
+#' @returns The water yield ratio.
+#' @export
+#'
+calc_wyr <- function(sim) {
+  unname((sim$simulation$flo +
+          sim$simulation$surq_cha +
+          sim$simulation$surq_res +
+          sim$simulation$latq_cha +
+          sim$simulation$latq_res +
+          sim$simulation$qtile) /
+          sim$simulation$precip)
+}
+
 # Different parameter values for groupings -------------------------------------
 #' ID Grouping Functions for Parameter Names
 #'
