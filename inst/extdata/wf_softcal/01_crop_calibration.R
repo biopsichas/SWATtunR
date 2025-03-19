@@ -26,7 +26,7 @@ model_path <- ''
 # Set the number of cores for parallel model execution
 n_cores <- Inf # Inf uses all cores. Set lower value if preferred.
 
-# Set the umber parameter combinations for the LHS sampling of crop parameters
+# Set the number parameter combinations for the LHS sampling of crop parameters
 n_combinations <- 10
 
 # Path to the observed crop yields.
@@ -49,7 +49,9 @@ crop_names <- yield_obs$plant_name
 # reset <- TRUE
 reset <- FALSE
 if(reset) {
-  file.copy('./backup/plants.plt', paste(model_path, '/plants.plt'))
+  file.copy('./backup/plants.plt',
+            paste0(model_path, '/plants.plt'),
+            overwrite = TRUE)
 }
 
 # Calibrate days to maturity values for selected crops --------------------
@@ -70,7 +72,6 @@ par_dmat <- sample_days_mat(crop_names)
 # All simulation results will be saved in the folder './simulation'.
 # The simulation results will have a time stamp, so if the process is repeated
 # Always the most recent simulations are used in the analysis.
-dmat_sim_name <- paste0(format(Sys.time(), '%Y%m%d%H%M'), '_sim_dmat')
 
 # Run the simulations
 run_swatplus(project_path = model_path,
@@ -90,7 +91,7 @@ run_swatplus(project_path = model_path,
              years_skip       = NULL, # Change if necessary.
              n_thread         = n_cores,
              save_path        = './simulation',
-             save_file        = dmat_sim_name,
+             save_file        = add_timestamp('sim_dmat'),
              return_output    = FALSE,
              time_out         = 3600 # seconds, change if run-time differs
              )
@@ -130,7 +131,6 @@ par_crop <- bind_cols(par_crop, dmat_sel)
 # All simulation results will be saved in the folder './simulation'.
 # The simulation results will have a time stamp, so if the process is repeated
 # Always the most recent simulations are used in the analysis.
-yld_sim_name <- paste0(format(Sys.time(), '%Y%m%d%H%M'), '_sim_yld')
 
 # Run the simulations
 run_swatplus(project_path = model_path,
@@ -143,12 +143,12 @@ run_swatplus(project_path = model_path,
              years_skip       = NULL, # Change if necessary.
              n_thread         = n_cores,
              save_path        = './simulation',
-             save_file        = yld_sim_name,
+             save_file        = add_timestamp('sim_yld'),
              return_output    = FALSE,
              time_out         = 3600 # seconds, change if run-time differs
              )
 
-# Load the most recent dmat simulation results
+# Load the most recent yield simulation results
 yld_sims <- list.files('./simulation/', pattern = '[0-9]{12}_sim_yld')
 yld_path <- paste0('./simulation/', yld_sims[length(yld_sims)])
 yld_sim  <- load_swat_run(yld_path)
@@ -176,8 +176,6 @@ crop_par_sel <- prepare_plant_parameter(crop_par_sel)
 # parameter values
 par_final <- bind_cols(dmat_sel, crop_par_sel)
 
-final_sim_name <- paste0(format(Sys.time(), '%Y%m%d%H%M'), '_sim_final')
-
 # Run the simulations
 run_swatplus(project_path = model_path,
              output = list(yld = define_output(file = 'mgtout',
@@ -196,19 +194,19 @@ run_swatplus(project_path = model_path,
              years_skip       = NULL, # Change if necessary.
              n_thread         = n_cores,
              save_path        = './simulation',
-             save_file        = final_sim_name,
+             save_file        = add_timestamp('sim_check01'),
              return_output    = FALSE,
              time_out         = 3600, # seconds, change if run-time differs
              keep_folder      = TRUE
 )
 
-# Load the most recent dmat simulation results
-final_sims <- list.files('./simulation/', pattern = '[0-9]{12}_sim_final')
-final_path <- paste0('./simulation/', final_sims[length(final_sims)])
-final_sim  <- load_swat_run(final_path)
+# Load the most recent check simulation results
+check_sims <- list.files('./simulation/', pattern = '[0-9]{12}_sim_check01')
+check_path <- paste0('./simulation/', check_sims[length(check_sims)])
+check_sim  <- load_swat_run(check_path)
 
 # Plot PHU, crop yields and biomass for final simulation run.
-plot_phu_yld_bms(final_sim, yield_obs)
+plot_phu_yld_bms(check_sim, yield_obs)
 
 # Write plants.plt --------------------------------------------------------
 # If final run looks acceptable, write the adjusted parameter table into the
