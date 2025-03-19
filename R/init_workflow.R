@@ -50,11 +50,17 @@ initialize_softcal <- function(project_name, path, model_path,
   file.copy(paste0(system.file(package = "SWATtunR"), '/extdata/crop2.csv'),
             paste0(project_path, '/observation/crop_yields.csv'))
 
-  # Add model_path to run script and copy into project.
+  # Add model_path to crop calibration script and copy into project.
   f01 <- readLines(paste0(wf_path, '/01_crop_calibration.R'))
   line_id <- grepl("model_path <- ''", f01)
   f01[line_id] <- paste0("model_path <- '", model_path, "'")
   writeLines(f01, paste0(project_path, '/workflow/01_crop_calibration.R'))
+
+  # Add model_path to wyr calibration script and copy into project.
+  f02 <- readLines(paste0(wf_path, '/02_wateryield_calibration.R'))
+  line_id <- grepl("model_path <- ''", f02)
+  f02[line_id] <- paste0("model_path <- '", model_path, "'")
+  writeLines(f02, paste0(project_path, '/workflow/02_wateryield_calibration.R'))
 
   # Initialize and load R project
   rstudioapi::initializeProject(path = project_path)
