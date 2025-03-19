@@ -301,16 +301,26 @@ plot_phu_yld_bms <- function(sim_result, yield_obs = NULL) {
                "#A6761D", "#FCCDE5", "#D9D9D9", "#BC80BD", "#CCEBC5", "#FFED6F",
                "#1B9E77", "#E6AB02")
 
-  par_name <- sim_result$parameter$definition %>%
-    filter(str_detect(par_name, 'days_mat')) %>%
-    select(par_name, name) %>%
-    mutate(name = str_remove_all(name, "==|'|[:space:]+"))
+  if('days_mat' %in% sim_result$parameter$definition$parameter) {
+    par_name <- sim_result$parameter$definition %>%
+      filter(str_detect(par_name, 'days_mat')) %>%
+      select(par_name, name) %>%
+      mutate(name = str_remove_all(name, "==|'|[:space:]+"))
 
-  par_val <- sim_result$parameter$values %>%
-    select(par_name$par_name) %>%
-    set_names(par_name$name) %>%
-    mutate(name = names(sim_result$simulation[[1]])[-(1:3)]) %>%
-    pivot_longer(., cols = -name, names_to = 'plant_name', values_to = 'phu')
+    par_val <- sim_result$parameter$values %>%
+      select(par_name$par_name) %>%
+      set_names(par_name$name) %>%
+      mutate(name = names(sim_result$simulation$phu)[-(1:3)]) %>%
+      pivot_longer(., cols = -name, names_to = 'plant_name', values_to = 'phu')
+
+  } else if(ncol(sim_result$simulation$phu) == 4) {
+    par_name <- tibble(par_name = unique(sim_result$simulation$phu$plant_name),
+                       name = par_name)
+
+    par_val <- tibble(name = 'run_1',
+                      plant_name = unique(sim_result$simulation$phu$plant_name),
+                      phu = 0)
+  }
 
   if(is.null(yield_obs)) {
     yield_obs <- tibble(plant_name = character())
@@ -657,57 +667,83 @@ plot_dotty <- function(par, var, y_label = 'y', n_col = 3, y_lim = NULL,
   return(gg)
 }
 
-#' Plot ESCO Range
+#' Plot esco (and epco) to identify appropriate parameter ranges.
 #'
-#' This function creates a ggplot visualization of the ESCO range data,
-#' highlighting specific values and limits with horizontal and vertical lines.
+#' Dependent on whether esco (and epco) were used in the calibration runs,
+#' `plot_esco_epco()` plots the simulatated water yield ratios over the
+#' parameter ranges to support the manual selection of parameter values/ranges.
 #'
 #' @param sim The simulation results water balance data. Including:
 #'   \describe{
-#'     \item{precip}{Variable out of 'basin_wb_day' output file.}
-#'     \item{surq_cha}{Variable out of 'basin_wb_day' output file.}
-#'     \item{surq_res}{Variable out of 'basin_wb_day' output file.}
-#'     \item{latq_cha}{Variable out of 'basin_wb_day' output file.}
-#'     \item{latq_res}{Variable out of 'basin_wb_day' output file.}
-#'     \item{qtile}{Variable out of 'basin_wb_day' output file.}
-#'     \item{flo}{Variable out of ''basin_aqu_day' output file.}
+#'     \item{precip}{Variable out of 'basin_wb_aa' output file.}
+#'     \item{surq_cha}{Variable out of 'basin_wb_aa' output file.}
+#'     \item{surq_res}{Variable out of 'basin_wb_aa' output file.}
+#'     \item{latq_cha}{Variable out of 'basin_wb_aa' output file.}
+#'     \item{latq_res}{Variable out of 'basin_wb_aa' output file.}
+#'     \item{qtile}{Variable out of 'basin_wb_aa' output file.}
+#'     \item{flo}{Variable out of ''basin_aqu_aa' output file.}
 #'   }
-#' @param obs_wy_ratio A numeric value representing the observed water yield ratio.
-#' @param rel_wyr_lim A numeric value specifying the relative range for acceptable error.
+#' @param wyr_target A numeric value representing the target water yield ratio.
+#' @param rel_wyr_limit A numeric value specifying the relative range for
+#'   acceptable error.
+#'
 #' @importFrom ggplot2 ggplot geom_line geom_vline geom_text
 #'
 #' @return A ggplot object.
 #' @export
 #'
-#' @examples
-#' \dontrun{
-#' plot_esco_range(sim_esco, obs_wy_ratio)
-#' }
-
-plot_esco_range <- function(sim, obs_wy_ratio, rel_wyr_lim = 0.05) {
+plot_esco_epco <- function(sim, wyr_target, rel_wyr_limit = 0.05) {
   ## Calculate the water yield ratio
-  wyr_sim <- calculate_wyr(sim)
-  ## Get the esco parameter range and and the parameter value
-  esco_rng <- find_par_range(sim$parameter$values$esco, wyr_sim,
-                             obs_wy_ratio, rel_wyr_lim)
-  ## Create the ggplot object
-  ggplot() +
-    geom_line(aes(x = esco_rng$x, y = esco_rng$y)) +
-    geom_hline(yintercept = obs_wy_ratio, color = 'tomato3') +
-    geom_hline(yintercept = (1 + rel_wyr_lim)*obs_wy_ratio,
-               color = 'tomato3', linetype = 'dashed') +
-    geom_hline(yintercept = (1 - rel_wyr_lim)*obs_wy_ratio,
-               color = 'tomato3', linetype = 'dashed') +
-    geom_vline(xintercept = esco_rng$par_val, color = 'tomato3') +
-    geom_vline(xintercept = esco_rng$par_rng[1], color = 'tomato3', linetype = 'dashed') +
-    geom_vline(xintercept = esco_rng$par_rng[2], color = 'tomato3', linetype = 'dashed') +
-    geom_text(aes(x = c(esco_rng$par_val, esco_rng$par_rng[1], esco_rng$par_rng[2]),
-                  y = rep(obs_wy_ratio, 3),
-                  label = round(c(esco_rng$par_val, esco_rng$par_rng[1],
-                                  esco_rng$par_rng[2]), 2)),
-              vjust = - 0.5, hjust = -0.25) +
-    labs(x = 'esco', y = 'Water yield ratio') +
-    theme_bw()
+  wyr_sim <- calc_wyr(sim)
+
+  # Plot option for alternative A with only esco.
+  if(!'epco' %in% sim$parameter$definition$parameter) {
+    ## Get the esco parameter range and and the parameter value
+    esco_rng <- find_par_range(sim$parameter$values$esco, wyr_sim,
+                               wyr_target, rel_wyr_limit)
+    ## Create the ggplot object
+    ggplot() +
+      geom_line(aes(x = esco_rng$x, y = esco_rng$y)) +
+      geom_hline(yintercept = wyr_target, color = 'tomato3') +
+      geom_hline(yintercept = (1 + rel_wyr_limit) * wyr_target,
+                 color = 'tomato3', linetype = 'dashed') +
+      geom_hline(yintercept = (1 - rel_wyr_limit) * wyr_target,
+                 color = 'tomato3', linetype = 'dashed') +
+      geom_vline(xintercept = esco_rng$par_val, color = 'tomato3') +
+      geom_vline(xintercept = esco_rng$par_rng[1], color = 'tomato3', linetype = 'dashed') +
+      geom_vline(xintercept = esco_rng$par_rng[2], color = 'tomato3', linetype = 'dashed') +
+      geom_text(aes(x = c(esco_rng$par_val, esco_rng$par_rng[1], esco_rng$par_rng[2]),
+                    y = rep(wyr_target, 3),
+                    label = round(c(esco_rng$par_val, esco_rng$par_rng[1],
+                                    esco_rng$par_rng[2]), 2)),
+                vjust = - 0.5, hjust = -0.25) +
+      labs(x = 'esco', y = 'Water yield ratio') +
+      theme_bw()
+  } else if (all (c('esco', 'epco') %in% sim$parameter$definition$parameter)) {
+    # ## Plot the results
+    wyr_xyz <- sim$parameter$values %>%
+      bind_cols(wyr = unlist(wyr_sim))
+
+    ggplot(wyr_xyz) +
+      geom_contour_filled(aes(x = esco, y = epco, z = wyr)) +
+      geom_contour_filled(aes(x = esco, y = epco, z = wyr),
+                   breaks = c(wyr_target* (1 - rel_wyr_limit),
+                              wyr_target* (1 + rel_wyr_limit)),
+                   fill = 'grey50',
+                   alpha = 0.5) +
+      geom_contour(aes(x = esco, y = epco, z = wyr, col = 'target wyr'),
+                   breaks = wyr_target, linewidth = 1) +
+      geom_contour(aes(x = esco, y = epco, z = wyr, col = 'wyr +/- limit'),
+                   breaks = c(wyr_target* (1 - rel_wyr_limit),
+                              wyr_target* (1 + rel_wyr_limit))) +
+      labs(fill = 'wyr simulated', color = NULL) +
+      scale_color_manual(values = c('black', 'red')) +
+      scale_x_continuous(expand = c(0,0)) +
+      scale_y_continuous(expand = c(0,0)) +
+      theme_bw()
+  } else {
+    stop("Either only 'esco' or both 'esco' and 'epco' must be varied for plotting.")
+  }
 }
 
 #' View interactive time series of simulation results and observations
