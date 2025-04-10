@@ -3,4 +3,6 @@ utils::globalVariables(c(".", "hru", "plant_name", "name", "value", "yield_mean"
                          "model_path", "abs_min", "abs_max", "p", "run_id",
                          "rank_tot", "sum_rank", "fill_segment", "id", "unit",
                          "xmax", "xmin", "center", "metric", "type", "file_code",
-                         "file_name", "full_name", "change", "dummy", "par_name"))
+                         "file_name", "full_name", "change", "dummy", "par_name",
+                         ".SD", "days_mat", "epco", "esco", "gof", "grp", "lwr",
+                         "upr", "wyr", "yield", "yield_max", "yield_min"))

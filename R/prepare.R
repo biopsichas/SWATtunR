@@ -384,6 +384,7 @@ sample_days_mat <- function(crop_names, change_min = -60, change_max = 90,
 #' @importFrom stringr str_remove
 #' @importFrom tidyr pivot_wider
 #' @importFrom purrr set_names
+#' @importFrom tidyselect matches
 #'
 #' @export
 #'
@@ -413,6 +414,7 @@ prepare_plant_parameter <- function(par_tbl) {
 #'
 #' @returns A vector with unique indices of the parameter value groups assigned
 #'   to each HRU.
+#' @importFrom purrr map_int
 #' @export
 #'
 group_hydr_values <- function(par_name, model_path) {

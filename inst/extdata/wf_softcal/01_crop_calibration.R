@@ -52,6 +52,10 @@ if(reset) {
   file.copy('./backup/plants.plt',
             paste0(model_path, '/plants.plt'),
             overwrite = TRUE)
+} else if (!file.exists('./backup/plants.plt')){
+  file.copy(paste0(model_path, '/plants.plt'),
+            './backup/plants.plt',
+            overwrite = FALSE)
 }
 
 # Calibrate days to maturity values for selected crops --------------------

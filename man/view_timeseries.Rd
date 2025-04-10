@@ -51,8 +51,8 @@ This function plots interactive time series comparing simulated data with observ
 }
 \examples{
 \dontrun{
-plot_selected_sim(sim_flow, obs = obs, run_sel = c(95), run_ids = run_sel_ids,
-period = "average monthly", plot_bands = TRUE)
+view_timeseries(sim_flow, obs = obs, run_ids = run_sel_ids, run_sel = c(95),
+plot_bands = TRUE, period = "average monthly")
 }
 }
 \keyword{plot}

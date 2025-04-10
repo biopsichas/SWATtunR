@@ -9,7 +9,7 @@ plot_timeseries(
   obs = NULL,
   run_sel = NULL,
   run_ids = NULL,
-  plot_band = TRUE,
+  plot_bands = TRUE,
   sim_pointshape = 1,
   obs_pointshape = 1,
   sim_linetype = "solid",
@@ -45,10 +45,15 @@ plotting.}
 
 \item{run_ids}{(optional) Integer vector or character vector of run IDs
 or run names to plot. Default \code{run_ids = NULL}. In this case only the
-'seleced' simulation run from \code{run_sel} is plotted. If \code{plot_band = TRUE}
+'seleced' simulation run from \code{run_sel} is plotted. If \code{plot_bands = TRUE}
 the selected \code{run_ids} are used to calculate and plot the upper and lower
-boundaries of the plotted band. If \code{plot_band = FALSE} a maximum number of
+boundaries of the plotted band. If \code{plot_bands = FALSE} a maximum number of
 10 \code{run_ids} can be selected for plotting.}
+
+\item{plot_bands}{(optional) If TRUE, upper and lower boundary values are
+calculated from the selected \code{run_ids} and a band is plotted for them. If
+FALSE the individual selected runs from \code{run_ids} are plotted.
+Default \code{plot_bands = TRUE}.}
 
 \item{sim_pointshape}{(optional) Integer value defining the shape of the points to be
 plotted for the simulated time series of \code{run_sel}. The value must be a
@@ -73,7 +78,7 @@ simulation time series \code{run_sel}. Default \code{run_sel_color = '#A50F15'}.
 
 \item{run_ids_color}{(optional) Colors of the lines plotted for the
 simulation time series selected with \code{run_ids}. The colors are only used
-when \code{plot_band = FALSE} and individual timeseries are plotted. The color
+when \code{plot_bands = FALSE} and individual timeseries are plotted. The color
 vector must be of the same length as the selected runs in \code{run_ids}.
 Default \code{run_ids_color = NULL} where a default color pallete is used.}
 
@@ -81,10 +86,10 @@ Default \code{run_ids_color = NULL} where a default color pallete is used.}
 observation time series. Default \code{obs_color = 'black'}.}
 
 \item{band_color}{(optional) Color of the band plotted fur the \code{run_ids}. The color is
-only used when \code{plot_band = TRUE}. Default \code{band_color = '#CB181D'}.}
+only used when \code{plot_bands = TRUE}. Default \code{band_color = '#CB181D'}.}
 
 \item{band_alpha}{(optional) Transparency value of the band plotted fur the
-\code{run_ids}. The value is only used when \code{plot_band = TRUE}.
+\code{run_ids}. The value is only used when \code{plot_bands = TRUE}.
 The value must be set between 0 and 1. Default \code{band_alpha = 0.2}.}
 
 \item{run_sel_label}{(optional) Label which is plotted in the legend to
@@ -114,11 +119,6 @@ is plotted in one plot panel.}
 \item{free_y}{If \code{split_years} is defined the y-Axis can be scaled individually
 for all plot panels if \code{free_y = TRUE}. Default \code{free_y = FALSE} and all
 plot panels have the same y plot range.}
-
-\item{plot_bands}{(optional) If TRUE, upper and lower boundary values are
-calculated from the selected \code{run_ids} and a band is plotted for them. If
-FALSE the individual selected runs from \code{run_ids} are plotted.
-Default \code{plot_bands = TRUE}.}
 }
 \value{
 A ggplot object of the plotted time series.

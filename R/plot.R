@@ -136,7 +136,7 @@ plot_gof <- function(gof_tbls, gofs = NULL , colors = NULL, n_col = 3) {
 #' \dontrun{
 #' plot_oat(sim_oat, obs = obs_data, variable = 'flo_day', round_values = 2)
 #' }
-#' @seealso \code{\link{plot_selected_sim}}, \code{\link{sample_oat}}, \code{\link[SWATrunR:run_swatplus]{https://chrisschuerz.github.io/SWATrunR/}}
+#' @seealso \code{\link{plot_timeseries}}, \code{\link{sample_oat}}, \code{\link[SWATrunR:run_swatplus]{https://chrisschuerz.github.io/SWATrunR/}}
 
 
 plot_oat <- function(sim, obs = NULL, variable, round_values = 3) {
@@ -788,8 +788,8 @@ plot_esco_epco <- function(sim, wyr_target, rel_wyr_limit = 0.05) {
 #' @importFrom lubridate is.Date month floor_date
 #' @examples
 #' \dontrun{
-#' plot_selected_sim(sim_flow, obs = obs, run_sel = c(95), run_ids = run_sel_ids,
-#' period = "average monthly", plot_bands = TRUE)
+#' view_timeseries(sim_flow, obs = obs, run_ids = run_sel_ids, run_sel = c(95),
+#' plot_bands = TRUE, period = "average monthly")
 #' }
 #' @keywords plot
 
@@ -935,9 +935,9 @@ view_timeseries <- function(sim, obs = NULL, run_ids = NULL, run_sel = NULL, plo
 #'   plotting.
 #' @param run_ids (optional) Integer vector or character vector of run IDs
 #'   or run names to plot. Default `run_ids = NULL`. In this case only the
-#'   'seleced' simulation run from `run_sel` is plotted. If `plot_band = TRUE`
+#'   'seleced' simulation run from `run_sel` is plotted. If `plot_bands = TRUE`
 #'   the selected `run_ids` are used to calculate and plot the upper and lower
-#'   boundaries of the plotted band. If `plot_band = FALSE` a maximum number of
+#'   boundaries of the plotted band. If `plot_bands = FALSE` a maximum number of
 #'   10 `run_ids` can be selected for plotting.
 #' @param plot_bands (optional) If TRUE, upper and lower boundary values are
 #'   calculated from the selected `run_ids` and a band is plotted for them. If
@@ -963,15 +963,15 @@ view_timeseries <- function(sim, obs = NULL, run_ids = NULL, run_sel = NULL, plo
 #'   simulation time series `run_sel`. Default `run_sel_color = '#A50F15'`.
 #' @param run_ids_color (optional) Colors of the lines plotted for the
 #'   simulation time series selected with `run_ids`. The colors are only used
-#'   when `plot_band = FALSE` and individual timeseries are plotted. The color
+#'   when `plot_bands = FALSE` and individual timeseries are plotted. The color
 #'   vector must be of the same length as the selected runs in `run_ids`.
 #'   Default `run_ids_color = NULL` where a default color pallete is used.
 #' @param obs_color (optional) Color of the line and points of the plotted
 #'   observation time series. Default `obs_color = 'black'`.
 #' @param band_color (optional) Color of the band plotted fur the `run_ids`. The color is
-#'   only used when `plot_band = TRUE`. Default `band_color = '#CB181D'`.
+#'   only used when `plot_bands = TRUE`. Default `band_color = '#CB181D'`.
 #' @param band_alpha (optional) Transparency value of the band plotted fur the
-#'   `run_ids`. The value is only used when `plot_band = TRUE`.
+#'   `run_ids`. The value is only used when `plot_bands = TRUE`.
 #'   The value must be set between 0 and 1. Default `band_alpha = 0.2`.
 #' @param run_sel_label (optional) Label which is plotted in the legend to
 #'   indicate the selected simulation run `run_sel`. Default is
@@ -1008,7 +1008,7 @@ view_timeseries <- function(sim, obs = NULL, run_ids = NULL, run_sel = NULL, plo
 #' @export
 #'
 plot_timeseries <- function(sim, obs = NULL, run_sel = NULL, run_ids = NULL,
-                            plot_band = TRUE, sim_pointshape = 1, obs_pointshape = 1,
+                            plot_bands = TRUE, sim_pointshape = 1, obs_pointshape = 1,
                             sim_linetype = 'solid', obs_linetype = 'dotted',
                             run_sel_color = '#A50F15', run_ids_color = NULL,
                             obs_color = 'black', band_color = '#CB181D', band_alpha = 0.2,
@@ -1023,8 +1023,8 @@ plot_timeseries <- function(sim, obs = NULL, run_sel = NULL, run_ids = NULL,
     stop("At least one of 'run_ids' or 'run_sel' must be provided.")
   }
 
-  if(plot_band & is.null(run_ids)) {
-    message("No 'run_ids' defined. 'plot_band = TRUE' will be ignored.")
+  if(plot_bands & is.null(run_ids)) {
+    message("No 'run_ids' defined. 'plot_bands = TRUE' will be ignored.")
   }
 
   plt_tbl <- select(sim, date)
@@ -1052,9 +1052,9 @@ plot_timeseries <- function(sim, obs = NULL, run_sel = NULL, run_ids = NULL,
   }
 
   if(!is.null(run_ids)) {
-    if(length(run_ids) > 10 & !plot_band) {
+    if(length(run_ids) > 10 & !plot_bands) {
       stop("More than 10 'run_ids' were selected for individual plotting. \n",
-           "For more than 10 'run_ids' please use 'plot_band = TRUE'.")
+           "For more than 10 'run_ids' please use 'plot_bands = TRUE'.")
     }
     if(run_ids[1] != 'all') {
       if(is.numeric(run_ids)) {
@@ -1064,7 +1064,7 @@ plot_timeseries <- function(sim, obs = NULL, run_sel = NULL, run_ids = NULL,
     } else {
       sim_ids <- select(sim, - date)
     }
-    if(plot_band) {
+    if(plot_bands) {
       sim_upr <- apply(sim_ids, 1, max)
       sim_lwr <- apply(sim_ids, 1, min)
       sim_ids <- tibble(date = sim$date, upr = sim_upr, lwr = sim_lwr)
@@ -1108,7 +1108,7 @@ plot_timeseries <- function(sim, obs = NULL, run_sel = NULL, run_ids = NULL,
   if(run_sel_label %in% unique(plt_tbl$name)) {
     def_pointshape <- c(def_pointshape, sim_pointshape)
   }
-  if(!plot_band) {
+  if(!plot_bands) {
     def_pointshape <- c(def_pointshape, rep(NA, length(run_ids)))
   }
 
@@ -1123,7 +1123,7 @@ plot_timeseries <- function(sim, obs = NULL, run_sel = NULL, run_ids = NULL,
           legend.spacing.y = unit(-0.25, 'cm')
     )
 
-  if(plot_band & !is.null(run_ids)) {
+  if(plot_bands & !is.null(run_ids)) {
     gg_plt <- gg_plt +
       geom_line(data = sim_ids, aes(x = date, y = lwr), alpha = 0.2,
                 color = band_color) +

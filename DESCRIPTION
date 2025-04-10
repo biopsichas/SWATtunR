@@ -33,6 +33,7 @@ Imports:
     purrr,
     patchwork,
     readr, 
+    rstudioapi,
     scales,
     stats,
     stringr,
