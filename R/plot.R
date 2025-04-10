@@ -729,7 +729,7 @@ plot_esco_epco <- function(sim, wyr_target, rel_wyr_limit = 0.05) {
     }, error = function(e) {
       # On error, fall back to this
       message("Some simulations were unsuccessful, so you may see some blank spots in the figure.")
-      suc_sim_ix <- as.numeric(str_extract_all(names(sim$simulation[[1]]), "\\d+")[[1]])
+      suc_sim_ix <- as.numeric(str_extract_all(names(sim$simulation[[1]]), "\\d+"))
       sim$parameter$values[suc_sim_ix, ] %>%
         bind_cols(wyr = unlist(wyr_sim))
     })
