@@ -41,6 +41,12 @@ initialize_softcal <- function(project_name, path, model_path,
   dir.create(paste0(project_path, '/workflow'))
   dir.create(paste0(project_path, '/backup'))
 
+  # Save a backup version of the plants.plt and hydrology.hyd files
+  file.copy(paste0(model_path, '/plants.plt'),
+            paste0(project_path, '/backup'))
+  file.copy(paste0(model_path, '/hydrology.hyd'),
+            paste0(project_path, '/backup'))
+
   # Get path of template workflow R scripts and copy all files into project.
   wf_path <- paste0(system.file(package = "SWATtunR"), '/extdata/wf_softcal')
 
