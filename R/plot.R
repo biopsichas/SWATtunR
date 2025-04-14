@@ -733,24 +733,41 @@ plot_esco_epco <- function(sim, wyr_target, rel_wyr_limit = 0.05) {
       sim$parameter$values[suc_sim_ix, ] %>%
         bind_cols(wyr = unlist(wyr_sim))
     })
+    ## Check for simulation results and target alignment
+    breaks_limit <- wyr_target * c(1 - rel_wyr_limit, 1 + rel_wyr_limit)
+    target_in_range <- wyr_target >= min(wyr_xyz$wyr) &&
+      wyr_target <= max(wyr_xyz$wyr)
+    limit_in_range <- all(breaks_limit >= min(wyr_xyz$wyr)) &&
+      all(breaks_limit <= max(wyr_xyz$wyr))
 
-    ggplot(wyr_xyz) +
+    ## Ensamble the figure
+    p <- ggplot(wyr_xyz) +
       geom_contour_filled(aes(x = esco, y = epco, z = wyr)) +
-      geom_contour_filled(aes(x = esco, y = epco, z = wyr),
-                   breaks = c(wyr_target* (1 - rel_wyr_limit),
-                              wyr_target* (1 + rel_wyr_limit)),
-                   fill = 'grey50',
-                   alpha = 0.5) +
-      geom_contour(aes(x = esco, y = epco, z = wyr, col = 'target wyr'),
-                   breaks = wyr_target, linewidth = 1) +
-      geom_contour(aes(x = esco, y = epco, z = wyr, col = 'wyr +/- limit'),
-                   breaks = c(wyr_target* (1 - rel_wyr_limit),
-                              wyr_target* (1 + rel_wyr_limit))) +
       labs(fill = 'wyr simulated', color = NULL) +
       scale_color_manual(values = c('black', 'red')) +
       scale_x_continuous(expand = c(0,0)) +
       scale_y_continuous(expand = c(0,0)) +
       theme_bw()
+
+    if(target_in_range){
+      p <- p + geom_contour(aes(x = esco, y = epco, z = wyr, col = 'target wyr'),
+                            breaks = wyr_target, linewidth = 1)
+    } else {
+      message("The target water yield ratio is not within the range of the simulation results. Therefore, it will nots be displayed on the figure.")
+    }
+    if(limit_in_range){
+      p <- p + geom_contour_filled(aes(x = esco, y = epco, z = wyr),
+                                   breaks = c(wyr_target* (1 - rel_wyr_limit),
+                                              wyr_target* (1 + rel_wyr_limit)),
+                                   fill = 'grey50',
+                                   alpha = 0.5) +
+        geom_contour(aes(x = esco, y = epco, z = wyr, col = 'wyr +/- limit'),
+                     breaks = c(wyr_target* (1 - rel_wyr_limit),
+                                wyr_target* (1 + rel_wyr_limit)))
+    } else {
+      message("The target water yield confidence interval lies partially or entirely outside the simulation results. Therefore, it will not be displayed on the figure.")
+    }
+    return(p)
   } else {
     stop("Either only 'esco' or both 'esco' and 'epco' must be varied for plotting.")
   }
