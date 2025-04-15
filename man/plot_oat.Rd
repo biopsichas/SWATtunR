@@ -28,5 +28,5 @@ plot_oat(sim_oat, obs = obs_data, variable = 'flo_day', round_values = 2)
 }
 }
 \seealso{
-\code{\link{plot_selected_sim}}, \code{\link{sample_oat}}, \code{\link[SWATrunR:run_swatplus]{https://chrisschuerz.github.io/SWATrunR/}}
+\code{\link{plot_timeseries}}, \code{\link{sample_oat}}, \code{\link[SWATrunR:run_swatplus]{https://chrisschuerz.github.io/SWATrunR/}}
 }

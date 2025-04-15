@@ -136,7 +136,7 @@ plot_gof <- function(gof_tbls, gofs = NULL , colors = NULL, n_col = 3) {
 #' \dontrun{
 #' plot_oat(sim_oat, obs = obs_data, variable = 'flo_day', round_values = 2)
 #' }
-#' @seealso \code{\link{plot_selected_sim}}, \code{\link{sample_oat}}, \code{\link[SWATrunR:run_swatplus]{https://chrisschuerz.github.io/SWATrunR/}}
+#' @seealso \code{\link{plot_timeseries}}, \code{\link{sample_oat}}, \code{\link[SWATrunR:run_swatplus]{https://chrisschuerz.github.io/SWATrunR/}}
 
 
 plot_oat <- function(sim, obs = NULL, variable, round_values = 3) {
@@ -688,6 +688,7 @@ plot_dotty <- function(par, var, y_label = 'y', n_col = 3, y_lim = NULL,
 #'   acceptable error.
 #'
 #' @importFrom ggplot2 ggplot geom_line geom_vline geom_text
+#' @importFrom stringr str_extract_all
 #'
 #' @return A ggplot object.
 #' @export
@@ -721,26 +722,52 @@ plot_esco_epco <- function(sim, wyr_target, rel_wyr_limit = 0.05) {
       theme_bw()
   } else if (all (c('esco', 'epco') %in% sim$parameter$definition$parameter)) {
     # ## Plot the results
-    wyr_xyz <- sim$parameter$values %>%
-      bind_cols(wyr = unlist(wyr_sim))
+    wyr_xyz <- tryCatch({
+      # Try the first approach
+      sim$parameter$values %>%
+        bind_cols(wyr = unlist(wyr_sim))
+    }, error = function(e) {
+      # On error, fall back to this
+      message("Some simulations were unsuccessful, so you may see some blank spots in the figure.")
+      suc_sim_ix <- as.numeric(str_extract_all(names(sim$simulation[[1]]), "\\d+"))
+      sim$parameter$values[suc_sim_ix, ] %>%
+        bind_cols(wyr = unlist(wyr_sim))
+    })
+    ## Check for simulation results and target alignment
+    breaks_limit <- wyr_target * c(1 - rel_wyr_limit, 1 + rel_wyr_limit)
+    target_in_range <- wyr_target >= min(wyr_xyz$wyr) &&
+      wyr_target <= max(wyr_xyz$wyr)
+    limit_in_range <- all(breaks_limit >= min(wyr_xyz$wyr)) &&
+      all(breaks_limit <= max(wyr_xyz$wyr))
 
-    ggplot(wyr_xyz) +
+    ## Ensamble the figure
+    p <- ggplot(wyr_xyz) +
       geom_contour_filled(aes(x = esco, y = epco, z = wyr)) +
-      geom_contour_filled(aes(x = esco, y = epco, z = wyr),
-                   breaks = c(wyr_target* (1 - rel_wyr_limit),
-                              wyr_target* (1 + rel_wyr_limit)),
-                   fill = 'grey50',
-                   alpha = 0.5) +
-      geom_contour(aes(x = esco, y = epco, z = wyr, col = 'target wyr'),
-                   breaks = wyr_target, linewidth = 1) +
-      geom_contour(aes(x = esco, y = epco, z = wyr, col = 'wyr +/- limit'),
-                   breaks = c(wyr_target* (1 - rel_wyr_limit),
-                              wyr_target* (1 + rel_wyr_limit))) +
       labs(fill = 'wyr simulated', color = NULL) +
       scale_color_manual(values = c('black', 'red')) +
       scale_x_continuous(expand = c(0,0)) +
       scale_y_continuous(expand = c(0,0)) +
       theme_bw()
+
+    if(target_in_range){
+      p <- p + geom_contour(aes(x = esco, y = epco, z = wyr, col = 'target wyr'),
+                            breaks = wyr_target, linewidth = 1)
+    } else {
+      message("The target water yield ratio is not within the range of the simulation results. Therefore, it will nots be displayed on the figure.")
+    }
+    if(limit_in_range){
+      p <- p + geom_contour_filled(aes(x = esco, y = epco, z = wyr),
+                                   breaks = c(wyr_target* (1 - rel_wyr_limit),
+                                              wyr_target* (1 + rel_wyr_limit)),
+                                   fill = 'grey50',
+                                   alpha = 0.5) +
+        geom_contour(aes(x = esco, y = epco, z = wyr, col = 'wyr +/- limit'),
+                     breaks = c(wyr_target* (1 - rel_wyr_limit),
+                                wyr_target* (1 + rel_wyr_limit)))
+    } else {
+      message("The target water yield confidence interval lies partially or entirely outside the simulation results. Therefore, it will not be displayed on the figure.")
+    }
+    return(p)
   } else {
     stop("Either only 'esco' or both 'esco' and 'epco' must be varied for plotting.")
   }
@@ -778,8 +805,8 @@ plot_esco_epco <- function(sim, wyr_target, rel_wyr_limit = 0.05) {
 #' @importFrom lubridate is.Date month floor_date
 #' @examples
 #' \dontrun{
-#' plot_selected_sim(sim_flow, obs = obs, run_sel = c(95), run_ids = run_sel_ids,
-#' period = "average monthly", plot_bands = TRUE)
+#' view_timeseries(sim_flow, obs = obs, run_ids = run_sel_ids, run_sel = c(95),
+#' plot_bands = TRUE, period = "average monthly")
 #' }
 #' @keywords plot
 
@@ -925,9 +952,9 @@ view_timeseries <- function(sim, obs = NULL, run_ids = NULL, run_sel = NULL, plo
 #'   plotting.
 #' @param run_ids (optional) Integer vector or character vector of run IDs
 #'   or run names to plot. Default `run_ids = NULL`. In this case only the
-#'   'seleced' simulation run from `run_sel` is plotted. If `plot_band = TRUE`
+#'   'seleced' simulation run from `run_sel` is plotted. If `plot_bands = TRUE`
 #'   the selected `run_ids` are used to calculate and plot the upper and lower
-#'   boundaries of the plotted band. If `plot_band = FALSE` a maximum number of
+#'   boundaries of the plotted band. If `plot_bands = FALSE` a maximum number of
 #'   10 `run_ids` can be selected for plotting.
 #' @param plot_bands (optional) If TRUE, upper and lower boundary values are
 #'   calculated from the selected `run_ids` and a band is plotted for them. If
@@ -953,15 +980,15 @@ view_timeseries <- function(sim, obs = NULL, run_ids = NULL, run_sel = NULL, plo
 #'   simulation time series `run_sel`. Default `run_sel_color = '#A50F15'`.
 #' @param run_ids_color (optional) Colors of the lines plotted for the
 #'   simulation time series selected with `run_ids`. The colors are only used
-#'   when `plot_band = FALSE` and individual timeseries are plotted. The color
+#'   when `plot_bands = FALSE` and individual timeseries are plotted. The color
 #'   vector must be of the same length as the selected runs in `run_ids`.
 #'   Default `run_ids_color = NULL` where a default color pallete is used.
 #' @param obs_color (optional) Color of the line and points of the plotted
 #'   observation time series. Default `obs_color = 'black'`.
 #' @param band_color (optional) Color of the band plotted fur the `run_ids`. The color is
-#'   only used when `plot_band = TRUE`. Default `band_color = '#CB181D'`.
+#'   only used when `plot_bands = TRUE`. Default `band_color = '#CB181D'`.
 #' @param band_alpha (optional) Transparency value of the band plotted fur the
-#'   `run_ids`. The value is only used when `plot_band = TRUE`.
+#'   `run_ids`. The value is only used when `plot_bands = TRUE`.
 #'   The value must be set between 0 and 1. Default `band_alpha = 0.2`.
 #' @param run_sel_label (optional) Label which is plotted in the legend to
 #'   indicate the selected simulation run `run_sel`. Default is
@@ -998,7 +1025,7 @@ view_timeseries <- function(sim, obs = NULL, run_ids = NULL, run_sel = NULL, plo
 #' @export
 #'
 plot_timeseries <- function(sim, obs = NULL, run_sel = NULL, run_ids = NULL,
-                            plot_band = TRUE, sim_pointshape = 1, obs_pointshape = 1,
+                            plot_bands = TRUE, sim_pointshape = 1, obs_pointshape = 1,
                             sim_linetype = 'solid', obs_linetype = 'dotted',
                             run_sel_color = '#A50F15', run_ids_color = NULL,
                             obs_color = 'black', band_color = '#CB181D', band_alpha = 0.2,
@@ -1013,8 +1040,8 @@ plot_timeseries <- function(sim, obs = NULL, run_sel = NULL, run_ids = NULL,
     stop("At least one of 'run_ids' or 'run_sel' must be provided.")
   }
 
-  if(plot_band & is.null(run_ids)) {
-    message("No 'run_ids' defined. 'plot_band = TRUE' will be ignored.")
+  if(plot_bands & is.null(run_ids)) {
+    message("No 'run_ids' defined. 'plot_bands = TRUE' will be ignored.")
   }
 
   plt_tbl <- select(sim, date)
@@ -1042,9 +1069,9 @@ plot_timeseries <- function(sim, obs = NULL, run_sel = NULL, run_ids = NULL,
   }
 
   if(!is.null(run_ids)) {
-    if(length(run_ids) > 10 & !plot_band) {
+    if(length(run_ids) > 10 & !plot_bands) {
       stop("More than 10 'run_ids' were selected for individual plotting. \n",
-           "For more than 10 'run_ids' please use 'plot_band = TRUE'.")
+           "For more than 10 'run_ids' please use 'plot_bands = TRUE'.")
     }
     if(run_ids[1] != 'all') {
       if(is.numeric(run_ids)) {
@@ -1054,7 +1081,7 @@ plot_timeseries <- function(sim, obs = NULL, run_sel = NULL, run_ids = NULL,
     } else {
       sim_ids <- select(sim, - date)
     }
-    if(plot_band) {
+    if(plot_bands) {
       sim_upr <- apply(sim_ids, 1, max)
       sim_lwr <- apply(sim_ids, 1, min)
       sim_ids <- tibble(date = sim$date, upr = sim_upr, lwr = sim_lwr)
@@ -1098,7 +1125,7 @@ plot_timeseries <- function(sim, obs = NULL, run_sel = NULL, run_ids = NULL,
   if(run_sel_label %in% unique(plt_tbl$name)) {
     def_pointshape <- c(def_pointshape, sim_pointshape)
   }
-  if(!plot_band) {
+  if(!plot_bands) {
     def_pointshape <- c(def_pointshape, rep(NA, length(run_ids)))
   }
 
@@ -1113,7 +1140,7 @@ plot_timeseries <- function(sim, obs = NULL, run_sel = NULL, run_ids = NULL,
           legend.spacing.y = unit(-0.25, 'cm')
     )
 
-  if(plot_band & !is.null(run_ids)) {
+  if(plot_bands & !is.null(run_ids)) {
     gg_plt <- gg_plt +
       geom_line(data = sim_ids, aes(x = date, y = lwr), alpha = 0.2,
                 color = band_color) +
