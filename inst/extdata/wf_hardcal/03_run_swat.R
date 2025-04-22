@@ -6,8 +6,8 @@
 library(SWATrunR)
 
 # Load parameter and simulation output definitions ------------------------
-source('./workflow/01_parameter_definition.R')
-source('./workflow/02_output_definition.R')
+source('./workflow/01_define_parameter.R')
+source('./workflow/02_define_output.R')
 
 # Parameter definition ----------------------------------------------------
 # Path to the SWAT+ project folder.
