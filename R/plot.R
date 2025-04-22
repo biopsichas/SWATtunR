@@ -438,8 +438,6 @@ plot_phu_yld_bms <- function(sim_result, yield_obs = NULL) {
 #'
 #' @importFrom tidyr pivot_longer
 #' @importFrom stringr str_remove
-#' @importFrom ggplot2 labs
-#' @importFrom gridExtra grid.arrange
 #' @importFrom purrr map
 #' @importFrom dplyr %>% mutate arrange left_join rename any_of
 #' @importFrom lubridate year
@@ -449,7 +447,7 @@ plot_phu_yld_bms <- function(sim_result, yield_obs = NULL) {
 #' plot_phu_yld_bms(ylds_phu_dmat, dmat_chg, yield_mean, yield_min, yield_max)
 #' }
 #' @keywords plot
-
+#'
 plot_dotty_yields <- function(sim_result, yield_obs = NULL) {
   ##Years to filter
   start_year <- year(sim_result$run_info$simulation_period$start_date)+
@@ -472,13 +470,7 @@ plot_dotty_yields <- function(sim_result, yield_obs = NULL) {
                  values_to = "values") %>%
     rename(yield = value)
 
-  plt_list <- map(unique(yld$parameter),
-                  ~ dotty_fig(yld[yld$parameter == .x,], yield_obs))
-
-  plt_list[[length(plt_list)]] <- plt_list[[length(plt_list)]] +
-    labs(caption = "Red lines represent observed values")
-  grid.arrange(grobs = plt_list, ncol = 1,
-               left = "Yields (t/ha)", bottom = "Value change")
+  dotty_fig(yld, yield_obs)
 }
 
 #' Make a dotty plot
@@ -492,7 +484,8 @@ plot_dotty_yields <- function(sim_result, yield_obs = NULL) {
 #' Default \code{yield_max = NULL}.
 #' @importFrom tibble enframe
 #' @importFrom dplyr mutate left_join filter group_by summarise
-#' @importFrom ggplot2 ggplot geom_pointrange geom_smooth theme element_text element_blank geom_hline facet_grid theme_bw
+#' @importFrom ggplot2 ggplot geom_pointrange geom_smooth theme element_text
+#'   element_blank labs geom_hline facet_grid theme_bw
 #' @importFrom stats quantile
 #' @return ggplot object for dotty plot
 #' @keywords internal
@@ -501,8 +494,7 @@ plot_dotty_yields <- function(sim_result, yield_obs = NULL) {
 #' dotty_fig(sim_yield)
 #' }
 #' @keywords plot
-
-
+#'
 dotty_fig <- function(sim_yield, yld_obs = NULL){
   df_rng <- sim_yield %>%
     group_by(plant_name, parameter, values) %>%
@@ -522,10 +514,10 @@ dotty_fig <- function(sim_yield, yld_obs = NULL){
                linetype = "twodash") +
     geom_hline(data = yld_obs, aes(yintercept = yield_max), color = "tomato1",
                linetype = "twodash") +
-    facet_grid(parameter~plant_name, scales = "free")+
-    theme_bw()+
-    theme(axis.title = element_blank(),
-          axis.text.x = element_text(angle=30))
+    facet_grid(plant_name~parameter, scales = "free")+
+    labs(x = "Value change", y = "Yields (t/ha)",
+         caption = "Red lines represent observed values") +
+    theme_bw()
 }
 
 #' Plot Dotty
