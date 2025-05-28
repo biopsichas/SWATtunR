@@ -4,7 +4,7 @@
 \alias{plot_phu_yld_bms}
 \title{Plot PHU, yield, and biomass over days to maturity}
 \usage{
-plot_phu_yld_bms(sim_result, yield_obs = NULL)
+plot_phu_yld_bms(sim_result, yield_obs = NULL, bar_width = 0.5)
 }
 \arguments{
 \item{sim_result}{The simulation results containing PHU, yield, and biomass
@@ -12,6 +12,9 @@ data.}
 
 \item{yield_obs}{(optional) Data.frame with observed min, max, and mean yield
 values for each crop. Default \code{yield = NULL}.}
+
+\item{bar_width}{(optional) Value from 0 to 1 controls the width of the box
+in the boxplot. Default \code{bar_width = 0.5}.}
 }
 \value{
 A combined ggplot object showing boxplots for PHU fractions, yields,

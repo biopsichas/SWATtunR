@@ -12,11 +12,12 @@ values of the simulated variable.}
 
 \item{obs}{Data frame with one date and one value column.}
 
-\item{funs}{List of functions which are applied to calculate the
-goodnes-of-fit values. The list can be a named list
-(e.g. \code{list(nse_q = NSE, pb_q = pbias)}). In this case the column names of
-returned table will be those names. If the list is unnamed then the function
-names will be the column names.}
+\item{funs}{A list of functions used to calculate goodness-of-fit (GoF) values.
+This can be a named or unnamed list. If named (e.g., \code{list(nse_q = NSE, pb_q = pbias)}),
+the names will be used as column names in the returned results. If unnamed,
+the function names themselves will be used as column names. Commonly used
+functions (such as \code{NSE}, \code{pbias}, \code{KGE}, etc.) are available in the
+documentation of the \emph{hydroGOF} package.}
 }
 \value{
 A table with the calculated goodness-of-fit values.
@@ -41,5 +42,8 @@ flow_obs <- data.frame(date = date_flow,
 obj_tbl <- calc_gof(sim = flow_sim, obs = flow_obs, funs = list(cor_q = cor))
 }
 
+}
+\seealso{
+For available goodness-of-fit functions, see the \href{https://cran.r-project.org/web/packages/hydroGOF/hydroGOF.pdf}{hydroGOF package documentation}.
 }
 \keyword{calculate}

@@ -262,6 +262,8 @@ plot_parameter_identifiability <- function(parameters, objectives, run_fraction 
 #'   data.
 #' @param yield_obs (optional) Data.frame with observed min, max, and mean yield
 #'   values for each crop. Default \code{yield = NULL}.
+#' @param bar_width (optional) Value from 0 to 1 controls the width of the box
+#' in the boxplot. Default \code{bar_width = 0.5}.
 #'
 #' @returns A combined ggplot object showing boxplots for PHU fractions, yields,
 #'   and biomass.
@@ -282,7 +284,7 @@ plot_parameter_identifiability <- function(parameters, objectives, run_fraction 
 #'
 #' @keywords plot
 
-plot_phu_yld_bms <- function(sim_result, yield_obs = NULL) {
+plot_phu_yld_bms <- function(sim_result, yield_obs = NULL, bar_width = 0.5) {
   # mgtout also prints the skipped years, therefore limit to the years after the
   # skipped time period
   start_year <- year(sim_result$run_info$simulation_period$start_date)
@@ -350,7 +352,7 @@ plot_phu_yld_bms <- function(sim_result, yield_obs = NULL) {
 
   #Plot PHU fractions per crop over the days_mat changes
   gg_phu <- ggplot(data = phu) +
-    geom_boxplot(aes(x = phu, y = value, fill = name)) +
+    geom_boxplot(aes(x = phu, y = value, fill = name), width = bar_width) +
     geom_hline(yintercept = 1, linetype = 'dashed') +
     geom_hline(yintercept = 1.25, linetype = 'dashed') +
     facet_grid(cols = vars(plant_name), scales = 'free_x') +
@@ -373,7 +375,7 @@ plot_phu_yld_bms <- function(sim_result, yield_obs = NULL) {
 
   #Plot yields per crop over the days_mat changes
   gg_yld <- ggplot(data = yld) +
-    geom_boxplot(aes(x = phu, y = value, fill = name)) +
+    geom_boxplot(aes(x = phu, y = value, fill = name), width = bar_width) +
     facet_grid(cols = vars(plant_name), scales = 'free_x') +
     scale_fill_manual(values = col_pal) +
     labs(y = 'Yield (t/ha)', x = 'days_mat absval change') +
@@ -402,7 +404,7 @@ plot_phu_yld_bms <- function(sim_result, yield_obs = NULL) {
 
   #Plot yields per crop over the days_mat changes
   gg_bms <- ggplot(data = bms) +
-    geom_boxplot(aes(x = phu, y = value, fill = name)) +
+    geom_boxplot(aes(x = phu, y = value, fill = name), width = bar_width) +
     facet_grid(cols = vars(plant_name), scales = 'free_x') +
     scale_fill_manual(values = col_pal) +
     labs(y = 'Bio mass (t/ha)') +

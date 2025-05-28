@@ -572,11 +572,12 @@ paste_runs <- function(strt, end, sep) {
 #' @param sim Data frame with one date column and one or many columns with
 #'   values of the simulated variable.
 #' @param obs Data frame with one date and one value column.
-#' @param funs List of functions which are applied to calculate the
-#'   goodnes-of-fit values. The list can be a named list
-#' (e.g. `list(nse_q = NSE, pb_q = pbias)`). In this case the column names of
-#' returned table will be those names. If the list is unnamed then the function
-#' names will be the column names.
+#' @param funs A list of functions used to calculate goodness-of-fit (GoF) values.
+#' This can be a named or unnamed list. If named (e.g., `list(nse_q = NSE, pb_q = pbias)`),
+#' the names will be used as column names in the returned results. If unnamed,
+#' the function names themselves will be used as column names. Commonly used
+#' functions (such as `NSE`, `pbias`, `KGE`, etc.) are available in the
+#' documentation of the *hydroGOF* package.
 #'
 #' @returns A table with the calculated goodness-of-fit values.
 #'
@@ -603,7 +604,8 @@ paste_runs <- function(strt, end, sep) {
 #' }
 #'
 #' @keywords calculate
-#'
+#' @seealso For available goodness-of-fit functions, see the [hydroGOF package documentation](https://cran.r-project.org/web/packages/hydroGOF/hydroGOF.pdf).
+
 calc_gof <- function(sim, obs, funs) {
   fun_names <- as.character(substitute(funs))[-1]
   list_names <- names(funs)
