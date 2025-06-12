@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,23 +48,13 @@
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Introduction</h6>
+    <a class="dropdown-item" href="../articles/intro.html">Overview</a>
+    <a class="dropdown-item" href="../articles/init.html">Getting Started</a>
+    <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Soft calibration</h6>
     <a class="dropdown-item" href="../articles/sc-crops.html">Crop Yields</a>
     <a class="dropdown-item" href="../articles/sc-wy.html">Water Yield</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Hard calibration</h6>
-    <a class="dropdown-item" href="../articles/hc.html">Run calibration</a>
-    <a class="dropdown-item" href="../articles/hc-plot.html">Plot results</a>
-    <a class="dropdown-item" href="../articles/hc-plus.html">Extend calibration</a>
-    <a class="dropdown-item" href="../articles/val.html">Validation</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Quality Assurance</h6>
-    <a class="dropdown-item" href="../articles/qa.html">Preparation</a>
-    <a class="dropdown-item" href="../articles/qa-st1.html">Step 1: Input</a>
-    <a class="dropdown-item" href="../articles/qa-st2.html">Step 2: Management</a>
-    <a class="dropdown-item" href="../articles/qa-st3.html">Step 3: Growth</a>
-    <a class="dropdown-item" href="../articles/qa-st4.html">Step 4: Stress</a>
-    <a class="dropdown-item" href="../articles/qa-st5.html">Step 5: Other</a>
   </div>
 </li>
 <li class="nav-item">
@@ -105,423 +95,30 @@ for crop yields in SWAT+ models</h3>
 
     
     
-<p>The aim of crop yield calibration is to adjust relevant crop
-parameters so that the SWAT+ simulation matches the observed crop
-yields. The workflow proposed below is based on the script that was
-initially developed in the EU project <a href="https://www.optain.eu/" class="external-link">OPTAIN</a> and described in one of its <a href="https://zenodo.org/records/11233622" class="external-link">deliverables</a>. The reader
-is referred there for more information about the workflow and the
-results of its application in several case studies in Europe.</p>
 <div class="section level2">
-<h2 id="scc_step1">1. Loading required packages<a class="anchor" aria-label="anchor" href="#scc_step1"></a>
+<h2 id="introduction-to-soft-calibration-of-crops">Introduction to Soft Calibration of Crops<a class="anchor" aria-label="anchor" href="#introduction-to-soft-calibration-of-crops"></a>
 </h2>
-<p>The <code>SWATtunR</code> package is essential for soft calibration,
-as it provides the necessary functions for the calibration process.
-Additional packages are required for data manipulation, visualization,
-SWAT+ model runs, etc.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## Required libraries to run workflow</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/biopsichas/SWATtunR" class="external-link">SWATtunR</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/chrisschuerz/SWATrunR" class="external-link">SWATrunR</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tibble.tidyverse.org/" class="external-link">tibble</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://purrr.tidyverse.org/" class="external-link">purrr</a></span><span class="op">)</span></span></code></pre></div>
+<p>The <strong>SWATtunR</strong> package provides a structured approach
+to soft calibration of crop parameters, aiming to align SWAT+
+simulations with observed crop yields. This process is detailed in a
+template script, initially developed under the EU project <a href="https://www.optain.eu/" class="external-link">OPTAIN</a> and documented in its <a href="https://zenodo.org/records/11233622" class="external-link">deliverables</a>, where its
+application across various European case studies is explored. The
+calibration is a two-stage routine designed to be tailored to individual
+SWAT projects. First, it adjusts the days to maturity for each crop to
+match its characteristics and management schedules. Subsequently,
+additional crop parameters can be fine-tuned if necessary to achieve
+accurate yield simulations, ensuring a robust and reproducible
+calibration process.</p>
 </div>
 <div class="section level2">
-<h2 id="scc_step2">2. Defining settings<a class="anchor" aria-label="anchor" href="#scc_step2"></a>
+<h2 id="soft-calibration-workflow-days_mat">Soft Calibration Workflow (‘days_mat’)<a class="anchor" aria-label="anchor" href="#soft-calibration-workflow-days_mat"></a>
 </h2>
-<p>This step requires defining the SWAT+ model path, the path to the
-crop data file.</p>
-<p>For the crop yield soft calibration, it’s essential to have accurate
-data on observed crop yields expressed in dry matter weight. Since
-reference data is typically provided as fresh matter weight, the values
-need to be multiplied by crop-specific conversion factors prior to their
-use in calibration. In the proposed workflow, basin-averaged yield data
-are required, so this solution may not fit to large river basins with
-spatially heterogeneous yields. The data is typically sourced from a
-<code>'*.csv'</code> file, with columns specifying the plant names and
-their corresponding mean yields. If additional information is
-accessible, such as the minimum and maximum ranges for average annual
-observed yields, it’s advisable to include them in the
-<code>'*.csv'</code> file as well, under the columns labeled yield_min
-and yield_max respectively. This ensures a comprehensive dataset for
-effective calibration and analysis.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Path to the SWAT+ model</span></span>
-<span><span class="va">model_path</span> <span class="op">&lt;-</span> <span class="st">'../test/my_dearest_model'</span></span>
-<span></span>
-<span><span class="co"># Path to the crop data file</span></span>
-<span><span class="va">crop_data_path</span> <span class="op">&lt;-</span> <span class="st">'../inst/extdata/crop2.csv'</span></span>
-<span></span>
-<span><span class="co"># Set the path to save results of the soft calibration</span></span>
-<span><span class="va">sc_res</span> <span class="op">&lt;-</span> <span class="st">'../test/simulations'</span></span>
-<span></span>
-<span><span class="co"># Set the number of cores available for calculations.  </span></span>
-<span><span class="co"># Number of cores for 12 runs use 3, 4, 6, or 12 cores (if available)</span></span>
-<span><span class="va">cores</span> <span class="op">&lt;-</span> <span class="fl">3</span></span>
-<span></span>
-<span><span class="co">## Set the start and end date for the simulations and warm-up period</span></span>
-<span><span class="va">start_date</span> <span class="op">&lt;-</span> <span class="st">'2015-01-01'</span></span>
-<span><span class="va">end_date</span> <span class="op">&lt;-</span> <span class="st">'2020-12-31'</span></span>
-<span><span class="va">years_skip</span> <span class="op">&lt;-</span> <span class="fl">2</span></span></code></pre></div>
-<p>An example file with observed crop yields is provided below.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">##</span></span>
-<span><span class="va">crops_obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="va">crop_data_path</span>, show_col_types <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">yield_mean</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">crops_obs</span>, <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 3 × 4</span></span></span>
-<span><span class="co">##   plant_name yield_min yield_max yield_mean</span></span>
-<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span> akgs            8         12         10  </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">2</span> csil            7.34      13.5       11.2</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">3</span> sgbt           11.0       16.9       14.0</span></span></code></pre>
-</div>
-<div class="section level2">
-<h2 id="scc_step3">3. Days to maturity parameter changes<a class="anchor" aria-label="anchor" href="#scc_step3"></a>
-</h2>
-<p>In the proposed workflow, one preliminary step before the actual
-calibration of crop parameters is adjusting the new SWAT+ parameter
-<code>days_mat</code> (days to maturity) that replaced the older concept
-of heat units to maturity in previous SWAT versions. The goal is to set
-the potential heat units (PHU) fraction at harvest within a plausible
-ranges for different crop types.</p>
-<p>It is recommended to check at this stage that the crop-specific
-values of the base temperature parameter (<code>tmp_base</code>) are
-realistic for the case study.</p>
-<div class="section level3">
-<h3 id="scc_step31">3.1. Initialization<a class="anchor" aria-label="anchor" href="#scc_step31"></a>
-</h3>
-<p>The preparation of this step requires the conversion of observed
-yields information into numeric vectors and initialization of
-<code>'plants.plt'</code> file.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Convert observed yields to numeric vectors</span></span>
-<span><span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"yield_mean"</span>, <span class="st">"yield_min"</span>, <span class="st">"yield_max"</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
-<span>  <span class="kw">if</span><span class="op">(</span><span class="va">i</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">crops_obs</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/assign.html" class="external-link">assign</a></span><span class="op">(</span><span class="va">i</span>, <span class="fu"><a href="https://tibble.tidyverse.org/reference/enframe.html" class="external-link">deframe</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">crops_obs</span>, <span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html" class="external-link">all_of</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"plant_name"</span>, <span class="va">i</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> </span>
-<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/assign.html" class="external-link">assign</a></span><span class="op">(</span><span class="va">i</span>, <span class="cn">NULL</span><span class="op">)</span></span>
-<span>  <span class="op">}</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co">## Initialize unmodified backup version of plants.plt</span></span>
-<span><span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">model_path</span>, <span class="st">'/plants.plt.bkp0'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/copy_file_version.html">copy_file_version</a></span><span class="op">(</span><span class="va">model_path</span>, <span class="st">'plants.plt'</span>, file_version <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="scc_step32">3.2. Days to maturity changes<a class="anchor" aria-label="anchor" href="#scc_step32"></a>
-</h3>
-<p>The following code generates a parameter input table with changes for
-required for SWAT+ model run. The names are converted into <a href="https://chrisschuerz.github.io/SWATrunR/articles/par_sampl_calib.html" class="external-link">SWATrunR
-syntax</a> for the days to maturity parameter. The code snippet also
-samples changes for days to maturity, allowing users to define the crops
-to be used in soft calibration and the initial values for days to
-maturity. Those initial values originate from the default plants
-database and may very likely lead to unreliable simulation of PHU
-fraction. In the example below, the addition factor to
-<code>days_mat</code> parameter varies between <em>-30</em> and
-<em>100</em>, which could be adjusted, if necessary.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Reading the plants.plt input file from the initial unchanged backup file</span></span>
-<span><span class="va">plants_plt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_tbl.html">read_tbl</a></span><span class="op">(</span>file_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">model_path</span>, <span class="st">'/plants.plt.bkp0'</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">plants_plt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">plants_plt</span>, <span class="op">-</span> <span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html" class="external-link">any_of</a></span><span class="op">(</span><span class="st">'description'</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Define all crops which should be calibrated</span></span>
-<span><span class="co"># Alternatively define a name vector (if you also want to consider crops </span></span>
-<span><span class="co"># which are not given in the observation input file).</span></span>
-<span><span class="va">crops</span> <span class="op">&lt;-</span> <span class="va">crops_obs</span><span class="op">$</span><span class="va">plant_name</span></span>
-<span><span class="co"># crops &lt;- c('crop1', 'crop2', 'crop3')</span></span>
-<span></span>
-<span><span class="co"># Get a vector with days_mat initial values for the selected crops</span></span>
-<span><span class="va">dmat_init</span> <span class="op">&lt;-</span> <span class="va">plants_plt</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">crops</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">days_mat</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>days_mat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">days_mat</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fl">110</span>, <span class="va">days_mat</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="co">## if days_mat is 0, set it to 110 (as it is the default value in the SWAT+ code)</span></span>
-<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/enframe.html" class="external-link">deframe</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Sample changes for days to maturity. Depending on the number of cores you have </span></span>
-<span><span class="co"># available choose a reasonable interval for the days to maturity which you want </span></span>
-<span><span class="co"># to test. With an interval of 10 e.g. you have to do 12 simulations (3 rounds </span></span>
-<span><span class="co"># on 4 cores), with an interval of 5 its 23 simulations.</span></span>
-<span><span class="va">dmat_step</span> <span class="op">&lt;-</span> <span class="fl">20</span></span>
-<span><span class="va">dmat_chg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">30</span>, <span class="fl">100</span>, <span class="va">dmat_step</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Generate the parameter input table with the changes for all crops and convert </span></span>
-<span><span class="co"># the names into SWATrunR syntax</span></span>
-<span><span class="va">par_dmat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">map_df</a></span><span class="op">(</span><span class="va">dmat_init</span>, <span class="op">~</span> <span class="va">.x</span> <span class="op">+</span> <span class="va">dmat_chg</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://rlang.r-lib.org/reference/set_names.html" class="external-link">set_names</a></span><span class="op">(</span><span class="va">.</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'dmat_'</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span>,</span>
-<span>                      <span class="st">'::days_mat.pdb | change = absval | name = '</span> , <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level2">
-<h2 id="scc_step4">4. Run simulations for <code>days_mat</code> adjustment<a class="anchor" aria-label="anchor" href="#scc_step4"></a>
-</h2>
-<p>In this step, <a href="https://chrisschuerz.github.io/SWATrunR/" class="external-link">SWATrunR</a> package is
-used to run simulations with <code>days_mat</code> parameter varying in
-the predefined range, in order to analyze the PHU fractions, yields and
-biomass for selected crops.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># make sure to adjust simulation settings (start date, end date and warm-up period) to your situation</span></span>
-<span><span class="va">ylds_phu_dmat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/run_swatplus.html" class="external-link">run_swatplus</a></span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
-<span>                              output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>yld <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'mgtout'</span>,</span>
-<span>                                                                variable <span class="op">=</span> <span class="st">'yld'</span>,</span>
-<span>                                                                unit <span class="op">=</span> <span class="va">crops</span><span class="op">)</span>,</span>
-<span>                                            bms <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'mgtout'</span>,</span>
-<span>                                                                variable <span class="op">=</span> <span class="st">'bioms'</span>,</span>
-<span>                                                                unit <span class="op">=</span> <span class="va">crops</span><span class="op">)</span>,</span>
-<span>                                            phu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'mgtout'</span>,</span>
-<span>                                                                variable <span class="op">=</span> <span class="st">'phu'</span>,</span>
-<span>                                                                unit <span class="op">=</span> <span class="va">crops</span><span class="op">)</span></span>
-<span>                              <span class="op">)</span>,</span>
-<span>                              parameter <span class="op">=</span> <span class="va">par_dmat</span>,</span>
-<span>                              start_date <span class="op">=</span> <span class="va">start_date</span>,</span>
-<span>                              end_date <span class="op">=</span> <span class="va">end_date</span>,</span>
-<span>                              years_skip <span class="op">=</span> <span class="va">years_skip</span>,</span>
-<span>                              n_thread <span class="op">=</span> <span class="va">cores</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Optionally save the simulation runs.</span></span>
-<span><span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.exists</a></span><span class="op">(</span><span class="va">sc_res</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">sc_res</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">ylds_phu_dmat</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">sc_res</span>, <span class="st">"/ylds_phu_mat.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="scc_step5">5. Plot PHU fractions, yields, and biomass for days to maturity
-changes<a class="anchor" aria-label="anchor" href="#scc_step5"></a>
-</h2>
-<p>In this figure, we visualize the PHU fractions, yields, and biomass
-for various days to maturity settings. This graphical representation
-serves as a reference to adjust the initial values of
-<code>days_mat</code> for each crop in the simulation.</p>
-<p>For grain crops, which typically dry off before harvest, aim for PHU
-fractions ranging from approximately <em>1.2</em> to <em>1.5</em> to
-optimize yield. Vegetables, on the other hand, tend to have a PHU
-fraction around <em>1</em>, possibly slightly above, which is considered
-optimal. Crops like basil and broccoli are harvested before reaching
-full maturity. In such cases, PHU fractions can be lower than
-<em>1</em>, ranging from <em>0.5</em> to <em>0.9</em>. Please note that
-values shown in the plot represent the first harvest. In case of
-multiple harvests (e.g. grassland, alfalfa), the PHU fraction should
-also be expected to be well below <em>1</em>.</p>
-<p>These are some generic suggestions, but it is recommended to check
-which PHU fractions should be the target in a given case study, as this
-can be both crop- and region-specific.</p>
-<p>Furthermore, it is useful to check already at this stage if the
-simulated yields fall within the range of locally observed yields to
-maintain accuracy and relevance and how <code>days_mat</code> affects
-yields. The actual soft calibration of yields will be described in steps
-8-11.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_phu_yld_bms.html">plot_phu_yld_bms</a></span><span class="op">(</span><span class="va">ylds_phu_dmat</span>, <span class="va">dmat_chg</span>, <span class="va">yield_mean</span>, <span class="va">yield_min</span>, <span class="va">yield_max</span><span class="op">)</span></span></code></pre></div>
-<p><img src="figs/ylds_phu_dmat.png" width="100%" style="display: block; margin: auto;"></p>
-</div>
-<div class="section level2">
-<h2 id="scc_step6">6. Select days to maturity parameter changes to apply<a class="anchor" aria-label="anchor" href="#scc_step6"></a>
-</h2>
-<p>Based on the figure provided, identify the necessary adjustments to
-the days to maturity parameter in the SWAT+ model. These adjustments
-should be made to ensure that the PHU fractions, yields, and biomass
-values of the specified crops align with the observed data.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Add values based on figure to this line (please add all crops from the initial selection)</span></span>
-<span><span class="co"># names(dmat_init) # Print all crop names</span></span>
-<span><span class="va">chg_dmat_sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>akgs <span class="op">=</span> <span class="op">-</span><span class="fl">30</span>, csil <span class="op">=</span> <span class="fl">10</span>, sgbt <span class="op">=</span>  <span class="fl">70</span>, </span>
-<span>                  wbar <span class="op">=</span>   <span class="op">-</span><span class="fl">10</span>, wira <span class="op">=</span> <span class="op">-</span><span class="fl">10</span>, wiry <span class="op">=</span>  <span class="fl">0</span>, wwht <span class="op">=</span>  <span class="op">-</span><span class="fl">30</span><span class="op">)</span></span>
-<span></span>
-<span></span>
-<span><span class="co"># Adding defined changes to initial days_mat values of crops</span></span>
-<span><span class="va">dmat_sel</span> <span class="op">&lt;-</span> <span class="va">chg_dmat_sel</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">dmat_init</span><span class="op">)</span><span class="op">]</span> <span class="op">+</span> <span class="va">dmat_init</span></span>
-<span><span class="va">dmat_sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/enframe.html" class="external-link">enframe</a></span><span class="op">(</span><span class="va">dmat_sel</span>, value <span class="op">=</span> <span class="st">'days_mat_upd'</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="scc_step7">7. Write days_mat modifications into a file<a class="anchor" aria-label="anchor" href="#scc_step7"></a>
-</h2>
-<p>Write the changes to the <code>'plants.plt'</code> file to update the
-days to maturity values for the selected crops and also backup the
-updated file to <code>'plants.plt.bkp1'</code> file.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Update the days_mat values in plants.plt according to the changes defined above.</span></span>
-<span><span class="va">plants_plt</span> <span class="op">&lt;-</span> <span class="va">plants_plt</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">.</span>, <span class="va">dmat_sel</span>, by <span class="op">=</span> <span class="st">'name'</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>days_mat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">days_mat_upd</span><span class="op">)</span>, <span class="va">days_mat_upd</span>, <span class="va">days_mat</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">days_mat_upd</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">## Overwriting original plants.plt with the updated days_mat values.</span></span>
-<span><span class="va">plants_plt_fmt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'%-12s'</span>, <span class="st">'%-18s'</span>, <span class="st">'%-12s'</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">'%12.5f'</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">plants_plt</span><span class="op">)</span> <span class="op">-</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/write_tbl.html">write_tbl</a></span><span class="op">(</span><span class="va">plants_plt</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">model_path</span>, <span class="st">'/plants.plt'</span><span class="op">)</span>, fmt <span class="op">=</span> <span class="va">plants_plt_fmt</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Create a backup file with the changed days_mat values</span></span>
-<span><span class="fu"><a href="../reference/copy_file_version.html">copy_file_version</a></span><span class="op">(</span><span class="va">model_path</span>, <span class="st">'plants.plt'</span>, file_version <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="scc_step8">8. Read crop calibration parameters<a class="anchor" aria-label="anchor" href="#scc_step8"></a>
-</h2>
-<p>In the proposed workflow, four parameters are suggested to be used in
-crop calibration: <a href="https://swatplus.gitbook.io/io-docs/introduction/databases/plants.plt/untitled-15" class="external-link"><code>lai_pot</code></a>
-(maximum potential leaf area index), <a href="https://swatplus.gitbook.io/io-docs/introduction/databases/plants.plt/untitled-16" class="external-link"><code>harv_idx</code></a>
-(harvest index for optimal growth conditions), <a href="https://swatplus.gitbook.io/io-docs/introduction/databases/plants.plt/tmp_base" class="external-link"><code>tmp_base</code></a>
-(minimum temperature for plant growth) and <a href="https://swatplus.gitbook.io/io-docs/introduction/databases/plants.plt/untitled-17" class="external-link"><code>bm_e</code></a>
-(biomass energy ratio). These parameters were found to be effective in
-the <a href="https://zenodo.org/records/11233622" class="external-link">OPTAIN modelling
-report</a>. However, in case if the user wants to add other parameters
-from the <code>'plants.plt'</code> file, the code can be easily
-adapted.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">plants_plt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_tbl.html">read_tbl</a></span><span class="op">(</span>file_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">model_path</span>, <span class="st">'/plants.plt'</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">par_ini</span> <span class="op">&lt;-</span> <span class="va">plants_plt</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">crops</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">lai_pot</span>, <span class="va">harv_idx</span>, <span class="va">tmp_base</span>, <span class="va">bm_e</span><span class="op">)</span><span class="co">#, days_mat)</span></span>
-<span><span class="va">par_ini</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="scc_step9">9. LHS sampling of crop parameters<a class="anchor" aria-label="anchor" href="#scc_step9"></a>
-</h2>
-<p>We will use the <a href="../reference/sample_lhs.html">sample_lhs</a>
-function to create a Latin hypercube sample of parameter values for the
-selected crops. The sample will be used to run SWAT+ simulations and
-evaluate the impact of the parameter changes on the model output. The
-syntax for the parameter boundaries could be found on the <a href="https://chrisschuerz.github.io/SWATrunR/articles/SWATrunR.html#parameter-inputs" class="external-link">SWATrunR
-page</a>.</p>
-<p>In the example below, the relative changes of <em>+/-30%</em> are
-applied to most parameters (<code>bm_e</code> being an exception, since
-changes above +10% were leading to the SWAT+ model failed run in some
-cases). Since temperature is an additive variable, absolute change
-method is a better option for <code>tmp_base</code>. The range for
-<code>tmp_base</code> should be kept narrow, as this parameter may also
-affect PHU fraction estimation.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## Define changes to be applied to the initial parameter values</span></span>
-<span><span class="co">## Make sure your updates will not produce unrealistic values (i.e. negative values)!!!</span></span>
-<span><span class="va">par_bnd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span><span class="st">'lai_pot.pdb | change = relchg'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.3</span><span class="op">)</span>,</span>
-<span>                  <span class="st">'harv_idx.pdb | change = relchg'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.3</span><span class="op">)</span>,</span>
-<span>                  <span class="st">'tmp_base.pdb | change = abschg'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span><span class="op">)</span>,</span>
-<span>                  <span class="st">'bm_e.pdb | change = relchg'</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">par_crop</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sample_lhs.html">sample_lhs</a></span><span class="op">(</span><span class="va">par_bnd</span>, <span class="fl">10</span><span class="op">)</span> <span class="co">## 10 samples for each parameter will be generated for testing purposes. </span></span>
-<span><span class="co">## The number of samples can be adjusted based on the available computational resources.</span></span>
-<span><span class="co">## Recommended number of samples is 50-100.</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="scc_step10">10. Make SWAT+ model runs for crop yield calibration<a class="anchor" aria-label="anchor" href="#scc_step10"></a>
-</h2>
-<p>In this step we run the SWAT+ model with the updated parameters for
-selected crops. The simulation results will be used to evaluate the
-effect of the parameter changes on the model output.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ylds_plnt_par</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/run_swatplus.html" class="external-link">run_swatplus</a></span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
-<span>                              output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>yld <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'mgtout'</span>,</span>
-<span>                                                                variable <span class="op">=</span> <span class="st">'yld'</span>,</span>
-<span>                                                                unit <span class="op">=</span> <span class="va">crops</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>                              parameter <span class="op">=</span> <span class="va">par_crop</span>,</span>
-<span>                              start_date <span class="op">=</span> <span class="va">start_date</span>,</span>
-<span>                              end_date <span class="op">=</span> <span class="va">end_date</span>,</span>
-<span>                              years_skip <span class="op">=</span> <span class="va">years_skip</span>,</span>
-<span>                              n_thread <span class="op">=</span> <span class="va">cores</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">## Save the results to the file</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">ylds_plnt_par</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">sc_res</span>, <span class="st">"/ylds_plnt_par.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="scc_step11">11. Examine results in figures<a class="anchor" aria-label="anchor" href="#scc_step11"></a>
-</h2>
-<p>Plotting simulation results in ‘dotty plots’ can help to identify
-parameter sensitivities (how yields of different crops respond changes
-in individual parameters), thus providing suggestions how to modify the
-ranges in subsequent simulation. After examining the patterns in dotty
-plots, you may consider adjusting certain parameter ranges (<a href="#scc_step9">step 9</a>) and then rerunning the model (<a href="#scc_step10">step 10</a>). Subsequently, you can reanalyze the
-outcomes with <a href="../reference/plot_dotty_yields.html">plot_dotty_yields</a>
-function to gain further insights or refine your understanding of the
-system being modeled. The ultimate goal is that simulated yields match
-with observed yields as well as possible. It is recommended to aim for
-an average error below 10%. In case if the observed min and max were
-provided, it is good if the simulated yield variability matches with
-these ranges.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## Plot dotty figures for the selected crops</span></span>
-<span><span class="fu"><a href="../reference/plot_dotty_yields.html">plot_dotty_yields</a></span><span class="op">(</span><span class="va">ylds_plnt_par</span>, <span class="va">yield_mean</span>, <span class="va">yield_min</span>, <span class="va">yield_max</span><span class="op">)</span></span></code></pre></div>
-<p><img src="figs/ylds_plnt_par.png" width="100%" style="display: block; margin: auto;"></p>
-</div>
-<div class="section level2">
-<h2 id="scc_step12">12. Update parameter values in plants.plt file<a class="anchor" aria-label="anchor" href="#scc_step12"></a>
-</h2>
-<p>After examining the results of the SWAT+ simulations in step 11,
-decision on which parameter changes to implement needs to be taken. Not
-all parameters need to be changed, but only those that appeared to be
-sensitive and helped to improve the model performance. Different crops
-can exhibit sensitivities to different parameters, so it is important to
-make a crop-specific selection of parameter changes. The following code
-snippet shows how to update the <code>'plants.plt'</code> file. Please
-note that these are not the actual parameter values, but the changes in
-parameters (by relative or absolute change method).</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## Fix changes you want to write in plants.plt file</span></span>
-<span><span class="va">chg_par</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>  name     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"akgs"</span>,<span class="st">"barl"</span>, <span class="st">"csil"</span>, <span class="st">"sgbt"</span>, <span class="st">"wbar"</span>, <span class="st">"wira"</span>, <span class="st">"wiry"</span>, <span class="st">"wwht"</span><span class="op">)</span>,</span>
-<span>  lai_pot  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>    <span class="fl">0</span>,     <span class="fl">0</span>,      <span class="fl">0</span>,      <span class="fl">0</span>,      <span class="fl">0</span>,      <span class="fl">0</span>,      <span class="fl">0</span>,      <span class="fl">0</span><span class="op">)</span>,</span>
-<span>  harv_idx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>    <span class="fl">0</span>,     <span class="fl">0</span>,      <span class="fl">0</span>,      <span class="fl">0</span>,      <span class="fl">0</span>,      <span class="fl">0</span>,    <span class="fl">0.3</span>,    <span class="fl">0.3</span><span class="op">)</span>,</span>
-<span>  tmp_base <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>    <span class="fl">0</span>,     <span class="fl">0</span>,      <span class="fl">0</span>,      <span class="fl">0</span>,      <span class="fl">0</span>,      <span class="fl">0</span>,   <span class="op">-</span><span class="fl">0.2</span>,   <span class="op">-</span><span class="fl">0.2</span><span class="op">)</span>,</span>
-<span>  bm_e     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>    <span class="fl">0</span>,     <span class="fl">0</span>,      <span class="fl">0</span>,      <span class="fl">0</span>,      <span class="fl">0</span>,      <span class="fl">0</span>,      <span class="fl">0</span>,      <span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">plants_plt</span>, <span class="va">name</span><span class="op">)</span>, <span class="va">.</span>, by <span class="op">=</span> <span class="st">'name'</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">## Update parameter values in plants.plt</span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">par_bnd</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">par_i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">chg_par</span><span class="op">)</span><span class="op">[</span><span class="va">i</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span></span>
-<span>  <span class="va">chg_typ_i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">".*change = "</span>, <span class="st">""</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">par_bnd</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
-<span>  <span class="va">plants_plt</span><span class="op">[</span><span class="va">par_i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/update_par.html">update_par</a></span><span class="op">(</span><span class="va">plants_plt</span><span class="op">[[</span><span class="va">par_i</span><span class="op">]</span><span class="op">]</span>, <span class="va">chg_par</span><span class="op">[[</span><span class="va">par_i</span><span class="op">]</span><span class="op">]</span>, <span class="va">chg_typ_i</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co">## Overwriting plants.plt with the updated parameter values.</span></span>
-<span><span class="fu"><a href="../reference/write_tbl.html">write_tbl</a></span><span class="op">(</span><span class="va">plants_plt</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">model_path</span>, <span class="st">'/plants.plt'</span><span class="op">)</span>, fmt <span class="op">=</span> <span class="va">plants_plt_fmt</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="scc_step13">13. Rerun SWAT+ with the final plants.plt file<a class="anchor" aria-label="anchor" href="#scc_step13"></a>
-</h2>
-<p>After updating the <code>'plants.plt'</code> file with the new
-parameter values, you can rerun the SWAT+ model to check if the match
-between the simulated and observed yields is as expected. In addition to
-yields, biomass and PHU outputs are also extracted.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">phu_yld_final</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/run_swatplus.html" class="external-link">run_swatplus</a></span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
-<span>                              output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>yld <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'mgtout'</span>,</span>
-<span>                                                                variable <span class="op">=</span> <span class="st">'yld'</span>,</span>
-<span>                                                                unit <span class="op">=</span> <span class="va">crops</span><span class="op">)</span>,</span>
-<span>                                            bms <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'mgtout'</span>,</span>
-<span>                                                                variable <span class="op">=</span> <span class="st">'bioms'</span>,</span>
-<span>                                                                unit <span class="op">=</span> <span class="va">crops</span><span class="op">)</span>,</span>
-<span>                                            phu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'mgtout'</span>,</span>
-<span>                                                                variable <span class="op">=</span> <span class="st">'phu'</span>,</span>
-<span>                                                                unit <span class="op">=</span> <span class="va">crops</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>                              start_date <span class="op">=</span> <span class="va">start_date</span>,</span>
-<span>                              end_date <span class="op">=</span> <span class="va">end_date</span>,</span>
-<span>                              years_skip <span class="op">=</span> <span class="va">years_skip</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">## Save the results to the file</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">phu_yld_final</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">sc_res</span>, <span class="st">"/phu_yld_final.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="scc_step14">14. Examine the final results<a class="anchor" aria-label="anchor" href="#scc_step14"></a>
-</h2>
-<p>In this step, you can examine the final results (yields, biomass, PHU
-fraction) of the SWAT+ simulations. If the results are satisfactory, you
-may consider your model setup as successfully soft-calibrated for crop
-yields.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_phu_yld_bms.html">plot_phu_yld_bms</a></span><span class="op">(</span><span class="va">phu_yld_final</span>, <span class="fl">0</span>, <span class="va">yield_mean</span>, <span class="va">yield_min</span>, <span class="va">yield_max</span><span class="op">)</span></span></code></pre></div>
-<p><img src="figs/phu_yld_final.png" width="100%" style="display: block; margin: auto;"></p>
-<p>For a more in-depth analysis, users can employ at this stage
-additional <a href="https://git.ufz.de/schuerz/swatdoctr" class="external-link">SWATdoctR
-functions</a>, such as <code><a href="https://rdrr.io/pkg/SWATdoctR/man/plot_hru_pw_day.html" class="external-link">plot_hru_pw_day()</a></code>. This function
-enables visualization of daily time series of variables from the output
-file <code>'hru_pw_day.txt'</code> (e.g. biomass, LAI) for selected HRUs
-and time periods, thus providing valuable insights into the simulated
-crop growth. This might help in getting a better understanding of the
-model’s outputs and decide if crop yield soft calibration results are
-acceptable.</p>
-<p>In the proposed workflow, after completing the soft calibration
-process for crops, the users are advised to proceed with <a href="../articles/sc-wy.html">soft calibration for water yield</a>
-presented in an another page.</p>
+<p>In your created soft calibration directory with the
+<code><a href="../reference/initialize_softcal.html">initialize_softcal()</a></code> function, the
+<code>workflow/01_crops_calibration.R</code> script file is included.
+This script serves as a starting point, providing a customizable
+template to guide users through the crop soft calibration process
+effectively.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
@@ -531,7 +128,7 @@ presented in an another page.</p>
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Svajunas Plunge, Christoph Schuerz, Michel Strauch, Mikołaj Piniewski.</p>
+<p>Developed by Svajunas Plunge, Christoph Schuerz, Michael Strauch, Mikołaj Piniewski.</p>
 </div>
 
 <div class="pkgdown-footer-right">

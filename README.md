@@ -3,7 +3,7 @@ Introduction to SWATtunR
 
 # SWATtunR
 
-[![](https://img.shields.io/badge/devel%20version-0.0.2-blue.svg)](https://github.com/biopsichas/SWATtunR)
+[![](https://img.shields.io/badge/devel%20version-0.3.5-blue.svg)](https://github.com/biopsichas/SWATtunR)
 [![](https://img.shields.io/github/last-commit/biopsichas/SWATtunR.svg)](https://github.com/biopsichas/SWATtunR/commits/green)
 [![](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![Project Status: Active - The project has reached a stable, usable
@@ -25,8 +25,8 @@ Schuerz](https://www.ufz.de/index.php?en=49467), which added important
 capability on top of other R tools designed for the SWAT/SWAT+ models.
 Therefore, we highly recommend trying and using these tools:
 
-- [SWATbuildR](https://git.ufz.de/optain/wp4-integrated-assessment/swat/bildr_script)[^1] -
-  R tool for building SWAT+ setups;
+- [SWATbuildR](https://github.com/chrisschuerz/SWATbuildR) - R tool for
+  building SWAT+ setups;
 - [SWATprepR](https://biopsichas.github.io/SWATprepR/) - SWAT+ model
   input data preparation helper. The package is presented in the article
   Plunge, Szabó, et al. (2024);
@@ -40,9 +40,17 @@ Therefore, we highly recommend trying and using these tools:
   running SWAT models for different parameters and scenarios. Please
   install branch names *remove_legacy*. It could be done using line like
   this `remotes::install_github("chrisschuerz/SWATrunR@remove_legacy")`
-- [SWATmeasR](https://nc.ufz.de/s/KA9Cr2bbtALGMHr?path=%2FWPs%20%26%20Tasks%2FWP4%2FTask%204.4%2FTools%20to%20share)[^2] -
-  R tool for implementing Natural/Small Water Retention Measures
-  (NSWRMs) in the SWAT+ models and running scenarios.
+- [SWATmeasR](https://github.com/chrisschuerz/SWATmeasR) - R tool for
+  implementing Natural/Small Water Retention Measures (NSWRMs) in the
+  SWAT+ models and running scenarios.
+
+Additionally, we recommend checking out the following packages, which
+can be used to build scripted workflows for SWAT+:
+
+- [SWATreadR](https://github.com/chrisschuerz/SWATreadR) - Read and
+  write SWAT+ input and output files.
+- [SWATdata](https://github.com/chrisschuerz/SWATdata) - SWAT project
+  datasets for SWATrunR and SWATfarmR.
 
 <img src="man/figures/swativerse_update.png" title="SWAT packages for R" alt="swativerse logo" width="80%" style="display: block; margin: auto;" />
 
@@ -65,19 +73,28 @@ remotes::install_github("biopsichas/SWATtunR")
 ```
 
 <p style="font-family: times, serif; font-size:11pt; font-style:italic">
-This work was carried out within the OPTAIN project (OPtimal strategies
-to retAIN and re-use water and nutrients in small agricultural
-catchments across different soil-climatic regions in Europe,
-cordis.europa.eu) which has received funding from the European Union’s
-Horizon 2020 research and innovation programme under grant agreement
-No. 862756 and the LIFE22-IPE-LT-LIFE-SIP-Vanduo project (Integrated
-water management in Lithuania, ref: LIFE22-IPE-LT-LIFE-SIPVanduo/
-101104645, cinea.ec.europa.eu), funded by the European Union LIFEprogram
-under the grant agreement No 101104645.
-</p>
 
-<img src="man/figures/eu.png" title="EU LIFE+ logo" alt="eu logo" width="40%" align="left" style="display: block; margin: auto;" />
-<img src="man/figures/optain.png" title="OPTAIN logo" alt="eu logo" width="30%" align="right" style="display: block; margin: auto;" />
+This work was carried out within the **OPTAIN project** (*Optimal
+strategies to retain and re-use water and nutrients in small
+agricultural catchments across different soil-climatic regions in
+Europe*, [cordis.europa.eu](https://cordis.europa.eu)), which has
+received funding from the European Union’s Horizon 2020 research and
+innovation programme under grant agreement No. 862756.
+
+It was also supported by the **NORDBALT-ECOSAFE project**, funded by the
+European Union’s Horizon Europe research and innovation programme under
+grant agreement No. 101060020.
+
+And the **LIFE22-IPE-LT-LIFE-SIP-Vanduo project** (*Integrated water
+management in Lithuania*, reference: LIFE22-IPE-LT-LIFE-SIP Vanduo /
+101104645, [cinea.ec.europa.eu](https://cinea.ec.europa.eu)), funded by
+the European Union LIFE Programme under grant agreement No. 101104645.
+
+<p>
+<img src="man/figures/eu.png" title="EU LIFE+ logo" alt="eu logo" width="30%" style="display: inline-block; vertical-align: middle; margin-right: 1%;" />
+<img src="man/figures/nordbalt.png" title="NORDBALT ECOSAFE logo" alt="nordbalt logo" width="20%" style="display: inline-block; vertical-align: middle; margin-right: 1%;" />
+<img src="man/figures/optain.png" title="OPTAIN logo" alt="optain logo" width="30%" style="display: inline-block; vertical-align: middle;" />
+</p>
 
 <br><br><br>
 
@@ -116,7 +133,3 @@ workflow: SWATprepR</span>.” *Environmental Sciences Europe* 36 (1): 53.
 </div>
 
 </div>
-
-[^1]: For access please inquire at *<christoph.schuerz@ufz.de>*.
-
-[^2]: For access please inquire at *<christoph.schuerz@ufz.de>*.

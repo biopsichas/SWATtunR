@@ -1,0 +1,59 @@
+---
+title: "Getting Started"
+subtitle: "Initialization of Calibration Projects in SWATtunR"
+output: html_document
+bibliography: ref.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Initialization
+
+Before beginning calibration with the **SWATtunR** package, users must establish a calibration project by setting up a well-organized directory containing essential files and folders to support the calibration process. The package offers automated functions to streamline this setup, ensuring all necessary components are included. Additionally, it provides example data and workflow scripts with explanations and examples to help users start efficiently.
+
+The SWATtunR package offers two main functions, `initialize_softcal()` and `initialize_hardcal()`, requiring a project name, calibration project save path, and SWAT+ model setup path as inputs. These functions automatically set up a calibration project, including a folder structure, example data, and a workflow script. The project structure, though slightly varying by function, includes a 'Workflow' folder with adaptable R scripts (notably ordered for hard calibration), a 'Simulation' folder for storing SWATrunR results in `*.sqlite` files with timestamps, an 'Observation' folder for data like daily streamflow, and a 'Backup' folder for modified files (e.g., plants.plt). An `*.Rproj` file is also included in the main directory to facilitate script execution.
+
+```{r init, echo=FALSE, out.width='80%', fig.align='center'}
+knitr::include_graphics('figs/fig3.png')
+```
+
+# Examples
+
+Examples of function usage are provided below, illustrating how to initialize a calibration project for both soft and hard calibration workflows.
+
+```{r ini1, message = FALSE, warning = FALSE, eval = FALSE}
+initialize_softcal(project_name = 'softcal_test', 
+                   path = 'Path:/to/directory', 
+                   model_path = 'Path:/to/txt_inout')
+```
+
+```{r ini2, message = FALSE, warning = FALSE, eval = FALSE}
+initialize_hardcal(project_name = 'hardcal_test', 
+                   path = 'Path:/to/directory', 
+                   model_path = 'Path:/to/txt_inout')
+```
+
+# Example setup
+
+In case you want to test the package without having to set up your own project, you can use the example SWAT+ model setup provided in [SWATdata](https://github.com/chrisschuerz/SWATdata) R package and data provided [@bosch2007] in the package. The following code will show how to obtain the example (test) model setup. 
+
+```{r ini3, message = FALSE, warning = FALSE, eval = FALSE}
+## Install SWATdata package, if not already installedq
+devtools::install_github("chrisschuerz/SWATdata")
+## Load SWATdata package
+library(SWATdata)
+
+# Load a SWAT+ Rev.60model setup on Windows:
+demo_path <- "Define:/your/path"
+path_plus <- load_demo(dataset = "project",
+                       path = demo_path
+                       version = "plus",
+                       revision = 60)
+
+```
+The `load_demo` function from the **SWATdata** package will download a SWAT+ model setup to the specified path. The **path_plus** variable will then contain the path to the downloaded SWAT+ model setup, which can be used in the `initialize_softcal()` or `initialize_hardcal()` functions.
+
+# References
+

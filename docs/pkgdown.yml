@@ -2,17 +2,9 @@ pandoc: 3.1.11
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
-  hc-plot: hc-plot.html
-  hc-plus: hc-plus.html
-  hc: hc.html
-  qa-st1: qa-st1.html
-  qa-st2: qa-st2.html
-  qa-st3: qa-st3.html
-  qa-st4: qa-st4.html
-  qa-st5: qa-st5.html
-  qa: qa.html
+  intro: intro.html
+  init: init.html
   sc-crops: sc-crops.html
   sc-wy: sc-wy.html
-  val: val.html
-last_built: 2024-07-17T15:19Z
+last_built: 2025-06-12T14:51Z
 

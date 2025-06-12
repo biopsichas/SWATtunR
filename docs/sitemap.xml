@@ -4,6 +4,9 @@
     <loc>/404.html</loc>
   </url>
   <url>
+    <loc>/LICENSE-text.html</loc>
+  </url>
+  <url>
     <loc>/articles/hc-plot.html</loc>
   </url>
   <url>
@@ -46,13 +49,16 @@
     <loc>/articles/val.html</loc>
   </url>
   <url>
+    <loc>/articles/intro.html</loc>
+  </url>
+  <url>
+    <loc>/articles/init.html</loc>
+  </url>
+  <url>
     <loc>/authors.html</loc>
   </url>
   <url>
     <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
   </url>
   <url>
     <loc>/news/index.html</loc>
@@ -79,15 +85,6 @@
     <loc>/reference/build_expression.html</loc>
   </url>
   <url>
-    <loc>/reference/calculate_performance.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calculate_performance_2plus.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calculate_wyr.html</loc>
-  </url>
-  <url>
     <loc>/reference/calc_fdc.html</loc>
   </url>
   <url>
@@ -95,6 +92,15 @@
   </url>
   <url>
     <loc>/reference/calc_segment_diff.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calculate_performance.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calculate_performance_2plus.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calculate_wyr.html</loc>
   </url>
   <url>
     <loc>/reference/copy_file_version.html</loc>
@@ -133,6 +139,9 @@
     <loc>/reference/grapes-.-grapes.html</loc>
   </url>
   <url>
+    <loc>/reference/grapes-_-grapes.html</loc>
+  </url>
+  <url>
     <loc>/reference/grapes-and-and-grapes.html</loc>
   </url>
   <url>
@@ -142,19 +151,16 @@
     <loc>/reference/grapes-slash-slash-grapes.html</loc>
   </url>
   <url>
-    <loc>/reference/grapes-_-grapes.html</loc>
-  </url>
-  <url>
     <loc>/reference/group_values.html</loc>
   </url>
   <url>
     <loc>/reference/hello.html</loc>
   </url>
   <url>
-    <loc>/reference/identify_sequence.html</loc>
+    <loc>/reference/id_text_strings.html</loc>
   </url>
   <url>
-    <loc>/reference/id_text_strings.html</loc>
+    <loc>/reference/identify_sequence.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
@@ -241,12 +247,99 @@
     <loc>/reference/update_plant_par.html</loc>
   </url>
   <url>
-    <loc>/reference/write_calibration.html</loc>
-  </url>
-  <url>
     <loc>/reference/write_cal_file.html</loc>
   </url>
   <url>
+    <loc>/reference/write_calibration.html</loc>
+  </url>
+  <url>
     <loc>/reference/write_tbl.html</loc>
+  </url>
+  <url>
+    <loc>/reference/aggregate_time.html</loc>
+  </url>
+  <url>
+    <loc>/reference/build_unit_string.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calc_fdc_i.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calc_gof.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calc_gof_i.html</loc>
+  </url>
+  <url>
+    <loc>/reference/check_date_col.html</loc>
+  </url>
+  <url>
+    <loc>/reference/check_point_shape.html</loc>
+  </url>
+  <url>
+    <loc>/reference/conc_to_load.html</loc>
+  </url>
+  <url>
+    <loc>/reference/filter_period.html</loc>
+  </url>
+  <url>
+    <loc>/reference/group_hydr_values.html</loc>
+  </url>
+  <url>
+    <loc>/reference/guess_time_step.html</loc>
+  </url>
+  <url>
+    <loc>/reference/id_to_run.html</loc>
+  </url>
+  <url>
+    <loc>/reference/id_to_unit.html</loc>
+  </url>
+  <url>
+    <loc>/reference/initialize_softcal.html</loc>
+  </url>
+  <url>
+    <loc>/reference/load_to_conc.html</loc>
+  </url>
+  <url>
+    <loc>/reference/normalize.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_gof.html</loc>
+  </url>
+  <url>
+    <loc>/reference/prepare_plant_parameter.html</loc>
+  </url>
+  <url>
+    <loc>/reference/rank_gof.html</loc>
+  </url>
+  <url>
+    <loc>/reference/run_to_id.html</loc>
+  </url>
+  <url>
+    <loc>/reference/sample_days_mat.html</loc>
+  </url>
+  <url>
+    <loc>/reference/sum_variables.html</loc>
+  </url>
+  <url>
+    <loc>/reference/translate_to_boundaries.html</loc>
+  </url>
+  <url>
+    <loc>/reference/add_timestamp.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calc_wyr.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_esco_epco.html</loc>
+  </url>
+  <url>
+    <loc>/reference/initialize_hardcal.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_timeseries.html</loc>
+  </url>
+  <url>
+    <loc>/reference/view_timeseries.html</loc>
   </url>
 </urlset>

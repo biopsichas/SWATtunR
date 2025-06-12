@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,23 +24,13 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Introduction</h6>
+    <a class="dropdown-item" href="../articles/intro.html">Overview</a>
+    <a class="dropdown-item" href="../articles/init.html">Getting Started</a>
+    <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Soft calibration</h6>
     <a class="dropdown-item" href="../articles/sc-crops.html">Crop Yields</a>
     <a class="dropdown-item" href="../articles/sc-wy.html">Water Yield</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Hard calibration</h6>
-    <a class="dropdown-item" href="../articles/hc.html">Run calibration</a>
-    <a class="dropdown-item" href="../articles/hc-plot.html">Plot results</a>
-    <a class="dropdown-item" href="../articles/hc-plus.html">Extend calibration</a>
-    <a class="dropdown-item" href="../articles/val.html">Validation</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Quality Assurance</h6>
-    <a class="dropdown-item" href="../articles/qa.html">Preparation</a>
-    <a class="dropdown-item" href="../articles/qa-st1.html">Step 1: Input</a>
-    <a class="dropdown-item" href="../articles/qa-st2.html">Step 2: Management</a>
-    <a class="dropdown-item" href="../articles/qa-st3.html">Step 3: Growth</a>
-    <a class="dropdown-item" href="../articles/qa-st4.html">Step 4: Stress</a>
-    <a class="dropdown-item" href="../articles/qa-st5.html">Step 5: Other</a>
   </div>
 </li>
 <li class="nav-item">
@@ -78,19 +68,29 @@
 
       <dl><dt>
           
-          <code><a href="calculate_performance.html">calculate_performance()</a></code> 
+          <code><a href="aggregate_time.html">aggregate_time()</a></code> 
         </dt>
-        <dd>Calculate All Performance Metrics</dd>
+        <dd>Aggregate time series table</dd>
       </dl><dl><dt>
           
-          <code><a href="calculate_performance_2plus.html">calculate_performance_2plus()</a></code> 
+          <code><a href="calc_fdc.html">calc_fdc()</a></code> 
         </dt>
-        <dd>Calculate Performance Metrics for 2 of more variables</dd>
+        <dd>Calculate Flow Duration Curve (FDC)</dd>
       </dl><dl><dt>
           
-          <code><a href="calculate_wyr.html">calculate_wyr()</a></code> 
+          <code><a href="calc_fdc_rsr.html">calc_fdc_rsr()</a></code> 
         </dt>
-        <dd>Calculate Water Yield Ratio (WYR)</dd>
+        <dd>Calculate RSR for Flow Duration Curve Segments</dd>
+      </dl><dl><dt>
+          
+          <code><a href="calc_gof.html">calc_gof()</a></code> 
+        </dt>
+        <dd>Calculate a goodness-of-fit table</dd>
+      </dl><dl><dt>
+          
+          <code><a href="conc_to_load.html">conc_to_load()</a></code> 
+        </dt>
+        <dd>Convert concentration and discharge time series into a load time series.</dd>
       </dl><dl><dt>
           
           <code><a href="copy_file_version.html">copy_file_version()</a></code> 
@@ -98,24 +98,34 @@
         <dd>Copy a file with an optional version suffix.</dd>
       </dl><dl><dt>
           
-          <code><a href="fix_dates.html">fix_dates()</a></code> 
+          <code><a href="filter_period.html">filter_period()</a></code> 
         </dt>
-        <dd>Fix the dates</dd>
+        <dd>Filter a time period for a variable time series table.</dd>
       </dl><dl><dt>
           
-          <code><a href="get_conc.html">get_conc()</a></code> 
+          <code><a href="group_hydr_values.html">group_hydr_values()</a></code> 
         </dt>
-        <dd>Calculate concentrations</dd>
+        <dd>Group the values of a parameter in the file hydrology.hyd.</dd>
       </dl><dl><dt>
           
-          <code><a href="id_text_strings.html">id_text_strings()</a></code> 
+          <code><a href="id_to_run.html">id_to_run()</a></code> 
         </dt>
-        <dd>Generate ID Text Strings for Parameter Names</dd>
+        <dd>Convert run ID values to run names</dd>
       </dl><dl><dt>
           
-          <code><a href="plot_calval_comparison.html">plot_calval_comparison()</a></code> 
+          <code><a href="id_to_unit.html">id_to_unit()</a></code> 
         </dt>
-        <dd>Plot Calibration-Validation Comparison</dd>
+        <dd>Generate 'unit' condition for parameter definition from ID vector</dd>
+      </dl><dl><dt>
+          
+          <code><a href="initialize_softcal.html">initialize_softcal()</a></code> 
+        </dt>
+        <dd>Initialize a soft calibration workflow</dd>
+      </dl><dl><dt>
+          
+          <code><a href="load_to_conc.html">load_to_conc()</a></code> 
+        </dt>
+        <dd>Convert load and discharge time series into a concentration time series.</dd>
       </dl><dl><dt>
           
           <code><a href="plot_dotty.html">plot_dotty()</a></code> 
@@ -128,14 +138,9 @@
         <dd>Plot Dotty Yields</dd>
       </dl><dl><dt>
           
-          <code><a href="plot_esco_range.html">plot_esco_range()</a></code> 
+          <code><a href="plot_gof.html">plot_gof()</a></code> 
         </dt>
-        <dd>Plot ESCO Range</dd>
-      </dl><dl><dt>
-          
-          <code><a href="plot_oat.html">plot_oat()</a></code> 
-        </dt>
-        <dd>Function to plot OAT (One-At-A-Time) analysis results</dd>
+        <dd>Plot goodness of fit (GOF) tables</dd>
       </dl><dl><dt>
           
           <code><a href="plot_parameter_identifiability.html">plot_parameter_identifiability()</a></code> 
@@ -148,14 +153,14 @@
         <dd>Plot PHU, yield, and biomass over days to maturity</dd>
       </dl><dl><dt>
           
-          <code><a href="plot_selected_sim.html">plot_selected_sim()</a></code> 
+          <code><a href="prepare_plant_parameter.html">prepare_plant_parameter()</a></code> 
         </dt>
-        <dd>Plot interactive time series of simulation results</dd>
+        <dd>Rearrange parameter change tables to SWATrunR format</dd>
       </dl><dl><dt>
           
-          <code><a href="read_tbl.html">read_tbl()</a></code> 
+          <code><a href="rank_gof.html">rank_gof()</a></code> 
         </dt>
-        <dd>Read a SWAT+ input file which has a tabular structure.</dd>
+        <dd>Rank lines in a table of goodness-of-fit values.</dd>
       </dl><dl><dt>
           
           <code><a href="remove_unsuccesful_runs.html">remove_unsuccesful_runs()</a></code> 
@@ -163,14 +168,36 @@
         <dd>Remove Unsuccessful Runs from Simulation</dd>
       </dl><dl><dt>
           
+          <code><a href="run_to_id.html">run_to_id()</a></code> 
+        </dt>
+        <dd>Convert run_names to integer ID values</dd>
+      </dl><dl><dt>
+          
+          <code><a href="sample_days_mat.html">sample_days_mat()</a></code> 
+        </dt>
+        <dd>Sample days to maturity values</dd>
+      </dl><dl><dt>
+          
           <code><a href="sample_lhs.html">sample_lhs()</a></code> 
         </dt>
-        <dd>Sample parameters space</dd>
+        <dd>Sample parameters with Latin Hypercube Sampling (LHS)</dd>
       </dl><dl><dt>
           
           <code><a href="sample_oat.html">sample_oat()</a></code> 
         </dt>
-        <dd>Sample OAT Function</dd>
+        <dd>Sample parameter values one-at-a-time (OAT)</dd>
+      </dl><dl><dt>
+          
+          <code><a href="sum_variables.html">sum_variables()</a></code> 
+        </dt>
+        <dd>Sum values of simulated variables</dd>
+      </dl><dl><dt>
+          
+          <code><a href="translate_to_boundaries.html">translate_to_boundaries()</a></code> 
+        </dt>
+        <dd>Translate the normalized sampled values of a parameter to ranges of groups
+of that parameter (e.g. when perco should have different ranges based on the
+initial values of perco in all HRUs)</dd>
       </dl><dl><dt>
           
           <code><a href="update_par.html">update_par()</a></code> 
@@ -183,15 +210,45 @@
         <dd>Write Calibration File</dd>
       </dl><dl><dt>
           
-          <code><a href="write_tbl.html">write_tbl()</a></code> 
+          <code><a href="add_timestamp.html">add_timestamp()</a></code> 
         </dt>
-        <dd>Write SWAT+ input file, which has a tabular structure.</dd>
+        <dd>Add a time stamp to the save name</dd>
+      </dl><dl><dt>
+          
+          <code><a href="calc_wyr.html">calc_wyr()</a></code> 
+        </dt>
+        <dd>Calculate water yield ratio</dd>
+      </dl><dl><dt>
+          
+          <code><a href="plot_esco_epco.html">plot_esco_epco()</a></code> 
+        </dt>
+        <dd>Plot esco (and epco) to identify appropriate parameter ranges.</dd>
+      </dl><dl><dt>
+          
+          <code><a href="initialize_hardcal.html">initialize_hardcal()</a></code> 
+        </dt>
+        <dd>Initialize a hard calibration workflow</dd>
+      </dl><dl><dt>
+          
+          <code><a href="plot_oat.html">plot_oat()</a></code> 
+        </dt>
+        <dd>Function to plot OAT (One-At-A-Time) analysis results</dd>
+      </dl><dl><dt>
+          
+          <code><a href="plot_timeseries.html">plot_timeseries()</a></code> 
+        </dt>
+        <dd>Plot time series of simulation results and observations</dd>
+      </dl><dl><dt>
+          
+          <code><a href="view_timeseries.html">view_timeseries()</a></code> 
+        </dt>
+        <dd>View interactive time series of simulation results and observations</dd>
       </dl></div>
   </main></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Svajunas Plunge, Christoph Schuerz, Michel Strauch, Mikołaj Piniewski.</p>
+  <p></p><p>Developed by Svajunas Plunge, Christoph Schuerz, Michael Strauch, Mikołaj Piniewski.</p>
 </div>
 
 <div class="pkgdown-footer-right">
