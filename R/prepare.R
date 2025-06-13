@@ -335,7 +335,7 @@ sample_oat <- function(par, par_center = 1, n_t = 10) {
 #' crop_names <- c('csil', 'wbar', 'sgbt', 'wwht')
 #'
 #' # Generate a days to maturity parameter table
-#' par_dmat <- sample_dmat(crop_names)
+#' par_dmat <- sample_days_mat(crop_names)
 #'
 #' par_dmat
 #' }
