@@ -1,0 +1,83 @@
+---
+title: "Analyzing Results"
+subtitle: "Analyzing simulation results and comparing them to observations"
+output: html_document
+bibliography: ref.bib
+---
+
+This page corresponds to **04_analyze_results.R** script in the hard calibration workflow. It analyzes the simulation results obtained from the SWAT runs and compares them to observed data. The analysis includes calculating goodness-of-fit values, plotting evaluation results, and ranking the results based on the defined criteria.
+
+# 5. Process simulation results
+
+The first 
+
+```{r hc5, message = FALSE, warning = FALSE, eval = FALSE}
+# Parameter definition ----------------------------------------------------
+# Paths to simulation and observation data
+# E.g. load the simulations with the last time stamp, if default
+# save_file names in simulation runs is used.
+sims <- list.files('./simulation/', pattern = '[0-9]{12}')
+sim_path <- paste0('./simulation/', sims[length(sims)])
+
+# E.g. path to discharge observations
+flow_path <- './observation/q.csv'
+# E.g. path to in-stream nitrate observations
+ntot_path <- './observation/ntot.csv'
+
+# Define time period to analyze (E.g. calibration or validation period)
+# Periods for different variables can be different, but calibration and
+# validation should not be mixed.
+# Discharge
+period_q <- c('2006-01-01', '2012-12-31')
+# Water quality
+period_wq <- c('2006-01-01', '2012-12-31')
+
+```
+
+The second  
+
+```{r hc51, message = FALSE, warning = FALSE, eval = FALSE}
+# Load and prepare simulation results -------------------------------------
+sim <- load_swat_run(sim_path)
+```
+
+The third 
+
+```{r hc52, message = FALSE, warning = FALSE, eval = FALSE}
+# Extract parameter set
+par_vals <- sim$parameter$values
+
+# Extract relevant output variables
+# E.g. discharge
+flow_sim <- filter_period(sim$simulation$flo_day, period_q)
+# E.g. N load components
+no3_sim  <- filter_period(sim$simulation$no3_day, period_wq)
+nh3_sim  <- filter_period(sim$simulation$nh3_day, period_wq)
+no2_sim  <- filter_period(sim$simulation$no2_day, period_wq)
+orgn_sim <- filter_period(sim$simulation$orgn_day, period_wq)
+
+# E.g. if FDC segments should be evaluated, calculate the
+# FDC for the simulated discharges
+flow_fdc_sim <- calc_fdc(flow_sim)
+
+# Calculate total N from the four N fractions
+ntot_sim <- sum_variables(no3_sim, nh3_sim, no2_sim, orgn_sim)
+
+# Convert loads to concentrations
+ntot_conc_sim <- load_to_conc(load = ntot_sim, flow = flow_sim,
+                              load_unit = 'kg day-1', flow_unit = 'm3 s-1',
+                              out_unit  = 'mg L-1')
+
+```
+
+# 6. Load and process observation data
+
+# 7. Calculate goodness-of-fit values
+
+# 8. Plot evaluation results
+
+# 9. Rank results and select parameter combinations
+
+# 10. View simulated time series
+
+# 11. Save parameters and/or write calibration.cal

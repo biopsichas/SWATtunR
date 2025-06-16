@@ -13,3 +13,19 @@ articles:
   contents:
   - sc-crops
   - sc-wy
+- title: Hard calibration
+  navbar: Hard calibration
+  contents:
+  - hc-par
+  - hc-out
+  - hc-run
+  - hc-analyze
+- title: Quality Assurance
+  navbar: Quality Assurance
+  contents:
+  - qa
+  - qa-st1
+  - qa-st2
+  - qa-st3
+  - qa-st4
+  - qa-st5

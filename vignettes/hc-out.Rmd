@@ -1,0 +1,56 @@
+---
+title: "Output Definition"
+subtitle: "Defining the simulation outputs returned from the SWAT runs"
+output: html_document
+bibliography: ref.bib
+---
+
+This page corresponds to **02_define_output.R** script in the hard calibration workflow. It defines the model outputs that will be saved and calibrated against observations.
+
+# 3. Define model outputs to calibrate
+
+The following section provides a suggested list of SWAT+ outputs to be calibrated. The outputs are grouped according variables. Users can comment out any outputs that are not relevant to their calibration objectives. The `define_output` function from **SWATrunR** package is used to specify the output files, variables, and units to be saved.
+
+```{r hc3, message = FALSE, warning = FALSE, eval = FALSE}
+# Parameter definition ----------------------------------------------------
+# Channel IDs for which simulation outputs are returned.
+cha_ids <- 1
+# HRU IDs for which simulation outputs are returned. E.g. all HRUs
+hru_ids <- 1:134
+
+# Output definition -------------------------------------------------------
+outputs <- list(
+  # Daily discharge
+  flo_day = define_output(file = 'channel_sd_day',
+                          variable = 'flo_out',
+                          unit = cha_ids)
+  # Daily in-stream Nitrogen
+  no3_day = define_output(file = 'channel_sd_day',
+                          variable = 'no3_out',
+                          unit = cha_ids),
+  orgn_day = define_output(file = 'channel_sd_day',
+                           variable = 'orgn_out',
+                           unit = cha_ids),
+  nh3_day = define_output(file = 'channel_sd_day',
+                          variable = 'nh3_out',
+                          unit = cha_ids),
+  no2_day = define_output(file = 'channel_sd_day',
+                          variable = 'no2_out',
+                          unit = cha_ids),
+  # Daily in-stream phosphorous
+  solp_day = define_output(file = 'channel_sd_day',
+                          variable = 'solp_out',
+                          unit = cha_ids),
+  sedp_day = define_output(file = 'channel_sd_day',
+                           variable = 'sedp_out',
+                           unit = cha_ids),
+  # Daily in-stream sediment loads
+  sed_day = define_output(file = 'channel_sd_day',
+                          variable = 'sed_out',
+                          unit = cha_ids),
+  # Average annual sediment yields for all HRUs
+  sedyld = define_output(file = 'hru_ls_aa',
+                         variable = 'sedyld',
+                         unit = hru_ids)
+)
+```
