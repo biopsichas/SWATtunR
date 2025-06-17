@@ -118,7 +118,10 @@ criteria.</p>
 <div class="section level2">
 <h2 id="process-simulation-results">5. Process simulation results<a class="anchor" aria-label="anchor" href="#process-simulation-results"></a>
 </h2>
-<p>The first</p>
+<p>Before loading the simulation results, you need to define the paths
+to the simulation (if not done yet) and observation data, as well as the
+time periods for analysis. The following code snippet shows how to set
+up these parameters.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Parameter definition ----------------------------------------------------</span></span>
 <span><span class="co"># Paths to simulation and observation data</span></span>
@@ -139,11 +142,18 @@ criteria.</p>
 <span><span class="va">period_q</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'2006-01-01'</span>, <span class="st">'2012-12-31'</span><span class="op">)</span></span>
 <span><span class="co"># Water quality</span></span>
 <span><span class="va">period_wq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'2006-01-01'</span>, <span class="st">'2012-12-31'</span><span class="op">)</span></span></code></pre></div>
-<p>The second</p>
+<p>Then the <code>load_swat_run</code> function from the
+<strong>SWATrunR</strong> package is used to load the most recent
+simulation results from the defined <code>simulation</code> folder.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load and prepare simulation results -------------------------------------</span></span>
 <span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/load_swat_run.html" class="external-link">load_swat_run</a></span><span class="op">(</span><span class="va">sim_path</span><span class="op">)</span></span></code></pre></div>
-<p>The third</p>
+<p>The third step involves preprocessing the simulation data to filter
+for relevant dates, prepare concentration values, and calculate flow
+duration curves (FDCs) if needed. The <code><a href="../reference/filter_period.html">filter_period()</a></code>
+function is used to restrict the simulation results to the defined
+periods, while the <code><a href="../reference/calc_fdc.html">calc_fdc()</a></code> function calculates the flow
+duration curves for the simulated discharges.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Extract parameter set</span></span>
 <span><span class="va">par_vals</span> <span class="op">&lt;-</span> <span class="va">sim</span><span class="op">$</span><span class="va">parameter</span><span class="op">$</span><span class="va">values</span></span>
@@ -172,26 +182,335 @@ criteria.</p>
 <div class="section level2">
 <h2 id="load-and-process-observation-data">6. Load and process observation data<a class="anchor" aria-label="anchor" href="#load-and-process-observation-data"></a>
 </h2>
+<p>Next, you need to load the observation data for discharge and, if
+required, water quality. The same filtering and preprocessing steps
+might be necessary. However, in the case of observed data, you may need
+to calculate loads from concentrations. If needed, the
+<code><a href="../reference/conc_to_load.html">conc_to_load()</a></code> function is available for this purpose.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Load and prepare observations ------------------------------------------</span></span>
+<span><span class="co"># E.g. discharge observations</span></span>
+<span><span class="va">flow_obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="va">flow_path</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/filter_period.html">filter_period</a></span><span class="op">(</span><span class="va">.</span>, <span class="va">period_q</span><span class="op">)</span></span>
+<span><span class="co"># E.g. Ntot concentration observations</span></span>
+<span><span class="va">ntot_conc_obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="va">ntot_path</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/filter_period.html">filter_period</a></span><span class="op">(</span><span class="va">.</span>, <span class="va">period_q</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># E.g. if FDC segments should be evaluated, calculate the</span></span>
+<span><span class="co"># FDC for the simulated discharges</span></span>
+<span><span class="va">flow_fdc_obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_fdc.html">calc_fdc</a></span><span class="op">(</span><span class="va">flow_obs</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># E.g. if calibration should be done with loads and not concentrations</span></span>
+<span><span class="co"># convert observed concentrations to loads</span></span>
+<span><span class="va">ntot_obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/conc_to_load.html">conc_to_load</a></span><span class="op">(</span>conc <span class="op">=</span> <span class="va">ntot_conc_obs</span>, flow <span class="op">=</span> <span class="va">flow_obs</span>,</span>
+<span>                         conc_unit <span class="op">=</span> <span class="st">'mg L-1'</span>, flow_unit <span class="op">=</span> <span class="st">'m3 s-1'</span>,</span>
+<span>                         out_unit  <span class="op">=</span> <span class="st">'kg day-1'</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="calculate-goodness-of-fit-values">7. Calculate goodness-of-fit values<a class="anchor" aria-label="anchor" href="#calculate-goodness-of-fit-values"></a>
+<h2 id="calculate-goodness-of-fit-gof-values">7. Calculate goodness-of-fit (GOF) values<a class="anchor" aria-label="anchor" href="#calculate-goodness-of-fit-gof-values"></a>
 </h2>
+<p>After loading and preprocessing the simulation and observation data,
+you can calculate various goodness-of-fit (GOF) metrics to evaluate
+model performance. The <code><a href="../reference/calc_gof.html">calc_gof()</a></code> function allows you to
+compute indices such as Nash–Sutcliffe Efficiency (NSE), Kling–Gupta
+Efficiency (KGE), percent bias (PBIAS), and many others available in the
+<a href="https://github.com/hzambran/hydroGOF" class="external-link">hydroGOF</a> package for
+both discharge and water quality data.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Calculate goodness-of-fit values ----------------------------------------</span></span>
+<span><span class="co"># E.g. to calculate typical indices such as NSE, KGE, pbias, etc. for discharge</span></span>
+<span><span class="va">gof_flow</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_gof.html">calc_gof</a></span><span class="op">(</span>sim <span class="op">=</span> <span class="va">flow_sim</span>, obs <span class="op">=</span> <span class="va">flow_obs</span>,</span>
+<span>                     funs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>nse_q <span class="op">=</span> <span class="va">NSE</span>, kge_q <span class="op">=</span> <span class="va">KGE</span>, pb_q <span class="op">=</span> <span class="va">pbias</span>,</span>
+<span>                                 mae_q <span class="op">=</span> <span class="va">mae</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Evaluating the Ratio of the Root Mean Square Error to the Standard
+Deviation of the Observed Data (RSR) for different flow conditions can
+improve hydrological model performance, as described in <span class="citation">Pfannerstill, Guse, and Fohrer (2014)</span>. This can
+be done using the <code><a href="../reference/calc_fdc_rsr.html">calc_fdc_rsr()</a></code> function, which computes
+RSR values for different segments of the flow duration curve. The
+results can be combined with other GOF metrics using the provided code
+snippet.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Calculate RSR for different discharge FDC sections </span></span>
+<span><span class="va">gof_fdc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_fdc_rsr.html">calc_fdc_rsr</a></span><span class="op">(</span>fdc_sim <span class="op">=</span> <span class="va">flow_fdc_sim</span>, fdc_obs <span class="op">=</span> <span class="va">flow_fdc_obs</span>,</span>
+<span>                        quantile_splits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">20</span>, <span class="fl">70</span>, <span class="fl">95</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Calculate goodness-of-fit for Nitrogen</span></span>
+<span><span class="va">gof_ntot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_gof.html">calc_gof</a></span><span class="op">(</span>sim <span class="op">=</span> <span class="va">ntot_sim</span>, obs <span class="op">=</span> <span class="va">ntot_obs</span>,</span>
+<span>                     funs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>nse_n <span class="op">=</span> <span class="va">NSE</span>, kge_n <span class="op">=</span> <span class="va">KGE</span>, pb_n <span class="op">=</span> <span class="va">pbias</span>,</span>
+<span>                                 mae_n <span class="op">=</span> <span class="va">mae</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># E.g. if all calculated GOF tables should be joined to one table</span></span>
+<span><span class="va">gof_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">gof_flow</span>, <span class="va">gof_fdc</span>, <span class="va">gof_ntot</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/reduce.html" class="external-link">reduce</a></span><span class="op">(</span><span class="va">.</span>, <span class="va">left_join</span>, by <span class="op">=</span> <span class="st">'run'</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="plot-evaluation-results">8. Plot evaluation results<a class="anchor" aria-label="anchor" href="#plot-evaluation-results"></a>
 </h2>
+<p>There are sevelar ways <strong>SWATtunR</strong> helps to visualize
+the results of the goodness-of-fit calculations.</p>
+<div class="section level3">
+<h3 id="parameter-identifiability">Parameter identifiability<a class="anchor" aria-label="anchor" href="#parameter-identifiability"></a>
+</h3>
+<p>A useful approach for visually analyzing the goodness-of-fit is to
+create a parameter identifiability plot using
+<code><a href="../reference/plot_parameter_identifiability.html">plot_parameter_identifiability()</a></code> function. This plot is
+prepared based on the methodology provided the article of <span class="citation">Guse et al. (2020)</span>. The plot below shows the
+ranges of parameter, which perform better for a certain performance
+metric. The <code>run_fraction</code> defines the fraction of
+simulations which should be considered in the analysis (with 1000 runs
+this value should maybe not be lower than 0.2, too large values also do
+not make much sense). For 5000 runs 0.1 would be a good value.</p>
+<p>This type of plot allows for the assessment of multiple performance
+criteria simultaneously. It is recommended to examine goodness-of-fit
+indices for different variables at the same time to identify potential
+trade-offs in parameter ranges. However, including too many indices in a
+single plot can make interpretation difficult. Therefore, it is
+advisable to select a subset of key indices for plotting.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">gof_sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">gof_all</span>, <span class="va">run</span>, <span class="va">nse_q</span>, <span class="va">pb_q</span>, <span class="va">p_0_5</span>, <span class="va">p_20_70</span>, <span class="va">p_70_95</span>, <span class="va">nse_n</span>, <span class="va">pb_n</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># It is always good to get a general overview of the summary statistics of the</span></span>
+<span><span class="co"># calculated GOF indices.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">gof_sel</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plot_parameter_identifiability.html">plot_parameter_identifiability</a></span><span class="op">(</span>parameters <span class="op">=</span> <span class="va">par_vals</span>,</span>
+<span>                               objectives <span class="op">=</span> <span class="va">gof_sel</span>,</span>
+<span>                               run_fraction <span class="op">=</span> <span class="fl">.2</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figs/fig14.png" width="95%" style="display: block; margin: auto;"></p>
+</div>
+<div class="section level3">
+<h3 id="dotty-plots">Dotty plots<a class="anchor" aria-label="anchor" href="#dotty-plots"></a>
+</h3>
+<p>Another common approach for analyzing the sensitivity of
+goodness-of-fit to parameter changes is the use of dotty plots by
+applying <code><a href="../reference/plot_dotty.html">plot_dotty()</a></code> function. These plots visualize how
+performance metrics vary with different parameter values. While a single
+dotty plot can provide insight, a comprehensive evaluation of multiple
+parameters often requires the assessment of several dotty plots to
+effectively guide updates to parameter ranges.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dotty.html">plot_dotty</a></span><span class="op">(</span>par <span class="op">=</span> <span class="va">par_vals</span>, <span class="va">gof_all</span><span class="op">$</span><span class="va">nse_q</span>,  y_label <span class="op">=</span> <span class="st">"NSE value"</span>, n_col <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figs/fig15.png" width="95%" style="display: block; margin: auto;"></p>
+<p>The <code><a href="../reference/plot_dotty.html">plot_dotty()</a></code> function is highly customizable,
+allowing assessment from different perspectives, and includes the
+following arguments:</p>
+<ul>
+<li>
+<code>par</code>: a data frame of model parameter values for each
+simulation.</li>
+<li>
+<code>var</code>: model performance result vector or list of vectors
+to be plotted against parameter values.</li>
+<li>
+<code>y_label</code>: the label or vector of labels for the y-axis.
+Default is <code>'y'</code>.</li>
+<li>
+<code>n_col</code>: number of columns in the facet grid. Default is
+<code>3</code>.</li>
+<li>
+<code>y_lim</code>: defines limits for the y-axis. Default is
+<code>NULL</code>.</li>
+<li>
+<code>y_inter</code>: Y-axis intercept value. Default is
+<code>NULL</code>.</li>
+<li>
+<code>trend</code>: logical, indicating whether to add a trend line.
+Default is <code>FALSE</code>.</li>
+<li>
+<code>run_ids</code>: a numeric vector of run IDs to be highlighted
+in the plot.</li>
+<li>
+<code>low_up</code>: logical, TRUE if the whole possible parameter
+range should be used for the x-axis. Default is <code>FALSE</code>.</li>
+</ul>
+<p>Example below shows how to use the <code><a href="../reference/plot_dotty.html">plot_dotty()</a></code> function
+to visualize the performance with multiple variables and trends
+added.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Example of usage:</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">plot_dotty</span>(<span class="at">par =</span> par_vals, </span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>           <span class="at">var =</span> <span class="fu">list</span>(gof_all<span class="sc">$</span><span class="er">$</span>flo_day_52<span class="sc">$</span>nse,</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>                      gof_all<span class="sc">$</span>no3_day_52_conc<span class="sc">$</span>nse,</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>                      gof_all<span class="sc">$</span>gwd<span class="sc">$</span>nse), </span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>           <span class="at">y_label =</span>  <span class="fu">c</span>(<span class="st">'Flow at 52r (m3/s)'</span>, </span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>                        <span class="st">"Nitrate at 52r (mgN/l)"</span>, </span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>                        <span class="st">"Groundwater depth (m)"</span>),</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>           <span class="at">trend =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p><img src="figs/dotty_m.png" width="95%" style="display: block; margin: auto;"></p>
+<p>If model performance needs to be improved—for example, if the
+parameter identifiability plot clearly indicates that certain parameter
+ranges should be adjusted—it is recommended to return to <a href="../articles/hc-par.html">step 2</a>. At this stage, update the
+parameter boundaries, run simulations using the new parameter
+combinations, and then analyze the results again using this script.</p>
+</div>
+<div class="section level3">
+<h3 id="one-at-a-time-plot">One-At-A-Time plot<a class="anchor" aria-label="anchor" href="#one-at-a-time-plot"></a>
+</h3>
+<p>To perform an OAT (One-At-A-Time) analysis could be used to visualize
+the sensitivity of the model to the parameters. The function
+<code><a href="../reference/plot_oat.html">plot_oat()</a></code> allows you to plot the results of the OAT
+analysis. It requires a parameter set around which the OAT analysis
+should be performed, as well as the boundaries for the parameters. The
+sampling of OAT us done using <code><a href="../reference/sample_oat.html">sample_oat()</a></code> function.
+<code><a href="../reference/plot_oat.html">plot_oat()</a></code> function will then generate a plot showing how
+the model performance changes when varying one parameter at a time while
+keeping others fixed.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Example of usage:</span></span>
+<span><span class="co"># If you want to perform an OAT analysis</span></span>
+<span><span class="co"># Select the parameter combination around which you want to do the OAT analysis</span></span>
+<span><span class="va">par_center_id</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
+<span></span>
+<span><span class="co"># Extract the center parameter set and assign again the "full" names to be used</span></span>
+<span><span class="co"># with SWATrunR</span></span>
+<span><span class="va">par_center</span> <span class="op">&lt;-</span> <span class="va">sim</span><span class="op">$</span><span class="va">parameter</span><span class="op">$</span><span class="va">values</span><span class="op">[</span><span class="va">par_center_id</span>, <span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://rlang.r-lib.org/reference/set_names.html" class="external-link">set_names</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">parameter</span><span class="op">$</span><span class="va">definition</span><span class="op">$</span><span class="va">full_name</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># You can define your own parameter boundaries for the selected parameters</span></span>
+<span><span class="co"># Here a way how you can quickly extract the boundaries from the last simulation</span></span>
+<span><span class="va">par_bnd</span> <span class="op">&lt;-</span> <span class="va">sim</span><span class="op">$</span><span class="va">parameter</span><span class="op">$</span><span class="va">values</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">.</span>, <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">.</span>, <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">.x</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_cols.html" class="external-link">bind_cols</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://rlang.r-lib.org/reference/set_names.html" class="external-link">set_names</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">parameter</span><span class="op">$</span><span class="va">definition</span><span class="op">$</span><span class="va">full_name</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Sample the OAT parameter set and run the simulations</span></span>
+<span><span class="va">par_oat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sample_oat.html">sample_oat</a></span><span class="op">(</span>par <span class="op">=</span> <span class="va">par_bnd</span>, par_center <span class="op">=</span> <span class="va">par_center</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">par_oat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">par_oat</span>, <span class="va">parameter</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'center'</span>, <span class="st">'bf_max.aqu | change = absval'</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">sim_oat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/run_swatplus.html" class="external-link">run_swatplus</a></span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
+<span>                        output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>                          flo_day <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/define_output.html" class="external-link">define_output</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">'channel_sd_day'</span>,</span>
+<span>                                                  variable <span class="op">=</span> <span class="st">'flo_out'</span>,</span>
+<span>                                                  unit <span class="op">=</span> <span class="va">cha_ids</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                        parameter <span class="op">=</span> <span class="va">par_oat</span><span class="op">[</span>,<span class="fl">3</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">par_oat</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>                        n_thread <span class="op">=</span> <span class="va">n_cores</span><span class="op">)</span></span>
+<span><span class="co"># save_file = 'sim_oat')</span></span>
+<span></span>
+<span><span class="co"># To visualize the OAT runs e.g. for the parameter surlag:</span></span>
+<span><span class="fu"><a href="../reference/plot_oat.html">plot_oat</a></span><span class="op">(</span>sim <span class="op">=</span> <span class="va">sim_oat</span>, obs <span class="op">=</span> <span class="va">obs</span>, variable <span class="op">=</span> <span class="st">'flo_day'</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figs/oat.png" width="95%" style="display: block; margin: auto;"></p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="rank-results-and-select-parameter-combinations">9. Rank results and select parameter combinations<a class="anchor" aria-label="anchor" href="#rank-results-and-select-parameter-combinations"></a>
 </h2>
+<p>If the model performance is acceptable, there are two approaches for
+selecting suitable parameter sets. One common method is to define
+thresholds for goodness-of-fit indices; another is to rank the model
+runs based on performance. Below are two examples for identifying an
+ensemble of acceptable parameter combinations.</p>
+<div class="section level3">
+<h3 id="ranking-based-selection">Ranking based selection<a class="anchor" aria-label="anchor" href="#ranking-based-selection"></a>
+</h3>
+<p>Ranking can be performed using two different methods available in the
+function <code><a href="../reference/rank_gof.html">rank_gof()</a></code>. The first method, specified as
+<code>type</code> = ‘rank’, uses absolute ranks based on the
+goodness-of-fit values. The second method, <code>type</code> = ‘norm’,
+uses normalized goodness-of-fit values, which accounts for differences
+in performance across the indices and provides a more balanced
+comparison.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Careful here that ranking is always done from smallest to largest value. </span></span>
+<span><span class="co"># Therefore the indices must be modified before.</span></span>
+<span><span class="va">gof_adj</span> <span class="op">&lt;-</span> <span class="va">gof_sel</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>nse_q <span class="op">=</span> <span class="op">-</span> <span class="va">nse_q</span>,</span>
+<span>         pb_q <span class="op">=</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">pb_q</span><span class="op">)</span>,</span>
+<span>         nse_n <span class="op">=</span> <span class="op">-</span> <span class="va">nse_n</span>,</span>
+<span>         pb_n <span class="op">=</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">pb_n</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">gof_rank</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rank_gof.html">rank_gof</a></span><span class="op">(</span><span class="va">gof_adj</span>, type <span class="op">=</span> <span class="st">'norm'</span><span class="op">)</span></span>
+<span><span class="co"># Here just the first 10 runs of the ranked GOF indices are selected.</span></span>
+<span><span class="va">run_sel</span> <span class="op">&lt;-</span> <span class="va">gof_rank</span><span class="op">$</span><span class="va">run</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span></span>
+<span><span class="va">run_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_to_id.html">run_to_id</a></span><span class="op">(</span><span class="va">run_sel</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="threshold-based-selection">Threshold based selection<a class="anchor" aria-label="anchor" href="#threshold-based-selection"></a>
+</h3>
+<p>Another approach is to select parameter sets based on thresholds for
+goodness-of-fit indices. This method allows for the identification of
+parameter sets that meet specific performance criteria.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Here e.g. for NSE and pbias for discharge and N loads.</span></span>
+<span><span class="va">run_sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">gof_sel</span><span class="op">$</span><span class="va">nse_q</span> <span class="op">&gt;</span> <span class="fl">0.5</span> <span class="op">&amp;</span> <span class="va">gof_sel</span><span class="op">$</span><span class="va">nse_n</span> <span class="op">&gt;</span> <span class="fl">0.7</span> <span class="op">&amp;</span></span>
+<span>                 <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">gof_sel</span><span class="op">$</span><span class="va">pb_q</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">5</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">gof_sel</span><span class="op">$</span><span class="va">pb_n</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">20</span><span class="op">)</span></span>
+<span><span class="va">run_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_to_id.html">run_to_id</a></span><span class="op">(</span><span class="va">run_sel</span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="view-simulated-time-series">10. View simulated time series<a class="anchor" aria-label="anchor" href="#view-simulated-time-series"></a>
 </h2>
+<p>Visualizing the simulated time series is an essential step in
+evaluating the strengths and weaknesses of the model simulations. This
+helps identify how well the model captures key hydrological dynamics,
+such as peak flows, low flows, and seasonal trends. It also allows for
+the detection of systematic errors or biases in the simulations.</p>
+<p>The <strong>SWATtunR</strong> package provides several interactive
+plotting functions that make it easy to explore and interpret the
+simulated data. These tools support a more detailed and intuitive
+assessment of model performance over time, especially when compared
+directly with observed data.</p>
+<div class="section level3">
+<h3 id="interactive-plotting">Interactive plotting<a class="anchor" aria-label="anchor" href="#interactive-plotting"></a>
+</h3>
+<p>The <code><a href="../reference/view_timeseries.html">view_timeseries()</a></code> function is a powerful tool for
+interactively visualizing simulated time series data. It allows users to
+zoom in and out and select specific time periods for detailed
+analysis.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">##Simple example</span></span>
+<span><span class="fu"><a href="../reference/view_timeseries.html">view_timeseries</a></span><span class="op">(</span><span class="va">flow_sim</span>, <span class="va">flow_obs</span>, run_ids <span class="op">=</span> <span class="va">run_ids</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figs/sim_ts.png" width="95%" style="display: block; margin: auto;"></p>
+</div>
+<div class="section level3">
+<h3 id="static-plotting">Static plotting<a class="anchor" aria-label="anchor" href="#static-plotting"></a>
+</h3>
+<p>The <code><a href="../reference/plot_timeseries.html">plot_timeseries()</a></code> function provides a static plot of
+the simulated time series, which is useful for generating
+publication-quality figures or for quick visual assessments.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_timeseries.html">plot_timeseries</a></span><span class="op">(</span><span class="va">flow_sim</span>, <span class="va">flow_obs</span>, run_ids <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figs/fig16.png" width="95%" style="display: block; margin: auto;"></p>
+<p>If the results are satisfactory, you can proceed to the next step of
+saving the parameters and writing the <code>calibration.cal</code> file.
+Otherwise , you may need to adjust the parameter ranges by returning to
+<a href="../articles/hc-par.html">step 2</a> and repeat the process
+until acceptable results are achieved.</p>
+</div>
 </div>
 <div class="section level2">
-<h2 id="save-parameters-andor-write-calibration-cal">11. Save parameters and/or write calibration.cal<a class="anchor" aria-label="anchor" href="#save-parameters-andor-write-calibration-cal"></a>
+<h2 id="save-parameters-andor-write-calibration-cal">11. Save parameters and/or write ‘calibration.cal’<a class="anchor" aria-label="anchor" href="#save-parameters-andor-write-calibration-cal"></a>
 </h2>
+<p>The final step is to write out the <code>calibration.cal</code> file
+with the <code><a href="../reference/write_cal_file.html">write_cal_file()</a></code> function, which could be supplied
+to the model to run already calibrated and validated model. Please don’t
+forget to check master file <a href="https://swatplus.gitbook.io/io-docs/introduction/master-file-file.cio" class="external-link"><code>file.cio</code></a>,
+if it has connection to <em>‘calibration.cal’</em> on line 22. The
+following code snippet shows how to write out the
+<em>‘calibration.cal’</em> file.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/write_cal_file.html">write_cal_file</a></span><span class="op">(</span>par <span class="op">=</span> <span class="va">par_vals</span>, </span>
+<span>               write_path <span class="op">=</span> <span class="st">'your_path'</span>,</span>
+<span>               i_run <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-guse2020" class="csl-entry">
+Guse, Björn, Jens Kiesel, Matthias Pfannerstill, and Nicola Fohrer.
+2020. <span>“<span class="nocase">Assessing parameter identifiability
+for multiple performance criteria to constrain model
+parameters</span>.”</span> <em>Hydrological Sciences Journal</em> 65
+(7): 1158–72. <a href="https://doi.org/10.1080/02626667.2020.1734204" class="external-link">https://doi.org/10.1080/02626667.2020.1734204</a>.
+</div>
+<div id="ref-pfannerstill2014" class="csl-entry">
+Pfannerstill, Matthias, Björn Guse, and Nicola Fohrer. 2014.
+<span>“Smart Low Flow Signature Metrics for an Improved Overall
+Performance Evaluation of Hydrological Models.”</span> <em>Journal of
+Hydrology</em> 510: 447–58. https://doi.org/<a href="https://doi.org/10.1016/j.jhydrol.2013.12.044" class="external-link">https://doi.org/10.1016/j.jhydrol.2013.12.044</a>.
+</div>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

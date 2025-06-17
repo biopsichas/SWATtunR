@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,15 +48,19 @@
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Introduction</h6>
+    <a class="dropdown-item" href="../articles/intro.html">Overview</a>
+    <a class="dropdown-item" href="../articles/init.html">Getting Started</a>
+    <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Soft calibration</h6>
     <a class="dropdown-item" href="../articles/sc-crops.html">Crop Yields</a>
     <a class="dropdown-item" href="../articles/sc-wy.html">Water Yield</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Hard calibration</h6>
-    <a class="dropdown-item" href="../articles/hc.html">Run calibration</a>
-    <a class="dropdown-item" href="../articles/hc-plot.html">Plot results</a>
-    <a class="dropdown-item" href="../articles/hc-plus.html">Extend calibration</a>
-    <a class="dropdown-item" href="../articles/val.html">Validation</a>
+    <a class="dropdown-item" href="../articles/hc-par.html">Parameter Definition</a>
+    <a class="dropdown-item" href="../articles/hc-out.html">Output Definition</a>
+    <a class="dropdown-item" href="../articles/hc-run.html">Performing Runs</a>
+    <a class="dropdown-item" href="../articles/hc-analyze.html">Analyzing Results</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Quality Assurance</h6>
     <a class="dropdown-item" href="../articles/qa.html">Preparation</a>
@@ -196,7 +200,7 @@ statistics?</li>
 statistics?</li>
 </ul>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">plot_climate_annual</span><span class="op">(</span><span class="va">sim_nostress</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/plot_climate_annual.html" class="external-link">plot_climate_annual</a></span><span class="op">(</span><span class="va">sim_nostress</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figs/plot_climate_annual.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 </div>
@@ -218,7 +222,7 @@ verification step can indicate problematic parametrizations of the SWAT+
 snow parameters such as <code>snofall_tmp</code> (snowfall temperature)
 and <code>snomelt_tmp</code> (snowmelt temperature).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">plot_monthly_snow</span><span class="op">(</span><span class="va">sim_nostress</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/plot_monthly_snow.html" class="external-link">plot_monthly_snow</a></span><span class="op">(</span><span class="va">sim_nostress</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figs/plot_monthly_snow.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
@@ -251,10 +255,10 @@ available. The simplified version might be good to get overview, but the
 detailed version is more important to quality assurance. Below are two
 plots.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">plot_waterbalance</span><span class="op">(</span><span class="va">sim_nostress</span>, simplified <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/plot_waterbalance.html" class="external-link">plot_waterbalance</a></span><span class="op">(</span><span class="va">sim_nostress</span>, simplified <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figs/plot_waterbalance_s.png" width="100%" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">plot_waterbalance</span><span class="op">(</span><span class="va">sim_nostress</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/plot_waterbalance.html" class="external-link">plot_waterbalance</a></span><span class="op">(</span><span class="va">sim_nostress</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figs/plot_waterbalance.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
@@ -277,7 +281,7 @@ below they were ignored in the checks.
 begin with the letter ‘u’ (in this case urban land uses) and all wetland
 land uses (begin with ‘wet’) were ignored.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">hru_wb_check</span> <span class="op">&lt;-</span> <span class="fu">check_hru_waterbalance</span><span class="op">(</span><span class="va">sim_nostress</span>, </span>
+<code class="sourceCode R"><span><span class="va">hru_wb_check</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/check_hru_waterbalance.html" class="external-link">check_hru_waterbalance</a></span><span class="op">(</span><span class="va">sim_nostress</span>, </span>
 <span>                                       check <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'et'</span>, <span class="st">'sw'</span>, <span class="st">'cn'</span><span class="op">)</span>,</span>
 <span>                                       ignore_lum <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'^u'</span>, <span class="st">'^wet'</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">rmarkdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/paged_table.html" class="external-link">paged_table</a></span><span class="op">(</span><span class="va">hru_wb_check</span><span class="op">)</span></span></code></pre></div>
@@ -296,7 +300,7 @@ land uses (begin with ‘wet’) were ignored.</p>
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Svajunas Plunge, Christoph Schuerz, Michel Strauch, Mikołaj Piniewski.</p>
+<p>Developed by Svajunas Plunge, Christoph Schuerz, Michael Strauch, Mikołaj Piniewski.</p>
 </div>
 
 <div class="pkgdown-footer-right">

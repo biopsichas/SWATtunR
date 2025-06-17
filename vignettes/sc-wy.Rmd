@@ -252,7 +252,7 @@ plot_phu_yld_bms(check_sim, yield_obs, 0.3)
 ```
 
 ```{r sc_wy61, echo=FALSE, out.width='95%', fig.align='center'}
-knitr::include_graphics('figs/fig10.png')
+knitr::include_graphics('figs/fig12.png')
 ```
 
 If everything looks good, the final water yield ratio from the model results should also be checked using the `calc_wyr()` function.

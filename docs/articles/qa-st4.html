@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,15 +48,19 @@
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Introduction</h6>
+    <a class="dropdown-item" href="../articles/intro.html">Overview</a>
+    <a class="dropdown-item" href="../articles/init.html">Getting Started</a>
+    <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Soft calibration</h6>
     <a class="dropdown-item" href="../articles/sc-crops.html">Crop Yields</a>
     <a class="dropdown-item" href="../articles/sc-wy.html">Water Yield</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Hard calibration</h6>
-    <a class="dropdown-item" href="../articles/hc.html">Run calibration</a>
-    <a class="dropdown-item" href="../articles/hc-plot.html">Plot results</a>
-    <a class="dropdown-item" href="../articles/hc-plus.html">Extend calibration</a>
-    <a class="dropdown-item" href="../articles/val.html">Validation</a>
+    <a class="dropdown-item" href="../articles/hc-par.html">Parameter Definition</a>
+    <a class="dropdown-item" href="../articles/hc-out.html">Output Definition</a>
+    <a class="dropdown-item" href="../articles/hc-run.html">Performing Runs</a>
+    <a class="dropdown-item" href="../articles/hc-analyze.html">Analyzing Results</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Quality Assurance</h6>
     <a class="dropdown-item" href="../articles/qa.html">Preparation</a>
@@ -121,17 +125,17 @@ the simulations and extract the required simulation outputs. Below the
 simulations are performed and saved for only external stress factors
 active (excluding nutrient stress factors).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sim_extstress</span> <span class="op">&lt;-</span> <span class="fu">run_swat_verification</span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
+<code class="sourceCode R"><span><span class="va">sim_extstress</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/run_swat_verification.html" class="external-link">run_swat_verification</a></span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
 <span>                                        outputs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'wb'</span>, <span class="st">'mgt'</span>, <span class="st">'plt'</span><span class="op">)</span>,</span>
 <span>                                        years_skip <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>                                        nostress <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">file_version</span> <span class="op">&lt;-</span> <span class="fu">get_file_version</span><span class="op">(</span><span class="va">parent_dir</span>, <span class="va">save_name</span>, <span class="st">'_extstr_'</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span></span>
+<span><span class="va">file_version</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/get_file_version.html" class="external-link">get_file_version</a></span><span class="op">(</span><span class="va">parent_dir</span>, <span class="va">save_name</span>, <span class="st">'_extstr_'</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">sim_extstress</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">parent_dir</span>,<span class="st">'/'</span>, </span>
 <span>                                     <span class="va">save_name</span>, <span class="st">'_extstr_'</span>, </span>
 <span>                                     <span class="va">file_version</span>,<span class="st">'.rds'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">file_version</span> <span class="op">&lt;-</span> <span class="fu">get_file_version</span><span class="op">(</span><span class="va">parent_dir</span>, <span class="va">save_name</span>, <span class="st">'_extstr_'</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">file_version</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/get_file_version.html" class="external-link">get_file_version</a></span><span class="op">(</span><span class="va">parent_dir</span>, <span class="va">save_name</span>, <span class="st">'_extstr_'</span><span class="op">)</span></span>
 <span><span class="va">sim_extstress</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">parent_dir</span>,<span class="st">'/'</span>, </span>
 <span>                                       <span class="va">save_name</span>, <span class="st">'_extstr_'</span>, </span>
 <span>                                       <span class="va">file_version</span>,<span class="st">'.rds'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -139,17 +143,17 @@ active (excluding nutrient stress factors).</p>
 activated, for a comparison of yield declines due to the simulated
 stress factors.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sim_allstress</span> <span class="op">&lt;-</span> <span class="fu">run_swat_verification</span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
+<code class="sourceCode R"><span><span class="va">sim_allstress</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/run_swat_verification.html" class="external-link">run_swat_verification</a></span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
 <span>                                       outputs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'wb'</span>, <span class="st">'mgt'</span>, <span class="st">'plt'</span><span class="op">)</span>,</span>
 <span>                                       years_skip <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>                                       nostress <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">file_version</span> <span class="op">&lt;-</span> <span class="fu">get_file_version</span><span class="op">(</span><span class="va">parent_dir</span>, <span class="va">save_name</span>, <span class="st">'_allstr_'</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span></span>
+<span><span class="va">file_version</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/get_file_version.html" class="external-link">get_file_version</a></span><span class="op">(</span><span class="va">parent_dir</span>, <span class="va">save_name</span>, <span class="st">'_allstr_'</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">sim_allstress</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">parent_dir</span>,<span class="st">'/'</span>, </span>
 <span>                                     <span class="va">save_name</span>, <span class="st">'_allstr_'</span>, </span>
 <span>                                     <span class="va">file_version</span>,<span class="st">'.rds'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">file_version</span> <span class="op">&lt;-</span> <span class="fu">get_file_version</span><span class="op">(</span><span class="va">parent_dir</span>, <span class="va">save_name</span>, <span class="st">'_allstr_'</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">file_version</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/get_file_version.html" class="external-link">get_file_version</a></span><span class="op">(</span><span class="va">parent_dir</span>, <span class="va">save_name</span>, <span class="st">'_allstr_'</span><span class="op">)</span></span>
 <span><span class="va">sim_allstress</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">parent_dir</span>,<span class="st">'/'</span>, </span>
 <span>                                       <span class="va">save_name</span>, <span class="st">'_allstr_'</span>, </span>
 <span>                                       <span class="va">file_version</span>,<span class="st">'.rds'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -190,7 +194,7 @@ in the management schedules.</p></li>
 <code class="sourceCode R"><span><span class="va">sim_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>no_stress  <span class="op">=</span> <span class="va">sim_nostress</span>, </span>
 <span>                 ext_stress <span class="op">=</span> <span class="va">sim_extstress</span>, </span>
 <span>                 all_stress <span class="op">=</span> <span class="va">sim_allstress</span><span class="op">)</span></span>
-<span><span class="fu">plot_variable_at_harvkill</span><span class="op">(</span><span class="va">sim_list</span>, variable <span class="op">=</span> <span class="st">'yield'</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/plot_variable_at_harvkill.html" class="external-link">plot_variable_at_harvkill</a></span><span class="op">(</span><span class="va">sim_list</span>, variable <span class="op">=</span> <span class="st">'yield'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figs/plot_all_yield.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
@@ -201,7 +205,7 @@ in the management schedules.</p></li>
 the simulated stresses when all stress factors are active. The plotted
 results should be checked with the short check list above.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">plot_variable_at_harvkill</span><span class="op">(</span><span class="va">sim_allstress</span>, variable <span class="op">=</span> <span class="st">'stress'</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/plot_variable_at_harvkill.html" class="external-link">plot_variable_at_harvkill</a></span><span class="op">(</span><span class="va">sim_allstress</span>, variable <span class="op">=</span> <span class="st">'stress'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figs/plot_allstress.png" width="100%" style="display: block; margin: auto;"></p>
 <p>To continue the analysis, please proceed to <a href="../articles/qa-st5.html">step 5</a>.</p>
 </div>
@@ -213,7 +217,7 @@ results should be checked with the short check list above.</p>
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Svajunas Plunge, Christoph Schuerz, Michel Strauch, Mikołaj Piniewski.</p>
+<p>Developed by Svajunas Plunge, Christoph Schuerz, Michael Strauch, Mikołaj Piniewski.</p>
 </div>
 
 <div class="pkgdown-footer-right">

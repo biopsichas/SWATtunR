@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,15 +48,19 @@
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Introduction</h6>
+    <a class="dropdown-item" href="../articles/intro.html">Overview</a>
+    <a class="dropdown-item" href="../articles/init.html">Getting Started</a>
+    <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Soft calibration</h6>
     <a class="dropdown-item" href="../articles/sc-crops.html">Crop Yields</a>
     <a class="dropdown-item" href="../articles/sc-wy.html">Water Yield</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Hard calibration</h6>
-    <a class="dropdown-item" href="../articles/hc.html">Run calibration</a>
-    <a class="dropdown-item" href="../articles/hc-plot.html">Plot results</a>
-    <a class="dropdown-item" href="../articles/hc-plus.html">Extend calibration</a>
-    <a class="dropdown-item" href="../articles/val.html">Validation</a>
+    <a class="dropdown-item" href="../articles/hc-par.html">Parameter Definition</a>
+    <a class="dropdown-item" href="../articles/hc-out.html">Output Definition</a>
+    <a class="dropdown-item" href="../articles/hc-run.html">Performing Runs</a>
+    <a class="dropdown-item" href="../articles/hc-analyze.html">Analyzing Results</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Quality Assurance</h6>
     <a class="dropdown-item" href="../articles/qa.html">Preparation</a>
@@ -122,7 +126,7 @@ specific analyses in this step can be performed with the function
 stresses were really deactivated in the simulations (The figure should
 show all 0 values):</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">plot_variable_at_harvkill</span><span class="op">(</span><span class="va">sim_nostress</span>, variable <span class="op">=</span> <span class="st">'stress'</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/plot_variable_at_harvkill.html" class="external-link">plot_variable_at_harvkill</a></span><span class="op">(</span><span class="va">sim_nostress</span>, variable <span class="op">=</span> <span class="st">'stress'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figs/plot_stress.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
@@ -137,7 +141,7 @@ Crops which show many values smaller than 1 must be further analyzed.
 But also values much larger than 1 must be treated as implausible and
 require to perform further analyses.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">plot_variable_at_harvkill</span><span class="op">(</span><span class="va">sim_nostress</span>, variable <span class="op">=</span> <span class="st">'phu'</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/plot_variable_at_harvkill.html" class="external-link">plot_variable_at_harvkill</a></span><span class="op">(</span><span class="va">sim_nostress</span>, variable <span class="op">=</span> <span class="st">'phu'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figs/plot_phu.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
@@ -149,7 +153,7 @@ larger than region specific literature values, but should not be much
 lower than literature values. Otherwise this indicates a potential issue
 with the development of the respective crop:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">plot_variable_at_harvkill</span><span class="op">(</span><span class="va">sim_nostress</span>, variable <span class="op">=</span> <span class="st">'yield'</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/plot_variable_at_harvkill.html" class="external-link">plot_variable_at_harvkill</a></span><span class="op">(</span><span class="va">sim_nostress</span>, variable <span class="op">=</span> <span class="st">'yield'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figs/plot_yield.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
@@ -168,7 +172,7 @@ or multiple <code>crop</code>, <code>phu</code>,
 <code>n_stress</code> and <code>p_stress</code> variables. The example
 below filters HRUs with large PHU values at harvest kill.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">high_phu</span> <span class="op">&lt;-</span> <span class="fu">filter_hru_at_harvkill</span><span class="op">(</span><span class="va">sim_nostress</span>, <span class="va">phu</span> <span class="op">&gt;</span> <span class="fl">1.86</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">high_phu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/filter_hru_at_harvkill.html" class="external-link">filter_hru_at_harvkill</a></span><span class="op">(</span><span class="va">sim_nostress</span>, <span class="va">phu</span> <span class="op">&gt;</span> <span class="fl">1.86</span><span class="op">)</span></span>
 <span><span class="va">high_phu</span></span></code></pre></div>
 <pre><code><span><span class="co">##    hru       date crop      phu plant_bioms    yield water_stress aero_stress</span></span>
 <span><span class="co">## 1 2679 2018-10-15 sgbt 1.863293    25277.69 16809.66            0           0</span></span>
@@ -184,7 +188,7 @@ this example high PHU values were found for sugar beets, but ofor the
 HRU #2679, #4602 and #6313. Below the function plots the LAI and the bio
 mass development for crops on this HRU over several years.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">plot_hru_pw_day</span><span class="op">(</span><span class="va">sim_nostress</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/plot_hru_pw_day.html" class="external-link">plot_hru_pw_day</a></span><span class="op">(</span><span class="va">sim_nostress</span>, </span>
 <span>                hru_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2679</span>, <span class="fl">4602</span>, <span class="fl">6313</span><span class="op">)</span>, </span>
 <span>                var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'lai'</span>, <span class="st">'bioms'</span><span class="op">)</span>, </span>
 <span>                years <span class="op">=</span> <span class="fl">2012</span><span class="op">:</span><span class="fl">2020</span>, </span>
@@ -200,7 +204,7 @@ mass development for crops on this HRU over several years.</p>
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Svajunas Plunge, Christoph Schuerz, Michel Strauch, Mikołaj Piniewski.</p>
+<p>Developed by Svajunas Plunge, Christoph Schuerz, Michael Strauch, Mikołaj Piniewski.</p>
 </div>
 
 <div class="pkgdown-footer-right">

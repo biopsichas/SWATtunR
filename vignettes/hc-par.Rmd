@@ -47,7 +47,7 @@ n_combinations <- 1000
 model_path <- 'test/swatplus_rev60_demo'
 ```
 
-# 2. Define parameters
+# 2. Define parameters {#hc_step2}
 
 The following section provides a suggested list and range of SWAT+ parameters for calibrating different output variables. Parameters are roughly grouped according to the processes they most strongly influence. Some of these parameter groups are optional and may be included or excluded depending on the specific objectives of the calibration.
 
