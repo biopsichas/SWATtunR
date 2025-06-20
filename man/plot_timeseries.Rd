@@ -126,3 +126,4 @@ A ggplot object of the plotted time series.
 \description{
 \code{plot_timeseries()} plots a time series comparing simulated data with observed data.
 }
+\keyword{plot}

@@ -1017,7 +1017,7 @@ view_timeseries <- function(sim, obs = NULL, run_ids = NULL, run_sel = NULL, plo
 #' @returns A ggplot object of the plotted time series.
 #'
 #' @export
-#'
+#' @keywords plot
 plot_timeseries <- function(sim, obs = NULL, run_sel = NULL, run_ids = NULL,
                             plot_bands = TRUE, sim_pointshape = 1, obs_pointshape = 1,
                             sim_linetype = 'solid', obs_linetype = 'dotted',
@@ -1190,3 +1190,179 @@ plot_timeseries <- function(sim, obs = NULL, run_sel = NULL, run_ids = NULL,
 
   return(gg_plt)
 }
+
+#' Plot Flow Duration Curve (FDC) for Observed and Simulated Data
+#'
+#' This function computes and plots the Flow Duration Curve (FDC) for observed
+#' and simulated discharge data.
+#' If multiple simulations are provided, a shaded band (min–max) and median line are shown.
+#' If only one simulation is provided, a single line is plotted.
+#'
+#' @param sim A data frame or matrix of simulated discharge time series.
+#' Columns are assumed to represent different simulation runs, and one column
+#' should be named "date" for the date/time information.
+#' If only one simulation is provided, it will be plotted as a single line.
+#' @param obs A data frame with two columns: "date" and "discharge", where "date"
+#' contains the date/time information and "discharge" contains the observed discharge values.
+#' @param run_ids Optional. A character, numeric or a vector of character strings
+#' specifying which simulation run IDs to include (e.g., \code{c("0001", "0002")}).
+#' Matching is done by name, so exact character matching is recommended.
+#' @param scale_log Logical. If \code{TRUE} (default), a log-10 transformation
+#' is applied to the y-axis.
+#' @param x_label Label for the x-axis. Defaults to "Exceedance Probability (%)".
+#' @param y_label Label for the y-axis. Defaults to "Discharge (log scale)".
+#' @param title Plot title. Defaults to "Flow Duration Curve: Observed vs Simulated".
+#'
+#' @return A \code{ggplot} object showing the flow duration curve with observed and simulated data.
+#'
+#' @importFrom ggplot2 ggplot aes geom_line geom_ribbon geom_point scale_color_manual
+#' scale_fill_manual theme_minimal theme labs element_blank scale_y_log10
+#' @importFrom dplyr group_by %>% summarise bind_rows
+#' @importFrom tidyr pivot_longer
+#' @importFrom stats median
+#' @export
+#' @examples
+#' \dontrun{
+#' # Example with simulated and observed time series
+#' plot_fdc(sim = sim_data, obs = obs_data, run_ids = c("0001", "0002"))
+#' }
+#' @keywords plot
+#' @seealso \code{\link{calc_fdc}}
+
+plot_fdc <- function(sim, obs, run_ids = NULL, scale_log = TRUE,
+                     x_label = "Exceedance Probability (%)",
+                     y_label = "Discharge (log scale)",
+                     title = "Flow Duration Curve: Observed vs Simulated"){
+  # Compute FDCs
+  fdc_obs <- calc_fdc(obs)
+  fdc_sim <- calc_fdc(sim)
+  if (!is.null(run_ids)) {
+    fdc_sim <- fdc_sim[,grep(paste(c("p", run_ids), collapse = "|"), names(fdc_sim))]
+    if(length(run_ids) != dim(fdc_sim)[2]-1){
+      warning("Number of run_ids does not match number of selected simulated runs.
+  This is likely because the run_ids match multible runs. If you don't want this, please update run_ids to specify the correct runs using character strings of run IDs.
+  For instance, run_ids = 1 should be run_ids = '0001'")
+    }
+  }
+  if(dim(fdc_sim)[2] > 2){
+    # Compute bounds for simulated data (e.g., min and max)
+    fdc_sim_bounds <- fdc_sim %>%
+      pivot_longer(cols = -p, values_to = "discharge") %>%
+      group_by(p) %>%
+      summarise(
+        sim_min = min(discharge, na.rm = TRUE),
+        sim_max = max(discharge, na.rm = TRUE),
+        sim_median = median(discharge, na.rm = TRUE)
+      )
+    # Plot
+    fig <- ggplot() +
+      # Ribbon for min-max bound
+      geom_ribbon(data = fdc_sim_bounds, aes(x = p, ymin = sim_min, ymax = sim_max, fill = "Simulated range"), alpha = 0.3) +
+      # Median line
+      geom_line(data = fdc_sim_bounds, aes(x = p, y = sim_median, color = "Simulated median"), linewidth = 1) +
+      # Observed line
+      geom_line(data = fdc_obs, aes(x = p, y = discharge, color = "Observed"), linewidth = 1.2) +
+      scale_color_manual(values = c("Simulated median" = "#00bfc4", "Observed" = "red")) +
+      scale_fill_manual(values = c("Simulated range" = "grey40")) +
+      theme_minimal() +
+      labs(title = title, x = x_label, y = y_label, color = NULL, fill = NULL)
+  } else {
+    colnames(fdc_sim) <- c("p", "discharge")
+    fdc_obs$type <- "Observed"
+    fdc_sim$type <- "Simulated"
+    # Combine for plotting
+    fdc_combined <- bind_rows(fdc_obs, fdc_sim)
+    # Plotting
+    fig <- ggplot(fdc_combined, aes(x = p, y = discharge, color = type)) +
+      geom_line(size = 1) +
+      theme_minimal() +
+      labs(title = title, x = x_label, y = y_label) +
+      theme(legend.title = element_blank())
+  }
+  if (scale_log) {
+    fig <- fig + scale_y_log10()
+  }
+  return(fig)
+}
+
+#' Plot Precipitation vs. Runoff
+#'
+#' Creates a dual-axis plot comparing precipitation and runoff over time.
+#'
+#' @param pcp_file Character string specifying the path to the precipitation data file.
+#' The file should contain columns: year (integer), yday (integer), pcp (numeric, in mm).
+#' @param flow Data frame with at least two columns: `date` (Date) and `discharge` (numeric, in m³/s).
+#' @param x_label Character string for x-axis label. Defaults to "Date".
+#' @param y_left Character string for left y-axis label (runoff). Defaults to "Runoff (m³/s)".
+#' @param y_right Character string for right y-axis label (precipitation). Defaults to "Precipitation (mm)".
+#' @param title Character string for plot title. Defaults to "Precipitation and Runoff".
+#' @return A ggplot2 object representing the dual-axis plot.
+#' @importFrom readr read_table
+#' @importFrom dplyr mutate select filter left_join
+#' @importFrom ggplot2 ggplot aes geom_line geom_area scale_y_continuous sec_axis
+#'   scale_colour_manual scale_fill_manual labs theme_minimal theme
+#' @examples
+#' \dontrun{
+#' pcp_file_path <- "path/to/my_station.pcp"
+#' flow_data <- data.frame(date = as.Date("2023-01-01") + 0:364, discharge = runif(365, 0, 100))
+#' plot_pcp_vs_flow(pcp_file_path, flow_data)
+#' }
+#' @export
+#' @keywords plot
+
+plot_pcp_vs_flow <- function(pcp_file, flow,
+                             x_label  = "Date",
+                             y_left   = "Runoff (m3/s)",
+                             y_right  = "Precipitation (mm)",
+                             title    = "Precipitation and Runoff"){
+
+  ## Read and prepare precipitation data
+  pcp <- suppressWarnings(read_table(pcp, skip = 3,     # Skip all non-data lines
+                                     col_names = c("year", "yday", "pcp"),
+                                     col_types = "iid")) %>%
+    mutate(date = as.Date(yday - 1, origin = paste0(year, "-01-01"))) %>%
+    select(date, pcp)
+
+  ## Join and clean
+  df <- pcp %>%
+    filter(date >= min(flow$date) & date <= max(flow$date)) %>%
+    left_join(flow, by = "date") %>%
+    select(date, pcp, discharge)
+
+  ## Build scaling constants
+  max_Q   <- max(df$discharge, na.rm = TRUE)            # peak runoff
+  max_P   <- max(df$pcp,       na.rm = TRUE)            # peak rainfall
+  df$pcp_scaled <- max_Q - (df$pcp / max_P) * max_Q     # 0 mm == top
+
+  ## Plotting
+  ggplot(df, aes(date)) +
+    geom_line(
+      aes(y = pcp_scaled, colour = "Rainfall"), size = .45
+    ) +
+    geom_line(
+      aes(y = discharge, colour = "Runoff"), size = .45
+    ) +
+    geom_area(aes(y = discharge,  fill = "Runoff"), alpha = 0.3, show.legend = FALSE) +
+    scale_y_continuous(
+      name      = y_left,
+      limits    = c(0, max_Q * 1.05),
+      sec.axis  = sec_axis(
+        trans = ~ (max_Q - .) * max_P / max_Q,  # invert the trick
+        name  = y_right
+      )
+    ) +
+    scale_colour_manual(values = c(Runoff  = "blue", Rainfall = "forestgreen")) +
+    scale_fill_manual(values  = c(Runoff = "blue"))+
+    labs(title = title, x = x_label) +
+    theme_minimal() +
+    theme(
+      legend.position = c(0.9, 0.4),
+      legend.title = element_blank(),
+      axis.title.y.left    = element_text(colour = "blue",  face = "bold"),
+      axis.text.y.left     = element_text(colour = "blue"),
+      axis.title.y.right   = element_text(colour = "forestgreen", face = "bold"),
+      axis.text.y.right    = element_text(colour = "forestgreen"),
+      plot.title           = element_text(hjust = .5, face = "bold")
+    )
+}
+

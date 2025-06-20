@@ -5,4 +5,6 @@ utils::globalVariables(c(".", "hru", "plant_name", "name", "value", "yield_mean"
                          "xmax", "xmin", "center", "metric", "type", "file_code",
                          "file_name", "full_name", "change", "dummy", "par_name",
                          ".SD", "days_mat", "epco", "esco", "gof", "grp", "lwr",
-                         "upr", "wyr", "yield", "yield_max", "yield_min"))
+                         "upr", "wyr", "yield", "yield_max", "yield_min",
+                         "discharge", "sim_min", "sim_max", "sim_median",
+                         "pcp_scaled"))

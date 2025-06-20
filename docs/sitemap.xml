@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
     <loc>/articles/hc-plot.html</loc>
   </url>
   <url>
@@ -16,7 +10,31 @@
     <loc>/articles/hc.html</loc>
   </url>
   <url>
+    <loc>/articles/soft-cal.html</loc>
+  </url>
+  <url>
+    <loc>/articles/val.html</loc>
+  </url>
+  <url>
+    <loc>/articles/hc-analyze.html</loc>
+  </url>
+  <url>
+    <loc>/articles/hc-out.html</loc>
+  </url>
+  <url>
+    <loc>/articles/hc-par.html</loc>
+  </url>
+  <url>
+    <loc>/articles/hc-run.html</loc>
+  </url>
+  <url>
     <loc>/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>/articles/init.html</loc>
+  </url>
+  <url>
+    <loc>/articles/intro.html</loc>
   </url>
   <url>
     <loc>/articles/qa-st1.html</loc>
@@ -43,37 +61,43 @@
     <loc>/articles/sc-wy.html</loc>
   </url>
   <url>
-    <loc>/articles/soft-cal.html</loc>
-  </url>
-  <url>
-    <loc>/articles/val.html</loc>
-  </url>
-  <url>
-    <loc>/articles/intro.html</loc>
-  </url>
-  <url>
-    <loc>/articles/init.html</loc>
-  </url>
-  <url>
-    <loc>/articles/hc-par.html</loc>
-  </url>
-  <url>
-    <loc>/articles/hc-out.html</loc>
-  </url>
-  <url>
-    <loc>/articles/hc-run.html</loc>
-  </url>
-  <url>
-    <loc>/articles/hc-analyze.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
     <loc>/news/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/aggregate_aa.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calculate_performance.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calculate_performance_2plus.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calculate_wyr.html</loc>
+  </url>
+  <url>
+    <loc>/reference/fix_dates.html</loc>
+  </url>
+  <url>
+    <loc>/reference/get_conc.html</loc>
+  </url>
+  <url>
+    <loc>/reference/hello.html</loc>
+  </url>
+  <url>
+    <loc>/reference/id_text_strings.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_calval_comparison.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_esco_range.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_selected_sim.html</loc>
+  </url>
+  <url>
+    <loc>/reference/write_tbl.html</loc>
   </url>
   <url>
     <loc>/reference/add_obj.html</loc>
@@ -85,10 +109,13 @@
     <loc>/reference/add_suffix_to_duplicate.html</loc>
   </url>
   <url>
+    <loc>/reference/add_timestamp.html</loc>
+  </url>
+  <url>
     <loc>/reference/add_value_range.html</loc>
   </url>
   <url>
-    <loc>/reference/aggregate_aa.html</loc>
+    <loc>/reference/aggregate_time.html</loc>
   </url>
   <url>
     <loc>/reference/build_constraint_tbl.html</loc>
@@ -97,22 +124,37 @@
     <loc>/reference/build_expression.html</loc>
   </url>
   <url>
+    <loc>/reference/build_unit_string.html</loc>
+  </url>
+  <url>
     <loc>/reference/calc_fdc.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calc_fdc_i.html</loc>
   </url>
   <url>
     <loc>/reference/calc_fdc_rsr.html</loc>
   </url>
   <url>
+    <loc>/reference/calc_gof.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calc_gof_i.html</loc>
+  </url>
+  <url>
     <loc>/reference/calc_segment_diff.html</loc>
   </url>
   <url>
-    <loc>/reference/calculate_performance.html</loc>
+    <loc>/reference/calc_wyr.html</loc>
   </url>
   <url>
-    <loc>/reference/calculate_performance_2plus.html</loc>
+    <loc>/reference/check_date_col.html</loc>
   </url>
   <url>
-    <loc>/reference/calculate_wyr.html</loc>
+    <loc>/reference/check_point_shape.html</loc>
+  </url>
+  <url>
+    <loc>/reference/conc_to_load.html</loc>
   </url>
   <url>
     <loc>/reference/copy_file_version.html</loc>
@@ -127,16 +169,13 @@
     <loc>/reference/evaluate_expression.html</loc>
   </url>
   <url>
+    <loc>/reference/filter_period.html</loc>
+  </url>
+  <url>
     <loc>/reference/find_par_range.html</loc>
   </url>
   <url>
-    <loc>/reference/fix_dates.html</loc>
-  </url>
-  <url>
     <loc>/reference/format_swatplus_parameter.html</loc>
-  </url>
-  <url>
-    <loc>/reference/get_conc.html</loc>
   </url>
   <url>
     <loc>/reference/get_sol_texture.html</loc>
@@ -163,13 +202,19 @@
     <loc>/reference/grapes-slash-slash-grapes.html</loc>
   </url>
   <url>
+    <loc>/reference/group_hydr_values.html</loc>
+  </url>
+  <url>
     <loc>/reference/group_values.html</loc>
   </url>
   <url>
-    <loc>/reference/hello.html</loc>
+    <loc>/reference/guess_time_step.html</loc>
   </url>
   <url>
-    <loc>/reference/id_text_strings.html</loc>
+    <loc>/reference/id_to_run.html</loc>
+  </url>
+  <url>
+    <loc>/reference/id_to_unit.html</loc>
   </url>
   <url>
     <loc>/reference/identify_sequence.html</loc>
@@ -181,10 +226,19 @@
     <loc>/reference/init_cal.html</loc>
   </url>
   <url>
-    <loc>/reference/paste_runs.html</loc>
+    <loc>/reference/initialize_hardcal.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_calval_comparison.html</loc>
+    <loc>/reference/initialize_softcal.html</loc>
+  </url>
+  <url>
+    <loc>/reference/load_to_conc.html</loc>
+  </url>
+  <url>
+    <loc>/reference/normalize.html</loc>
+  </url>
+  <url>
+    <loc>/reference/paste_runs.html</loc>
   </url>
   <url>
     <loc>/reference/plot_dotty.html</loc>
@@ -193,7 +247,10 @@
     <loc>/reference/plot_dotty_yields.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_esco_range.html</loc>
+    <loc>/reference/plot_esco_epco.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_gof.html</loc>
   </url>
   <url>
     <loc>/reference/plot_oat.html</loc>
@@ -205,7 +262,13 @@
     <loc>/reference/plot_phu_yld_bms.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_selected_sim.html</loc>
+    <loc>/reference/plot_timeseries.html</loc>
+  </url>
+  <url>
+    <loc>/reference/prepare_plant_parameter.html</loc>
+  </url>
+  <url>
+    <loc>/reference/rank_gof.html</loc>
   </url>
   <url>
     <loc>/reference/read_tbl.html</loc>
@@ -229,6 +292,12 @@
     <loc>/reference/rsr_df.html</loc>
   </url>
   <url>
+    <loc>/reference/run_to_id.html</loc>
+  </url>
+  <url>
+    <loc>/reference/sample_days_mat.html</loc>
+  </url>
+  <url>
     <loc>/reference/sample_lhs.html</loc>
   </url>
   <url>
@@ -241,6 +310,9 @@
     <loc>/reference/setup_calibration_cal.html</loc>
   </url>
   <url>
+    <loc>/reference/sum_variables.html</loc>
+  </url>
+  <url>
     <loc>/reference/tidy_constraint.html</loc>
   </url>
   <url>
@@ -248,6 +320,9 @@
   </url>
   <url>
     <loc>/reference/translate_sequence.html</loc>
+  </url>
+  <url>
+    <loc>/reference/translate_to_boundaries.html</loc>
   </url>
   <url>
     <loc>/reference/truncate.html</loc>
@@ -259,99 +334,30 @@
     <loc>/reference/update_plant_par.html</loc>
   </url>
   <url>
+    <loc>/reference/view_timeseries.html</loc>
+  </url>
+  <url>
     <loc>/reference/write_cal_file.html</loc>
   </url>
   <url>
     <loc>/reference/write_calibration.html</loc>
   </url>
   <url>
-    <loc>/reference/write_tbl.html</loc>
+    <loc>/reference/plot_fdc.html</loc>
   </url>
   <url>
-    <loc>/reference/aggregate_time.html</loc>
+    <loc>/reference/plot_pcp_vs_flow.html</loc>
   </url>
   <url>
-    <loc>/reference/build_unit_string.html</loc>
+    <loc>/404.html</loc>
   </url>
   <url>
-    <loc>/reference/calc_fdc_i.html</loc>
+    <loc>/LICENSE-text.html</loc>
   </url>
   <url>
-    <loc>/reference/calc_gof.html</loc>
+    <loc>/authors.html</loc>
   </url>
   <url>
-    <loc>/reference/calc_gof_i.html</loc>
-  </url>
-  <url>
-    <loc>/reference/check_date_col.html</loc>
-  </url>
-  <url>
-    <loc>/reference/check_point_shape.html</loc>
-  </url>
-  <url>
-    <loc>/reference/conc_to_load.html</loc>
-  </url>
-  <url>
-    <loc>/reference/filter_period.html</loc>
-  </url>
-  <url>
-    <loc>/reference/group_hydr_values.html</loc>
-  </url>
-  <url>
-    <loc>/reference/guess_time_step.html</loc>
-  </url>
-  <url>
-    <loc>/reference/id_to_run.html</loc>
-  </url>
-  <url>
-    <loc>/reference/id_to_unit.html</loc>
-  </url>
-  <url>
-    <loc>/reference/initialize_softcal.html</loc>
-  </url>
-  <url>
-    <loc>/reference/load_to_conc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/normalize.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_gof.html</loc>
-  </url>
-  <url>
-    <loc>/reference/prepare_plant_parameter.html</loc>
-  </url>
-  <url>
-    <loc>/reference/rank_gof.html</loc>
-  </url>
-  <url>
-    <loc>/reference/run_to_id.html</loc>
-  </url>
-  <url>
-    <loc>/reference/sample_days_mat.html</loc>
-  </url>
-  <url>
-    <loc>/reference/sum_variables.html</loc>
-  </url>
-  <url>
-    <loc>/reference/translate_to_boundaries.html</loc>
-  </url>
-  <url>
-    <loc>/reference/add_timestamp.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_wyr.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_esco_epco.html</loc>
-  </url>
-  <url>
-    <loc>/reference/initialize_hardcal.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_timeseries.html</loc>
-  </url>
-  <url>
-    <loc>/reference/view_timeseries.html</loc>
+    <loc>/index.html</loc>
   </url>
 </urlset>
