@@ -1317,7 +1317,7 @@ plot_pcp_vs_flow <- function(pcp_file, flow,
                              title    = "Precipitation and Runoff"){
 
   ## Read and prepare precipitation data
-  pcp <- suppressWarnings(read_table(pcp, skip = 3,     # Skip all non-data lines
+  pcp <- suppressWarnings(read_table(pcp_file, skip = 3,     # Skip all non-data lines
                                      col_names = c("year", "yday", "pcp"),
                                      col_types = "iid")) %>%
     mutate(date = as.Date(yday - 1, origin = paste0(year, "-01-01"))) %>%
