@@ -1,13 +1,4 @@
 plant_name, yield_min, yield_max, yield_mean
-wwht,3.4,6.9,5.8
 corn,3.8,7.2,5.8
-barl,3.4,5.2,4.4
-sgbt,10.0,15.0,12.5
-trit,3.3,6.5,5.4
-canp,1.8,3.2,2.5
-mint,1.0,2.0,1.5
-alfa,4.8,5.5,5.2
-onio,0.9,3.2,1.9
-lett,2.5,5.6,4.1
-crrt,3.3,10.4,7.0
-fesc,3.8,5.3,5.0
+pnut,2.5,4.5,3.6
+cots,1.2,2.5,1.8
