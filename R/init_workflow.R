@@ -56,17 +56,23 @@ initialize_softcal <- function(project_name, path, model_path,
   file.copy(paste0(system.file(package = "SWATtunR"), '/extdata/crop2.csv'),
             paste0(project_path, '/observation/crop_yields.csv'))
 
-  # Add model_path to crop calibration script and copy into project.
-  f01 <- readLines(paste0(wf_path, '/01_crop_calibration.R'))
+  # Add model_path to crop phu calibration script and copy into project.
+  f01 <- readLines(paste0(wf_path, '/01_crop_phu.R'))
   line_id <- grepl("model_path <- ''", f01)
   f01[line_id] <- paste0("model_path <- '", model_path, "'")
-  writeLines(f01, paste0(project_path, '/workflow/01_crop_calibration.R'))
+  writeLines(f01, paste0(project_path, '/workflow/01_crop_phu.R'))
 
-  # Add model_path to wyr calibration script and copy into project.
-  f02 <- readLines(paste0(wf_path, '/02_wateryield_calibration.R'))
+  # Add model_path to crop yield calibration script and copy into project.
+  f02 <- readLines(paste0(wf_path, '/02_crop_yield.R'))
   line_id <- grepl("model_path <- ''", f02)
   f02[line_id] <- paste0("model_path <- '", model_path, "'")
-  writeLines(f02, paste0(project_path, '/workflow/02_wateryield_calibration.R'))
+  writeLines(f02, paste0(project_path, '/workflow/02_crop_yield.R'))
+
+  # Add model_path to wyr calibration script and copy into project.
+  f03 <- readLines(paste0(wf_path, '/02_wateryield.R'))
+  line_id <- grepl("model_path <- ''", f03)
+  f03[line_id] <- paste0("model_path <- '", model_path, "'")
+  writeLines(f03, paste0(project_path, '/workflow/02_wateryield.R'))
 
   # Initialize and load R project
   rstudioapi::initializeProject(path = project_path)
@@ -133,6 +139,12 @@ initialize_hardcal <- function(project_name, path, model_path,
   line_id <- grepl("model_path <- ''", f03)
   f03[line_id] <- paste0("model_path <- '", model_path, "'")
   writeLines(f03, paste0(project_path, '/workflow/03_run_swat.R'))
+
+  # Add model_path to run validation script and copy into project.
+  f05 <- readLines(paste0(wf_path, '/05_validate.R'))
+  line_id <- grepl("model_path <- ''", f05)
+  f05[line_id] <- paste0("model_path <- '", model_path, "'")
+  writeLines(f05, paste0(project_path, '/workflow/05_validate.R'))
 
   # Initialize and load R project
   rstudioapi::initializeProject(path = project_path)

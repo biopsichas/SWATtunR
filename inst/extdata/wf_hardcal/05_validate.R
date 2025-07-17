@@ -8,6 +8,9 @@ library(SWATtunR)
 library(hydroGOF)
 library(tidyverse)
 
+# Path to the SWAT+ project folder.
+model_path <- ''
+
 ## Define the period for which validate the calibrated model
 period_valid <- c('yyyy-mm-dd', 'yyyy-mm-dd')
 
@@ -26,7 +29,7 @@ n_cores <- NULL
 # Name of the folder where simulation results will be saved incrementally.
 # To continue writing to existing saved runs, replace by the name of the
 # existing save_file.
-save_file_name <- paste0(format(Sys.time(), '%Y%m%d%H%M'), '_sim')
+save_file_name <- paste0(format(Sys.time(), '%Y%m%d%H%M'), '_sim_val')
 
 # Path where the simulation results are saved.
 # Default the simulations are saved in the calibration project
@@ -55,7 +58,7 @@ run_swatplus(project_path     = model_path,
 # Paths to simulation and observation data
 # E.g. load the simulations with the last time stamp, if default
 # save_file names in simulation runs is used.
-sims <- list.files('./simulation/', pattern = '[0-9]{12}')
+sims <- list.files('./simulation/', pattern = '[0-9]{12}_sim_val')
 sim_path <- paste0('./simulation/', sims[length(sims)])
 
 # Load and prepare simulation results -------------------------------------
