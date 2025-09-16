@@ -407,7 +407,7 @@ plot_phu_yld_bms <- function(sim_result, yield_obs = NULL, bar_width = 0.5) {
     geom_boxplot(aes(x = phu, y = value, fill = name), width = bar_width) +
     facet_grid(cols = vars(plant_name), scales = 'free_x') +
     scale_fill_manual(values = col_pal) +
-    labs(y = 'Bio mass (t/ha)') +
+    labs(y = 'Biomass (t/ha)') +
     theme_bw()+
     theme(strip.background = element_blank(),
           strip.text = element_blank(),

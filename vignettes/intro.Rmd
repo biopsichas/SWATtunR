@@ -25,7 +25,7 @@ The package integrates with other SWAT-related R packages as [SWATbuildR](https:
 * Advanced visualization of calibration and validation results
 * Model file management tools
 
-To use SWATtunR, users must provide a working SWAT+ model setup along with the corresponding observed data. The package then guides in performing calibration and validation by adjusting parameters in three key SWAT+ input files Figure @ref(fig:fig1) :
+To use **SWATtunR**, users must provide a working SWAT+ model setup along with the corresponding observed data. The package then guides in performing calibration and validation by adjusting parameters in three key SWAT+ input files:
 
 * `plants.plt` – crop yield (soft calibration)
 * `hydrology.hyd` – water yield ratio (soft calibration)
@@ -41,8 +41,10 @@ The calibration process in **SWATtunR** is divided into two main stages: *soft* 
 
 **Soft calibration** focuses on improving plant growth and water balance without altering core model dynamics. It involves:
 
-* **Step 1**: Calibrating crop growth parameters (`days_mat`, then optionally `lai_pot`, `harv_idx`, `tmp_base`, `bm_e`) to align simulated yields with observed statistics.
-* **Step 2**: Calibrating evapotranspiration components using `esco` and `epco` to match observed water yield ratios.
+* **Step 1**: Calibrate the crop growth parameter (`days_mat`) to achieve reasonable Plant Heat Unit (PHU) fractions before harvest (typically between 1.00 and 1.25).  
+* **Step 2–3 (Optional)**: Adjust additional crop yield parameters (`lai_pot`, `harv_idx`, `tmp_base`, `bm_e`) to align simulated yields with observed data.  
+* **Step 2–3**: Calibrate evapotranspiration components (`esco`, `epco`) to match observed water yield ratios.
+
 
 If crops fail to reach full maturity or the yield is unrealistic, crop management or the parameter ranges may need revision.
 
