@@ -1,4 +1,4 @@
-url: ~
+url: https://biopsichas.github.io/SWATtunR/
 template:
   bootstrap: 5
 
@@ -11,7 +11,8 @@ articles:
 - title: Soft calibration
   navbar: Soft calibration
   contents:
-  - sc-crops
+  - sc-phu
+  - sc-yield
   - sc-wy
 - title: Hard calibration
   navbar: Hard calibration
@@ -20,6 +21,7 @@ articles:
   - hc-out
   - hc-run
   - hc-analyze
+  - hc-val
 - title: Quality Assurance
   navbar: Quality Assurance
   contents:

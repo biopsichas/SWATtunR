@@ -1,363 +1,108 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/articles/hc-plot.html</loc>
-  </url>
-  <url>
-    <loc>/articles/hc-plus.html</loc>
-  </url>
-  <url>
-    <loc>/articles/hc.html</loc>
-  </url>
-  <url>
-    <loc>/articles/soft-cal.html</loc>
-  </url>
-  <url>
-    <loc>/articles/val.html</loc>
-  </url>
-  <url>
-    <loc>/articles/hc-analyze.html</loc>
-  </url>
-  <url>
-    <loc>/articles/hc-out.html</loc>
-  </url>
-  <url>
-    <loc>/articles/hc-par.html</loc>
-  </url>
-  <url>
-    <loc>/articles/hc-run.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/articles/init.html</loc>
-  </url>
-  <url>
-    <loc>/articles/intro.html</loc>
-  </url>
-  <url>
-    <loc>/articles/qa-st1.html</loc>
-  </url>
-  <url>
-    <loc>/articles/qa-st2.html</loc>
-  </url>
-  <url>
-    <loc>/articles/qa-st3.html</loc>
-  </url>
-  <url>
-    <loc>/articles/qa-st4.html</loc>
-  </url>
-  <url>
-    <loc>/articles/qa-st5.html</loc>
-  </url>
-  <url>
-    <loc>/articles/qa.html</loc>
-  </url>
-  <url>
-    <loc>/articles/sc-crops.html</loc>
-  </url>
-  <url>
-    <loc>/articles/sc-wy.html</loc>
-  </url>
-  <url>
-    <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/aggregate_aa.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calculate_performance.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calculate_performance_2plus.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calculate_wyr.html</loc>
-  </url>
-  <url>
-    <loc>/reference/fix_dates.html</loc>
-  </url>
-  <url>
-    <loc>/reference/get_conc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/hello.html</loc>
-  </url>
-  <url>
-    <loc>/reference/id_text_strings.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_calval_comparison.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_esco_range.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_selected_sim.html</loc>
-  </url>
-  <url>
-    <loc>/reference/write_tbl.html</loc>
-  </url>
-  <url>
-    <loc>/reference/add_obj.html</loc>
-  </url>
-  <url>
-    <loc>/reference/add_slope.html</loc>
-  </url>
-  <url>
-    <loc>/reference/add_suffix_to_duplicate.html</loc>
-  </url>
-  <url>
-    <loc>/reference/add_timestamp.html</loc>
-  </url>
-  <url>
-    <loc>/reference/add_value_range.html</loc>
-  </url>
-  <url>
-    <loc>/reference/aggregate_time.html</loc>
-  </url>
-  <url>
-    <loc>/reference/build_constraint_tbl.html</loc>
-  </url>
-  <url>
-    <loc>/reference/build_expression.html</loc>
-  </url>
-  <url>
-    <loc>/reference/build_unit_string.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_fdc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_fdc_i.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_fdc_rsr.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_gof.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_gof_i.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_segment_diff.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_wyr.html</loc>
-  </url>
-  <url>
-    <loc>/reference/check_date_col.html</loc>
-  </url>
-  <url>
-    <loc>/reference/check_point_shape.html</loc>
-  </url>
-  <url>
-    <loc>/reference/conc_to_load.html</loc>
-  </url>
-  <url>
-    <loc>/reference/copy_file_version.html</loc>
-  </url>
-  <url>
-    <loc>/reference/cuts_to_rect.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dotty_fig.html</loc>
-  </url>
-  <url>
-    <loc>/reference/evaluate_expression.html</loc>
-  </url>
-  <url>
-    <loc>/reference/filter_period.html</loc>
-  </url>
-  <url>
-    <loc>/reference/find_par_range.html</loc>
-  </url>
-  <url>
-    <loc>/reference/format_swatplus_parameter.html</loc>
-  </url>
-  <url>
-    <loc>/reference/get_sol_texture.html</loc>
-  </url>
-  <url>
-    <loc>/reference/get_tbl_column.html</loc>
-  </url>
-  <url>
-    <loc>/reference/get_value_range.html</loc>
-  </url>
-  <url>
-    <loc>/reference/grapes-.-grapes.html</loc>
-  </url>
-  <url>
-    <loc>/reference/grapes-_-grapes.html</loc>
-  </url>
-  <url>
-    <loc>/reference/grapes-and-and-grapes.html</loc>
-  </url>
-  <url>
-    <loc>/reference/grapes-and-grapes.html</loc>
-  </url>
-  <url>
-    <loc>/reference/grapes-slash-slash-grapes.html</loc>
-  </url>
-  <url>
-    <loc>/reference/group_hydr_values.html</loc>
-  </url>
-  <url>
-    <loc>/reference/group_values.html</loc>
-  </url>
-  <url>
-    <loc>/reference/guess_time_step.html</loc>
-  </url>
-  <url>
-    <loc>/reference/id_to_run.html</loc>
-  </url>
-  <url>
-    <loc>/reference/id_to_unit.html</loc>
-  </url>
-  <url>
-    <loc>/reference/identify_sequence.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/init_cal.html</loc>
-  </url>
-  <url>
-    <loc>/reference/initialize_hardcal.html</loc>
-  </url>
-  <url>
-    <loc>/reference/initialize_softcal.html</loc>
-  </url>
-  <url>
-    <loc>/reference/load_to_conc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/normalize.html</loc>
-  </url>
-  <url>
-    <loc>/reference/paste_runs.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_dotty.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_dotty_yields.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_esco_epco.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_gof.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_oat.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_parameter_identifiability.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_phu_yld_bms.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_timeseries.html</loc>
-  </url>
-  <url>
-    <loc>/reference/prepare_plant_parameter.html</loc>
-  </url>
-  <url>
-    <loc>/reference/rank_gof.html</loc>
-  </url>
-  <url>
-    <loc>/reference/read_tbl.html</loc>
-  </url>
-  <url>
-    <loc>/reference/read_unit_conditions.html</loc>
-  </url>
-  <url>
-    <loc>/reference/remove_dummy.html</loc>
-  </url>
-  <url>
-    <loc>/reference/remove_unsuccesful_runs.html</loc>
-  </url>
-  <url>
-    <loc>/reference/replace_closest_value.html</loc>
-  </url>
-  <url>
-    <loc>/reference/replace_col_by_sequence.html</loc>
-  </url>
-  <url>
-    <loc>/reference/rsr_df.html</loc>
-  </url>
-  <url>
-    <loc>/reference/run_to_id.html</loc>
-  </url>
-  <url>
-    <loc>/reference/sample_days_mat.html</loc>
-  </url>
-  <url>
-    <loc>/reference/sample_lhs.html</loc>
-  </url>
-  <url>
-    <loc>/reference/sample_oat.html</loc>
-  </url>
-  <url>
-    <loc>/reference/sample_transect_i.html</loc>
-  </url>
-  <url>
-    <loc>/reference/setup_calibration_cal.html</loc>
-  </url>
-  <url>
-    <loc>/reference/sum_variables.html</loc>
-  </url>
-  <url>
-    <loc>/reference/tidy_constraint.html</loc>
-  </url>
-  <url>
-    <loc>/reference/translate_parameter_constraints.html</loc>
-  </url>
-  <url>
-    <loc>/reference/translate_sequence.html</loc>
-  </url>
-  <url>
-    <loc>/reference/translate_to_boundaries.html</loc>
-  </url>
-  <url>
-    <loc>/reference/truncate.html</loc>
-  </url>
-  <url>
-    <loc>/reference/update_par.html</loc>
-  </url>
-  <url>
-    <loc>/reference/update_plant_par.html</loc>
-  </url>
-  <url>
-    <loc>/reference/view_timeseries.html</loc>
-  </url>
-  <url>
-    <loc>/reference/write_cal_file.html</loc>
-  </url>
-  <url>
-    <loc>/reference/write_calibration.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_fdc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_pcp_vs_flow.html</loc>
-  </url>
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://biopsichas.github.io/SWATtunR/404.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/hc-analyze.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/hc-out.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/hc-par.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/hc-run.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/hc-val.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/index.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/init.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/intro.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/qa-st1.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/qa-st2.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/qa-st3.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/qa-st4.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/qa-st5.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/qa.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/sc-phu.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/sc-wy.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/articles/sc-yield.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/authors.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/index.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/LICENSE-text.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/news/index.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/add_obj.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/add_slope.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/add_suffix_to_duplicate.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/add_timestamp.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/add_value_range.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/aggregate_time.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/build_constraint_tbl.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/build_expression.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/build_unit_string.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/calc_fdc.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/calc_fdc_i.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/calc_fdc_rsr.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/calc_gof.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/calc_gof_i.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/calc_segment_diff.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/calc_wyr.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/check_date_col.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/check_point_shape.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/conc_to_load.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/copy_file_version.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/cuts_to_rect.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/dotty_fig.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/evaluate_expression.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/filter_period.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/find_par_range.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/format_swatplus_parameter.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/get_sol_texture.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/get_tbl_column.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/get_value_range.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/grapes-.-grapes.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/grapes-and-and-grapes.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/grapes-and-grapes.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/grapes-slash-slash-grapes.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/grapes-_-grapes.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/group_hydr_values.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/group_values.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/guess_time_step.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/identify_sequence.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/id_to_run.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/id_to_unit.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/index.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/initialize_hardcal.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/initialize_softcal.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/init_cal.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/load_to_conc.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/normalize.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/paste_runs.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/plot_dotty.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/plot_dotty_yields.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/plot_esco_epco.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/plot_fdc.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/plot_gof.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/plot_oat.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/plot_parameter_identifiability.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/plot_pcp_vs_flow.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/plot_phu_yld_bms.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/plot_timeseries.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/prepare_plant_parameter.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/rank_gof.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/read_tbl.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/read_unit_conditions.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/remove_dummy.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/remove_unsuccesful_runs.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/replace_closest_value.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/replace_col_by_sequence.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/rsr_df.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/run_to_id.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/sample_days_mat.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/sample_lhs.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/sample_oat.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/sample_transect_i.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/setup_calibration_cal.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/sum_variables.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/tidy_constraint.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/translate_parameter_constraints.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/translate_sequence.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/translate_to_boundaries.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/truncate.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/update_par.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/update_plant_par.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/view_timeseries.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/write_calibration.html</loc></url>
+<url><loc>https://biopsichas.github.io/SWATtunR/reference/write_cal_file.html</loc></url>
 </urlset>
+

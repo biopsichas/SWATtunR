@@ -478,12 +478,8 @@ plot_dotty_yields <- function(sim_result, yield_obs = NULL) {
 #' Make a dotty plot
 #'
 #' @param sim_yield a dataframe with yield data
-#' @param yield (optional) The mean yield values for each crop.
-#' Default \code{yield = NULL}.
-#' @param yield_min (optional) The minimum observed yield values for each crop.
-#' Default \code{yield_min = NULL}.
-#' @param yield_max (optional) The maximum observed yield values for each crop.
-#' Default \code{yield_max = NULL}.
+#' @param yld_obs (optional) The yield values for each crop with columns:
+#' plant_name, yield_min, yield_max, yield_mean. Default \code{yld_obs = NULL}.
 #' @importFrom tibble enframe
 #' @importFrom dplyr mutate left_join filter group_by summarise
 #' @importFrom ggplot2 ggplot geom_pointrange geom_smooth theme element_text

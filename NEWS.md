@@ -1,3 +1,14 @@
+# SWATtunR 0.3.8
+
+* Git pages website fully updated to reflect the current state of the package.
+* Vignettes updated and improved.
+
+# SWATtunR 0.3.7
+
+* New scripts added to initialization functions. Some of them renamed. 
+* Data and example setups added to the package.
+* Bug fixes and improvements.
+
 # SWATtunR 0.3.6
 
 * `plot_pcp_vs_flow()` function added. This function allows users to visualize the relationship between precipitation and flow, providing insights into hydrological responses.

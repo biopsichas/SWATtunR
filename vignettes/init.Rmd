@@ -37,23 +37,13 @@ initialize_hardcal(project_name = 'hardcal_test',
 
 # Example setup
 
-In case you want to test the package without having to set up your own project, you can use the example SWAT+ model setup provided in [SWATdata](https://github.com/chrisschuerz/SWATdata) R package and data provided [@bosch2007] in the package. The following code will show how to obtain the example (test) model setup. 
+In case you want to test the package without setting up your own project, or if you want to replicate the results provided in the examples, you can use the example SWAT+ model setup and data included in this package. The setup has been obtained from the [SWATdata](https://github.com/chrisschuerz/SWATdata) R package, and the accompanying data are described in [@bosch2007]. The following code demonstrates how to access the example (test) model setup and data from the installed package. The files `crop.csv` (crop yield statistics) and `q.csv` (discharge data in m³/s) contain monitoring data at the catchment outflow, while `swatplus_rev60_demo.zip` includes all the necessary files for the SWAT+ model setup, as well as GIS data for reaches, the basin, and HRUs.
+
 
 ```{r ini3, message = FALSE, warning = FALSE, eval = FALSE}
-## Install SWATdata package, if not already installedq
-devtools::install_github("chrisschuerz/SWATdata")
-## Load SWATdata package
-library(SWATdata)
-
-# Load a SWAT+ Rev.60model setup on Windows:
-demo_path <- "Define:/your/path"
-path_plus <- load_demo(dataset = "project",
-                       path = demo_path
-                       version = "plus",
-                       revision = 60)
-
+temp_path <- system.file("extdata/example", package = "SWATtunR")
 ```
-The `load_demo` function from the **SWATdata** package will download a SWAT+ model setup to the specified path. The **path_plus** variable will then contain the path to the downloaded SWAT+ model setup, which can be used in the `initialize_softcal()` or `initialize_hardcal()` functions.
+The SWAT+ model setup in the specified path can be used with the `initialize_softcal()` or `initialize_hardcal()` functions to set up working projects for soft or hard calibration.
 
 # References
 

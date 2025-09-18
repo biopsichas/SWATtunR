@@ -1,7 +1,7 @@
 Package: SWATtunR
 Type: Package
 Title: Soft Calibration, Hard Calibration, and Validation for SWAT+ Models
-Version: 0.3.7
+Version: 0.3.8
 Authors@R: c(
     person("Svajunas", "Plunge", , "svajunas.plunge@gmail.com", role = c("aut", "cre"),
         comment = c(ORCID = '0000-0001-8897-3349')),
@@ -14,7 +14,7 @@ Authors@R: c(
 Maintainer: Svajunas Plunge <svajunas.plunge@gmail.com>
 Description: Comprehensive set of tools for soft and hard model calibration, validation steps, calculating performance metrics, plotting model output for user decision-making, and updating parameters in the model files.
 License: MIT + file LICENSE
-URL: https://github.com/biopsichas/SWATtunR
+URL: https://biopsichas.github.io/SWATtunR, https://github.com/biopsichas/SWATtunR
 BugReports: https://github.com/biopsichas/SWATtunR/issues
 Depends:
     R (>= 4.2.0)
@@ -48,4 +48,4 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3

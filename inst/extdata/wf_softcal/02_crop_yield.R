@@ -91,11 +91,11 @@ plot_dotty_yields(yld_sim, yield_obs)
 
 # Fix the parameter changes you want to apply to the crops
 crop_par_sel <- tibble(
-  plant_name                       = c("corn", "pnut"),
-  'lai_pot.pdb | change = relchg'  = c(  -0.1,    0.1),
-  'harv_idx.pdb | change = relchg' = c(  -0.1,    0.0),
-  'tmp_base.pdb | change = abschg' = c(   0.0,    0.0),
-  'bm_e.pdb | change = relchg'     = c(   0.0,    0.0))
+  plant_name                       = c("corn", "cots", "pnut"),
+  'bm_e.pdb | change = relchg'     = c(  -0.2,   -0.3,   0.1),
+  'harv_idx.pdb | change = relchg' = c(  -0.15,  -0.3,   0.3),
+  'lai_pot.pdb | change = relchg'  = c(  -0.2,   -0.3,   0.3),
+  'tmp_base.pdb | change = abschg' = c(   1.5,    1.5,  -1.0))
 
 # Check if user defined days to maturity values for all crops.
 stopifnot(all(crop_names %in% crop_par_sel$plant_name))

@@ -1,20 +1,24 @@
-pandoc: 3.1.11
-pkgdown: 2.0.7
+pandoc: 3.6.3
+pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
-  qa-st5: qa-st5.html
-  qa: qa.html
-  qa-st1: qa-st1.html
-  qa-st2: qa-st2.html
-  qa-st3: qa-st3.html
-  qa-st4: qa-st4.html
   hc-analyze: hc-analyze.html
   hc-out: hc-out.html
   hc-par: hc-par.html
   hc-run: hc-run.html
+  hc-val: hc-val.html
   init: init.html
   intro: intro.html
-  sc-crops: sc-crops.html
+  qa-st1: qa-st1.html
+  qa-st2: qa-st2.html
+  qa-st3: qa-st3.html
+  qa-st4: qa-st4.html
+  qa-st5: qa-st5.html
+  qa: qa.html
+  sc-phu: sc-phu.html
   sc-wy: sc-wy.html
-last_built: 2025-06-20T15:20Z
-
+  sc-yield: sc-yield.html
+last_built: 2025-09-18T12:46Z
+urls:
+  reference: https://biopsichas.github.io/SWATtunR/reference
+  article: https://biopsichas.github.io/SWATtunR/articles

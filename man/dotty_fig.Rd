@@ -9,14 +9,8 @@ dotty_fig(sim_yield, yld_obs = NULL)
 \arguments{
 \item{sim_yield}{a dataframe with yield data}
 
-\item{yield}{(optional) The mean yield values for each crop.
-Default \code{yield = NULL}.}
-
-\item{yield_min}{(optional) The minimum observed yield values for each crop.
-Default \code{yield_min = NULL}.}
-
-\item{yield_max}{(optional) The maximum observed yield values for each crop.
-Default \code{yield_max = NULL}.}
+\item{yld_obs}{(optional) The yield values for each crop with columns:
+plant_name, yield_min, yield_max, yield_mean. Default \code{yld_obs = NULL}.}
 }
 \value{
 ggplot object for dotty plot
