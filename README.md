@@ -93,7 +93,7 @@ the European Union LIFE Programme under grant agreement No. 101104645.
 <p>
 
 <img src="https://biopsichas.github.io/SWATtunR/reference/figures/eu.png" title="EU LIFE+ logo" alt="eu logo" width="30%" style="display: inline-block; vertical-align: middle; margin-right: 1%;" />
-<img src="https://biopsichas.github.io/SWATtunR/reference/figures/eu.png" title="NORDBALT ECOSAFE logo" alt="nordbalt logo" width="20%" style="display: inline-block; vertical-align: middle; margin-right: 1%;" />
+<img src="https://biopsichas.github.io/SWATtunR/reference/figures/nordbalt.png" title="NORDBALT ECOSAFE logo" alt="nordbalt logo" width="20%" style="display: inline-block; vertical-align: middle; margin-right: 1%;" />
 <img src="https://biopsichas.github.io/SWATtunR/reference/figures/optain.png" title="OPTAIN logo" alt="optain logo" width="30%" style="display: inline-block; vertical-align: middle;" />
 </p>
 
