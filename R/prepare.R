@@ -419,7 +419,10 @@ prepare_plant_parameter <- function(par_tbl) {
 #'
 group_hydr_values <- function(par_name, model_path) {
   hyd_hyd <- read_tbl(paste0(model_path, '/hydrology.hyd'))
-
+  # if there is an empty line at the end of the hydrology.hyd file, this
+  # function fails. Adding this filter makes sure that only rows with real data
+  # are loaded, as these should all be prefixed with "hyd" in the name column.
+  hyd_hyd %>% filter(grepl(x = name, pattern = "hyd")) -> hyd_hyd
   unique_values <- sort(unique(hyd_hyd[[par_name]]))
   value_group <- map_int(hyd_hyd[[par_name]], ~ which(.x == unique_values))
   unique_values <- paste(paste0(1:length(unique_values), ' = ', unique_values), collapse = ', ')
