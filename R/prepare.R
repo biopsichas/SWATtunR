@@ -460,7 +460,7 @@ translate_to_boundaries <- function(par_tbl, par_name,  par_bound, par_group) {
 
   if(length(par_bound) != length(unique(par_group))) {
     stop(paste0("Error in translation of parameter values for", par_name, ":\n",
-                "'par_bound' defines bundaries for ", length(par_bound), " parameter values groups.\n",
+                "'par_bound' defines boundaries for ", length(par_bound), " parameter values groups.\n",
                 "'par_group' has ", length(unique(par_group)), " individual parameter value groups.\n",
                 "Please provide the same number of elements for both input arguments."))
   }
