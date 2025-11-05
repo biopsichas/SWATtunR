@@ -116,7 +116,7 @@ plot_parameter_identifiability(parameters = par_vals,
 # to plot dotty plots. Here is just one example, to get a full picture of
 # how to update parameter ranges the assessment of multiple dotty plots may
 # be neccesary.
-plot_dotty(par = parameter, gof_all$nse_q, n_col = 5)
+plot_dotty(par = par_vals, gof_all$nse_q, n_col = 5)
 
 # If the model performance must be improved and e.g. the parameter
 # identifiability plot clearly suggests to update parameter ranges for relevant
