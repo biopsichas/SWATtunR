@@ -97,6 +97,7 @@ knitr::include_graphics('figs/fig6.png')
 
 The next step is to run the SWAT+ model with the generated `days_mat` parameter set. The `run_swatplus` function from **SWATrunR** package executes the model simulations for each combination of parameters in `par_dmat`. The results are stored in `simulation` folder, which can be used for further analysis. The folder will include a timestamp to distinguish each run. When the process is repeated, the analysis will automatically use the most recent set of simulation results.
 
+**Note:** If you encounter an error with the message *"Simulation run is incomplete"*, please check whether your `management.sch` file contains the operation `hvkl` or the combination `harv` + `kill`. The latter is required for successfully extracting results from `mgtout`. To fix this, apply the `add_kill_op()` function from the **SWATtunR** package to your `management.sch` file.
 
 ```{r sc_st3, message = FALSE, warning = FALSE, eval = FALSE}
 # Run the SWAT+ model with the generated days_mat parameter set

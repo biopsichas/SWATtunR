@@ -3,7 +3,7 @@ Introduction to SWATtunR
 
 # SWATtunR
 
-[![](https://img.shields.io/badge/devel%20version-0.3.8-blue.svg)](https://github.com/biopsichas/SWATtunR)
+[![](https://img.shields.io/badge/devel%20version-0.3.9-blue.svg)](https://github.com/biopsichas/SWATtunR)
 [![](https://img.shields.io/github/last-commit/biopsichas/SWATtunR.svg)](https://github.com/biopsichas/SWATtunR/commits/green)
 [![](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![Project Status: Active - The project has reached a stable, usable

@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -216,6 +216,14 @@ The results are stored in <code>simulation</code> folder, which can be
 used for further analysis. The folder will include a timestamp to
 distinguish each run. When the process is repeated, the analysis will
 automatically use the most recent set of simulation results.</p>
+<p><strong>Note:</strong> If you encounter an error with the message
+<em>“Simulation run is incomplete”</em>, please check whether your
+<code>management.sch</code> file contains the operation
+<code>hvkl</code> or the combination <code>harv</code> +
+<code>kill</code>. The latter is required for successfully extracting
+results from <code>mgtout</code>. To fix this, apply the
+<code><a href="../reference/add_kill_op.html">add_kill_op()</a></code> function from the <strong>SWATtunR</strong>
+package to your <code>management.sch</code> file.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Run the SWAT+ model with the generated days_mat parameter set</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/run_swatplus.html" class="external-link">run_swatplus</a></span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>

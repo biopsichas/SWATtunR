@@ -1,3 +1,8 @@
+# SWATtunR 0.3.9
+
+* Added `add_kill_op()` function to fix SWAT+ management schedules for **SWATrunR** run_swatplus function.
+* Minor bug fixes and improvements.
+
 # SWATtunR 0.3.8
 
 * Git pages website fully updated to reflect the current state of the package.

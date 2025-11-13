@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -162,7 +162,7 @@ management schedules and not as a combined ‘harvest_kill’ operation. If
 case your model setup have combined operation the following function
 fixes the issue.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">add_kill_op</span><span class="op">(</span><span class="va">model_path</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/add_kill_op.html">add_kill_op</a></span><span class="op">(</span><span class="va">model_path</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="qa_step4">4. Running the SWAT+ model (all plant stress factors
@@ -188,19 +188,19 @@ number found in the folder. You can delete previous versions manually
 from the folder.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Running SWAT+ model setup and saving outputs required for the workflow</span></span>
-<span><span class="va">sim_nostress</span> <span class="op">&lt;-</span> <span class="fu">run_swat_verification</span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
+<span><span class="va">sim_nostress</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/run_swat_verification.html" class="external-link">run_swat_verification</a></span><span class="op">(</span>project_path <span class="op">=</span> <span class="va">model_path</span>,</span>
 <span>                                      outputs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'wb'</span>, <span class="st">'mgt'</span>, <span class="st">'plt'</span><span class="op">)</span>,</span>
 <span>                                      years_skip <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>                                      nostress <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## Saving results into the file</span></span>
-<span><span class="va">file_version</span> <span class="op">&lt;-</span> <span class="fu">get_file_version</span><span class="op">(</span><span class="va">parent_dir</span>, <span class="va">save_name</span>, <span class="st">'_nostr_'</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span></span>
+<span><span class="va">file_version</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/get_file_version.html" class="external-link">get_file_version</a></span><span class="op">(</span><span class="va">parent_dir</span>, <span class="va">save_name</span>, <span class="st">'_nostr_'</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">sim_nostress</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">parent_dir</span>,<span class="st">'/'</span>, <span class="va">save_name</span>, <span class="st">'_nostr_'</span>, </span>
 <span>                                    <span class="va">file_version</span>,<span class="st">'.rds'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Following lines could be used to load saved results from the
 file.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">file_version</span> <span class="op">&lt;-</span> <span class="fu">get_file_version</span><span class="op">(</span><span class="va">parent_dir</span>, <span class="va">save_name</span>, <span class="st">'_nostr_'</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">file_version</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATdoctR/man/get_file_version.html" class="external-link">get_file_version</a></span><span class="op">(</span><span class="va">parent_dir</span>, <span class="va">save_name</span>, <span class="st">'_nostr_'</span><span class="op">)</span></span>
 <span><span class="va">sim_nostress</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">parent_dir</span>,<span class="st">'/'</span>, </span>
 <span>                                      <span class="va">save_name</span>, <span class="st">'_nostr_'</span>, </span>
 <span>                                      <span class="va">file_version</span>,<span class="st">'.rds'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>

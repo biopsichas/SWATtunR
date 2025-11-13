@@ -892,3 +892,78 @@ check_point_shape <- function(shape) {
 add_timestamp <- function(save_name) {
   paste0(format(Sys.time(), '%Y%m%d%H%M'),'_', save_name)
 }
+
+#' Replace hvkl operations with harv + kill
+#'
+#' @param project_path Character string, path to the SWAT+ project folder
+#'   (i.e. TxtInOut).
+#' @return updated management.sch file
+#' @importFrom readr read_lines write_lines
+#' @importFrom stringr str_replace str_count
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' add_kill_op('path_to_your_model')
+#' }
+
+add_kill_op <- function(project_path){
+  mgt_sch <- read_lines(paste0(project_path,'/management.sch'), lazy = FALSE)
+  l <- 0
+  while(length(grep("hvkl", mgt_sch)) != 0){
+    i <- grep("hvkl", mgt_sch)[1]
+    if(as.numeric(strsplit(mgt_sch[i], " +")[[1]][3])>0 | as.numeric(strsplit(mgt_sch[i], " +")[[1]][4])>0 ){
+      kill_line <- str_replace(mgt_sch[i], "hvkl", "kill") %>%
+        str_replace(c("forest_cut|grain1|grain|grass_bag|grass_mulch|hay_cut_high|hay_cut_low|orchard|peanuts|
+              silage|stover_high|stover_los|stover_med|tuber|vegetables"), "null")
+      mgt_sch[i] <- str_replace(mgt_sch[i], "hvkl", "harv")
+      mgt_sch <- insert_line_at(mgt_sch, kill_line, insert_after=i)
+      l <- l+1
+    } else {
+      ##Changing hvkl to harv and kill operations
+      kill_line <- str_replace(mgt_sch[i], "hvkl", "kill") %>%
+        str_replace(c("forest_cut|grain1|grain|grass_bag|grass_mulch|hay_cut_high|hay_cut_low|orchard|peanuts|
+              silage|stover_high|stover_los|stover_med|tuber|vegetables"), "null") %>%
+        str_replace_all("[:digit:]", "0") %>%
+        str_replace("0.00000", "0.00001") ## Kill operation at 0.00001 HU, next day after harvest.
+      mgt_sch[i] <- str_replace(mgt_sch[i], "hvkl", "harv")
+      mgt_sch <- insert_line_at(mgt_sch, kill_line, insert_after=i)
+      l <- l+1
+    }
+    ## Adding increased counter
+    ii <- i - 1
+    ##Fixing counter
+    while (str_count(mgt_sch[ii], "\\S+") != 3 & ii != 0) {
+      ii <- ii - 1
+    }
+    ##Adding one additional operation
+    c <- strsplit(mgt_sch[ii], " +")[[1]]
+    mgt_sch[ii] <-  paste0(c[1], "                           ", as.numeric(c[2])+1, "          ", c[3], "  ")
+  }
+  if(l > 0){
+    file.copy(paste0(project_path,'/management.sch'), paste0(project_path,'/management_bak.sch'))
+    write_lines(mgt_sch, paste0(project_path,'/management.sch'))
+    return(paste0(l, " lines were updated (`hvkl` changed to `harv`) and same number added (with `kill` operations) in 'management.sch'. Original file is backed up in 'management_bak.sch'."))
+  } else {
+    return("No `hvkl` operations exist in 'management.sch'. File was not changed.")
+  }
+}
+
+#' Insert line into character with multiple lines
+#'
+#' @param dat character with multiple lines
+#' @param txt character line to be inserted
+#' @param insert_after numeric for line number after, which to insert txt
+#'
+#' @return character with multiple lines with inserted new lines
+#' @keywords internal
+
+insert_line_at <- function(dat, txt, insert_after){
+  pre <- dat[1:insert_after]
+  if(length(dat) > insert_after){
+    post <- dat[(insert_after+1):length(dat)]
+    return(c(pre, txt, post))
+  } else {
+    return(c(pre, txt))
+  }
+}

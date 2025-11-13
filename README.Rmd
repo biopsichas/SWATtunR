@@ -46,7 +46,7 @@ Additionally, we recommend checking out the following packages, which can be use
 
 - [SWATreadR](https://github.com/chrisschuerz/SWATreadR) - Read and write SWAT+ input and output files.
 - [SWATdata](https://github.com/chrisschuerz/SWATdata) - SWAT project datasets for SWATrunR and SWATfarmR.
-
+  
 
 <img src="man/figures/swativerse_update.png" title="SWAT packages for R" alt="swativerse logo" width="80%" style="display: block; margin: auto;" />
 

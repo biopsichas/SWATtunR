@@ -9,7 +9,7 @@ fractions, yields, and biomass over changes in days to maturity."><meta property
 
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,8 +81,10 @@ data.</p></dd>
 
 
 <dt id="arg-yield-obs">yield_obs<a class="anchor" aria-label="anchor" href="#arg-yield-obs"></a></dt>
-<dd><p>(optional) Data.frame with observed min, max, and mean yield
-values for each crop. Default <code>yield = NULL</code>.</p></dd>
+<dd><p>(optional) A data frame with observed minimum, maximum, and mean yield
+values for each crop. Default is <code>NULL</code>. No data is provided. If provided,
+the data frame should contain the following columns: <code>plant_name</code>,
+<code>yield_min</code>, <code>yield_max</code>, and <code>yield_mean</code>.</p></dd>
 
 
 <dt id="arg-bar-width">bar_width<a class="anchor" aria-label="anchor" href="#arg-bar-width"></a></dt>
