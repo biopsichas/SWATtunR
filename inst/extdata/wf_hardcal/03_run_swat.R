@@ -26,7 +26,7 @@ n_cores <- NULL
 # Name of the folder where simulation results will be saved incrementally.
 # To continue writing to existing saved runs, replace by the name of the
 # existing save_file.
-save_file_name <- paste0(format(Sys.time(), '%Y%m%d%H%M'), '_sim')
+save_file_name <- paste0(format(Sys.time(), '%Y%m%d%H%M%S'), '_sim')
 
 # Path where the simulation results are saved.
 # Default the simulations are saved in the calibration project
