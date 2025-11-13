@@ -112,7 +112,7 @@ parameter_boundaries <- tibble(
 parameter_set <- sample_lhs(parameter_boundaries, n_combinations)
 ```
 
-## Appling different ranges to `cn3_swf`, `latq_co`, and `perco`
+## Applying different ranges to `cn3_swf`, `latq_co`, and `perco`
 
 This step is optional and should be removed if you do not wish to apply different parameter ranges based on the initial values of the parameters `cn3_swf`, `latq_co`, and `perco`. By default, the SWAT+ model assigns different initial values to these parameters during setup, based on the runoff and leaching potentials of the respective HRUs. To preserve this spatial variability, it is recommended to calibrate these parameters using different ranges that correspond to their initial values.
 

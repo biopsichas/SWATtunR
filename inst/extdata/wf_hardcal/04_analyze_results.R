@@ -115,7 +115,7 @@ plot_parameter_identifiability(parameters = par_vals,
 # Another typical approach to analyze goodness-of-fit to parameter changes is
 # to plot dotty plots. Here is just one example, to get a full picture of
 # how to update parameter ranges the assessment of multiple dotty plots may
-# be neccesary.
+# be necesary.
 plot_dotty(par = par_vals, gof_all$nse_q, n_col = 5)
 
 # If the model performance must be improved and e.g. the parameter
