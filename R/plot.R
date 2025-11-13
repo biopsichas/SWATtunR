@@ -260,8 +260,10 @@ plot_parameter_identifiability <- function(parameters, objectives, run_fraction 
 #'
 #' @param sim_result The simulation results containing PHU, yield, and biomass
 #'   data.
-#' @param yield_obs (optional) Data.frame with observed min, max, and mean yield
-#'   values for each crop. Default \code{yield = NULL}.
+#' @param yield_obs (optional) A data frame with observed minimum, maximum, and mean yield
+#'   values for each crop. Default is \code{NULL}. No data is provided. If provided,
+#'   the data frame should contain the following columns: \code{plant_name},
+#'   \code{yield_min}, \code{yield_max}, and \code{yield_mean}.
 #' @param bar_width (optional) Value from 0 to 1 controls the width of the box
 #' in the boxplot. Default \code{bar_width = 0.5}.
 #'
