@@ -1,3 +1,9 @@
+# SWATtunR 0.3.10
+
+* Fixed and updated `write_cal_file()` function to correctly write a single or 
+multiple `calibration.cal` files for SWAT+ models.
+* Information updated in the Git pages website about the `write_cal_file()` function.
+
 # SWATtunR 0.3.9
 
 * Added `add_kill_op()` function to fix SWAT+ management schedules for **SWATrunR** run_swatplus function.

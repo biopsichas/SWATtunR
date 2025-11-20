@@ -2,30 +2,53 @@
 % Please edit documentation in R/write.R
 \name{write_cal_file}
 \alias{write_cal_file}
-\title{Write Calibration File}
+\title{Write a SWAT+ Calibration File}
 \usage{
-write_cal_file(par, write_path = NULL, i_run = 1)
+write_cal_file(par, model_path, write_path = NULL, i_run = 1)
 }
 \arguments{
-\item{par}{A data frame containing parameter information.}
+\item{par}{A data frame containing SWAT+ parameter definitions and values.
+Column names should indicate \strong{which file the parameter belongs to} and \strong{how it is modified}.
+Examples of column naming conventions include:
+\itemize{
+\item \code{"esco.hru | change = absval"} — absolute value change
+\item \code{"awc.sol | change = relchg"} — relative change
+}
+For full details on parameter definitions and conventions, see:
+\url{https://biopsichas.github.io/SWATtunR/articles/hc-par.html#hc_step2}}
 
-\item{write_path}{(optional) The path where the calibration file will be written.
-Default \code{write_path = NULL}, the current working directory will be used.}
+\item{model_path}{Path to the SWAT+ model directory.}
 
-\item{i_run}{(optional) An integer specifying the run number.
-Default \code{i_run = 1}.}
+\item{write_path}{Optional. Directory where the calibration file(s) will be
+written. If \code{NULL} (default), files are written into \code{model_path}.}
+
+\item{i_run}{An integer or integer vector specifying run ID(s).
+Default is \code{1}.
+
+If multiple run IDs are supplied (e.g. \code{c(1, 3, 5)}), calibration files
+will be written into:
+\itemize{
+\item \code{<write_path>/cal_files/cal_1/calibration.cal}
+\item \code{<write_path>/cal_files/cal_3/calibration.cal}
+\item \code{<write_path>/cal_files/cal_5/calibration.cal}
+}}
 }
 \value{
-None, but write out calibration.cal file
+Invisibly returns \code{NULL}. The function writes output files.
 }
 \description{
-This function arranges and writes a calibration.cal file based on the provided
-parameter table.
+This function prepares and writes a \code{calibration.cal} file based on the
+provided parameter table. If multiple run IDs are supplied, separate
+calibration folders and files will be created for each run.
+}
+\note{
+To use a specific generated calibration file in a SWAT+ model run, copy it
+into the model directory and update the \code{file.cio} entry accordingly.
 }
 \examples{
 \dontrun{
-# Example usage:
-write_cal_file(my_parameter_table, "path/to/write", 1)
+write_cal_file(my_parameter_table, "path/to/model", i_run = 1)
+write_cal_file(my_parameter_table, "path/to/model", i_run = c(1, 3, 5))
 }
 }
 \keyword{write}

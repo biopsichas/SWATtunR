@@ -309,9 +309,14 @@ If the results are satisfactory, you can proceed to the next step of saving the 
 The final step is to write out the `calibration.cal` file with the `write_cal_file()` function, which could be supplied to the model to run already calibrated and validated model. Please don't forget to check master file [`file.cio`](https://swatplus.gitbook.io/io-docs/introduction/master-file-file.cio), if it has connection to *'calibration.cal'* on line 22. The following code snippet shows how to write out the *'calibration.cal'* file. 
 
 ```{r val_write, message = FALSE, warning = FALSE, eval = FALSE}
-write_cal_file(par = par_vals, 
-               write_path = 'your_path',
-               i_run = 1)
+## Add parameter change definitions to the parameter change data frame
+colnames(par_vals) <- sim$parameter$definition$full_name
+
+## Write multiple or a single 'calibration.cal' file
+write_cal_file(par = par_vals,
+               model_path = model_path,
+               write_path = 'my_cal_folder',
+               i_run = c(1, 2, 5)) ## For single i_run = 1
 ```
 
 # References

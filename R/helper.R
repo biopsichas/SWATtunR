@@ -967,3 +967,20 @@ insert_line_at <- function(dat, txt, insert_after){
     return(c(pre, txt))
   }
 }
+
+#' Ensure Directory Exists
+#'
+#' Checks if a directory exists at the specified path and creates it if it does not exist.
+#' This is useful to make sure folders exist before writing files or creating subdirectories.
+#'
+#' @param path A character string specifying the path to the directory.
+#'
+#' @return Invisibly returns the directory path as a character string.
+#' @keywords internal
+#'
+ensure_dir <- function(path) {
+  if (!dir.exists(path)) {
+    dir.create(path, recursive = TRUE)
+  }
+  invisible(path)
+}
