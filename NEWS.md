@@ -1,3 +1,8 @@
+# SWATtunR 0.3.11
+
+* Added `plot_cal_val()` function to visualize calibration and validation results.
+* Removed quality assurance vignettes from this package to the [SWATdoctR](https://biopsichas.github.io/SWATdoctR/) package.
+
 # SWATtunR 0.3.10
 
 * Fixed and updated `write_cal_file()` function to correctly write a single or 

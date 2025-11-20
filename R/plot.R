@@ -1364,3 +1364,66 @@ plot_pcp_vs_flow <- function(pcp_file, flow,
     )
 }
 
+#' Plot Calibration and Validation Performance Indexes in Boxplots
+#'
+#' Creates comparative boxplots and jittered points for calibration and validation
+#' performance metrics. The function takes two data frames: one for calibration and
+#' one for validation—with a column `run` and additional performance metric columns.
+#' It reshapes the data, adds identifiers for type, and produces faceted plots for
+#' each metric.
+#'
+#' @param cal_df A data frame containing calibration results. Must include a `run`
+#'   column and one or more performance metric columns.
+#' @param val_df A data frame containing validation results. Must include a `run`
+#'   column and one or more performance metric columns that match those in `cal_df`.
+#'
+#' @return A `ggplot` object showing faceted boxplots and jittered values for each
+#'   performance metric, comparing calibration vs. validation results.
+#'
+#' @examples
+#' \dontrun{
+#' cal <- data.frame(run = 1:10, NSE = runif(10), KGE = runif(10))
+#' val <- data.frame(run = 1:10, NSE = runif(10), KGE = runif(10))
+#' plot_cal_val(cal, val)
+#' }
+#'
+#' @importFrom dplyr bind_rows
+#' @importFrom tidyr pivot_longer
+#' @importFrom ggplot2 ggplot aes geom_boxplot geom_point position_jitter
+#' facet_wrap theme_bw labs theme element_blank
+#'
+#' @export
+#' @keywords plot
+
+plot_cal_val <- function(cal_df, val_df) {
+
+  # Add a column identifying the type
+  cal_df$type <- "Calibration"
+  val_df$type <- "Validation"
+
+  # Combine both datasets
+  df <- bind_rows(cal_df, val_df) |>
+    pivot_longer(
+      cols = -c(run, type),
+      names_to = "metric",
+      values_to = "value"
+    )
+
+  fig <- ggplot(df, aes(x = type, y = value, fill = type)) +
+    geom_boxplot() +
+    geom_point(position = position_jitter(width = 0.1), size = 1, alpha = 0.5) +
+    facet_wrap(~metric, scales = "free", nrow = 1) +
+    theme_bw() +
+    labs(
+      y = "Performance index values",
+      fill = "Run type"
+    ) +
+    theme(
+      axis.title.x = element_blank(),
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank()
+    )
+
+  return(fig)
+}
+
