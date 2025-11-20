@@ -131,5 +131,5 @@ gof_sel[names(gof_sel)[names(gof_sel) != "run"]] %>% summarise_all(mean)
 
 For plotting options, please refer to this [page](../articles/hc-analyze.html) for guidance on visualizing the results, as well as the `04_analyze_results.R` script.
 
-If you are satisfied with the validation results, it is advisable to check for any underlying issues in the model setup before proceeding to scenario modeling. This can be done using the SWAT+ model setup verification workflow described [here](../articles/qa.html), which helps identify potential issues and can save considerable time in later stages of model use. The quality assurance step is particularly important if the model will be applied to scenario analysis for decision-making.
+If you are satisfied with the validation results, it is advisable to check for any underlying issues in the model setup before proceeding to scenario modeling. This can be done using the SWAT+ model setup verification workflow  with **SWATdoctR** tool described [here](https://biopsichas.github.io/SWATdoctR/), which helps identify potential issues and can save considerable time in later stages of model use. The quality assurance step is particularly important if the model will be applied to scenario analysis for decision-making.
 

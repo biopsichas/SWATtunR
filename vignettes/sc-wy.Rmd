@@ -299,7 +299,7 @@ parameter_boundaries <- tibble(
 
 If you are satisfied with the water yield ratio and crop yield results, you can proceed to the next step — the hard calibration workflow [here](../articles/hc-par.html).  
 
-However, it may be wise to first examine the model setup using the SWAT+ model setup verification workflow [here](../articles/qa.html), as it can identify potential issues and save considerable time during hard calibration.  
+However, it may be wise to first review the model setup using the SWAT+ model setup verification workflow with the **SWATdoctR** tool described [here](https://biopsichas.github.io/SWATdoctR/), as it can help identify potential issues and save considerable time during calibration.
 
 If, on the other hand, the crop yields are not satisfactory in [step 6](#scwy_step6), you should revisit the crop soft calibration workflow [here](../articles/sc-yield.html) before moving on to hard calibration.
 
