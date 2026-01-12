@@ -1,0 +1,954 @@
+---
+title: "Reproducible SWATtunR Workflow for Little River Experimental Watershed Case Study"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    code_folding: hide    
+    self_contained: true
+---
+
+# Introduction
+
+This R Markdown document provides a reproducible workflow for soft and hard calibration of a SWAT+ model using the `SWATtunR` and `SWATrunR` packages. The workflow is demonstrated using the publicly available Little River Experimental Watershed SWAT+ model (*revision 60.5.4*). The workflow includes steps for soft calibration of crop parameters and water yield, followed by hard calibration of hydrological parameters.
+
+## Setup
+
+This part of the document sets up the R environment, loads necessary libraries, and defines paths and parameters for the SWAT+ model calibration process.
+
+### Libraries
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,    # hide R code
+  message = FALSE, # hide messages
+  warning = FALSE  # hide warnings
+)
+
+# ---------- Helper: install and load from CRAN ----------
+install_and_load_cran <- function(pkg) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    install.packages(pkg)
+  }
+  library(pkg, character.only = TRUE)
+}
+
+# ---------- Helper: install and load from GitHub ----------
+install_and_load_github <- function(pkg, repo) {
+  if (!requireNamespace("remotes", quietly = TRUE)) {
+    install.packages("remotes")
+  }
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    remotes::install_github(repo)
+  }
+  library(pkg, character.only = TRUE)
+}
+
+# Set seed for reproducibility
+set.seed(42)
+```
+
+```{r setup2, include=TRUE}
+# Load required R packages ------------------------------------------------
+# ---------- CRAN packages ----------
+
+install_and_load_cran("hydroGOF")
+install_and_load_cran("lhs")
+install_and_load_cran("tidyverse")
+# ---------- GitHub packages ----------
+install_and_load_github("SWATtunR", "biopsichas/SWATtunR")
+install_and_load_github("SWATrunR", "chrisschuerz/SWATrunR@remove_legacy")
+install_and_load_github("SWATrunR", "chrisschuerz/SWATreadR")
+
+```
+
+### Model path and cores
+
+```{r paths, echo=TRUE}
+# Path to the SWAT+ project folder.
+model_path <- 'swatplus_rev60_demo/swatplus_rev60_demo'
+
+# Set the number of cores for parallel model execution
+n_cores <- 16 # Inf uses all cores. Set lower value if preferred.
+
+# Path to the observed crop yields.
+# This file must be updated with case study specific records!
+yield_obs_path <- 'crop.csv'
+
+# Target water yield ratio. This value must be provided by user, based e.g. on
+# analyses of the discharge hydrograph, or study site specific expert knowledge.
+# The value must be provided as a fraction in the range [0,1].
+wyr_target <- 0.3
+
+# E.g. path to discharge observations
+flow_path <- 'q.csv'
+
+# Path where the simulation results are saved.
+save_path <- './simulation/'
+```
+
+```{r paths2, include=FALSE}
+# Path to your zip file
+zip_file <- "swatplus_rev60_demo.zip"
+setup_name <- substr(zip_file, 1, nchar(zip_file) - 4)
+# Delete folder if it exists
+if (dir.exists(setup_name)) {
+  unlink(c(setup_name, "backup", "simulation"), recursive = TRUE)
+  message("Existing folder deleted.")
+}
+# Unzip the file into the folder
+unzip(zip_file, exdir = setup_name)
+```
+
+## Soft Calibration
+
+### Crop PHU
+
+Step 1 involves soft calibration of crop parameters related to PHU (Potential Heat Units). Code is provided in the `01_crop_phu.R` template. The routine focuses on calibrating crop parameters using observed crop yield data. The calibration process is carried out in two stages. In the first stage, the days to crop maturity—represented by PHU—are adjusted so that they match the characteristics of each crop and are consistent with the implemented management schedules.
+
+```{r sc-step1, include = FALSE}
+# Parameter definition ----------------------------------------------------
+
+# Load and prepare data ---------------------------------------------------
+# Load the yield observations
+yield_obs  <- read.csv(yield_obs_path)
+
+# Define the crops which should be used in the calibration.
+# Default is all crops which are defined in yield_obs.
+# Please define manually if only selected crops should be considered.
+crop_names <- yield_obs$plant_name
+
+# Save default plants.plt --------------------------------------------
+# In the case the crop calibration workflow should be redone after the last step
+# of this script was already executed and the plants.plt was overwritten the
+# plants.plt should be reset to its initial condition. To perform the reset set
+
+dir.create("./backup", showWarnings = FALSE, recursive = TRUE)
+
+file.copy(
+  from = file.path(model_path, "plants.plt"),
+  to = "./backup/plants.plt",
+  overwrite = TRUE
+)
+
+# Calibrate days to maturity values for selected crops --------------------
+
+# The days to maturity (days_mat) define how fast or slow a crop develops. In a
+# SWAT+ model run the days_mat is converted in the the required heat units which
+# a crop needs to fully mature. To result in an intended behavior of a crop the
+# days_mat must be in line with the defined management operations schedule.
+
+# To identify reasonable values for days_mat for the selected crops a parameter
+# set is generated where the days_mat value for each crop is changed in a range
+# (change_min, change_max) with fixed intervals change_step.
+par_dmat <- sample_days_mat(crop_names)
+
+# The SWATrunR package is used to run simulations for the different days_mat
+# values and return the PHU fractions, yields and biomasses for the selected
+# crops.
+# All simulation results will be saved in the folder './simulation'.
+# The simulation results will have a time stamp, so if the process is repeated
+# Always the most recent simulations are used in the analysis.
+
+# Run the simulations
+run_swatplus(project_path = model_path,
+             output = list(yld = define_output(file = 'mgtout',
+                                               variable = 'yld',
+                                               label = crop_names),
+                           bms = define_output(file = 'mgtout',
+                                               variable = 'bioms',
+                                               label = crop_names),
+                           phu = define_output(file = 'mgtout',
+                                               variable = 'phu',
+                                               label = crop_names)
+             ),
+             parameter        = par_dmat,
+             start_date       = NULL, # Change if necessary.
+             end_date         = NULL, # Change if necessary.
+             years_skip       = NULL, # Change if necessary.
+             n_thread         = n_cores,
+             save_path        = save_path,
+             save_file        = add_timestamp('sim_dmat'),
+             return_output    = FALSE,
+             time_out         = 3600 # seconds, change if run-time differs
+             )
+
+# Load the most recent dmat simulation results
+dmat_sims <- list.files(save_path, pattern = '[0-9]{12}_sim_dmat')
+dmat_path <- paste0(save_path, dmat_sims[length(dmat_sims)])
+ylds_phu_dmat <- load_swat_run(dmat_path)
+
+```
+
+```{r sc-step12, echo = TRUE}
+
+# Plot PHU, crop yields and biomass over adjusted days to maturity values.
+plot_phu_yld_bms(ylds_phu_dmat, yield_obs)
+
+# Set days to maturity values for all selected crops based on the figure above.
+dmat_sel <- tibble(
+  plant_name                       = c('corn', 'cots', 'pnut'),
+  'days_mat.pdb | change = absval' = c(140, 160, 160))
+```
+
+```{r sc-step13, include = FALSE}
+# Check if user defined days to maturity values for all crops.
+stopifnot(all(crop_names %in% dmat_sel$plant_name))
+# Update names of dmat_sel to be used as SWATrunR parameters
+dmat_sel <- prepare_plant_parameter(dmat_sel)
+```
+
+### Crop yields
+
+Step 2 involves soft calibration of crop parameters related to PHU (Potential Heat Units). Code is provided in the `02_crop_yield.R` template. It provides a routine for calibrating crop parameters based on observed crop yields. The calibration is a two-stage process. This script represents the second stage, where additional crop parameters can be fine-tuned when adjusting only the days to maturity is not sufficient to match observed yields.
+
+*Importantly, the object `dmat_sel` must already be available in the working environment, carried over from the first crop calibration step.*
+
+```{r sc-step2a, include = FALSE}
+# Calibrate additional crop parameters ------------------------------------
+## Define changes to be applied to parameter values of selected crop parameters
+## Make sure your updates will not produce unrealistic (e.g. negative) values!
+par_bnd <- tibble('lai_pot.pdb | change = relchg'  = c(-0.3, 0.3),
+                  'harv_idx.pdb | change = relchg' = c(-0.3, 0.3),
+                  'tmp_base.pdb | change = abschg' = c(-1.5, 1.5),
+                  'bm_e.pdb | change = relchg'     = c(-0.3, 0.1))
+
+## The number of samples can be adjusted based on the available computational resources.
+## Recommended number of samples is 50-100.
+par_crop <- sample_lhs(par_bnd, 50)
+# Add updated days to maturity values to parameter set
+par_crop <- bind_cols(par_crop, dmat_sel)
+
+# All simulation results will be saved in the folder './simulation'.
+# The simulation results will have a time stamp, so if the process is repeated
+# Always the most recent simulations are used in the analysis.
+
+# Run the simulations
+run_swatplus(project_path = model_path,
+             output = list(yld = define_output(file = 'mgtout',
+                                               variable = 'yld',
+                                               label = crop_names)),
+             parameter = par_crop,
+             start_date       = NULL, # Change if necessary.
+             end_date         = NULL, # Change if necessary.
+             years_skip       = NULL, # Change if necessary.
+             n_thread         = n_cores,
+             save_path        = save_path,
+             save_file        = add_timestamp('sim_yld'),
+             return_output    = FALSE,
+             time_out         = 3600 # seconds, change if run-time differs
+             )
+
+# Load the most recent yield simulation results
+yld_sims <- list.files(save_path, pattern = '[0-9]{12}_sim_yld')
+yld_path <- paste0(save_path, yld_sims[length(yld_sims)])
+yld_sim  <- load_swat_run(yld_path)
+# Remove days to maturity parameter columns before plotting.
+yld_sim$parameter$values <- yld_sim$parameter$values[, 1:ncol(par_bnd)]
+
+```
+
+```{r sc-step2a1, echo = TRUE}
+
+## Plot dotty figures for the selected crops
+plot_dotty_yields(yld_sim, yield_obs)
+
+# Fix the parameter changes you want to apply to the crops
+crop_par_sel <- tibble(
+  plant_name                       = c("corn", "cots", "pnut"),
+  'bm_e.pdb | change = relchg'     = c(  -0.2,   -0.3,   0.1),
+  'harv_idx.pdb | change = relchg' = c(  -0.15,  -0.3,   0.3),
+  'lai_pot.pdb | change = relchg'  = c(  -0.2,   -0.3,   0.3),
+  'tmp_base.pdb | change = abschg' = c(   1.5,    1.5,  -1.0))
+```
+
+
+```{r sc-step2a2, include = FALSE}
+# Check if user defined days to maturity values for all crops.
+stopifnot(all(crop_names %in% crop_par_sel$plant_name))
+# Restructure the set parameter changes to SWATrunR
+crop_par_sel <- prepare_plant_parameter(crop_par_sel)
+
+# Final simulation runs to check PHUs and yields --------------------------
+# Build parameter table with selected days to maturity and selected crop
+# parameter values
+par_final <- bind_cols(dmat_sel, crop_par_sel)
+
+# Run the simulations
+run_swatplus(project_path = model_path,
+             output = list(yld = define_output(file = 'mgtout',
+                                               variable = 'yld',
+                                               label = crop_names),
+                           bms = define_output(file = 'mgtout',
+                                               variable = 'bioms',
+                                               label = crop_names),
+                           phu = define_output(file = 'mgtout',
+                                               variable = 'phu',
+                                               label = crop_names)
+             ),
+             parameter        = par_final,
+             start_date       = NULL, # Change if necessary.
+             end_date         = NULL, # Change if necessary.
+             years_skip       = NULL, # Change if necessary.
+             n_thread         = n_cores,
+             save_path        = save_path,
+             save_file        = add_timestamp('sim_check01'),
+             return_output    = FALSE,
+             time_out         = 3600, # seconds, change if run-time differs
+             keep_folder      = TRUE
+)
+
+# Load the most recent check simulation results
+check_sims <- list.files(save_path, pattern = '[0-9]{12}_sim_check01')
+check_path <- paste0(save_path, check_sims[length(check_sims)])
+check_sim  <- load_swat_run(check_path)
+```
+
+```{r sc-step2a3, echo = TRUE}
+# Plot PHU, crop yields and biomass for final simulation run.
+plot_phu_yld_bms(check_sim, yield_obs)
+```
+
+```{r sc-step2a4, include = FALSE}
+# Write plants.plt --------------------------------------------------------
+# If final run looks acceptable, write the adjusted parameter table into the
+# project folder. You have to set overwrite = TRUE below.
+# This overwrites the original plants.plt!
+# The original plants.plt is available as a backup from ./backup/plants.plt
+file.copy(paste0(model_path, '/.model_run/thread_1/plants.plt'), model_path,
+          overwrite = TRUE)
+unlink(paste0(model_path, '/.model_run'), recursive = TRUE)
+```
+
+### Water yield
+
+This script provides a template for the water yield component of soft calibration and must be adapted to your specific SWAT+ project. Code is provided in the `02_wateryield.R` template.
+The routine supports two alternatives for adjusting the catchment water balance to match a target water yield ratio (WYR):
+
+**Alternative A** (recommended): Calibrate only the soil evaporation compensation factor (`esco`).
+**Alternative B** (optional): Calibrate both `esco` and the plant uptake compensation factor (`epco`) simultaneously.
+
+*Important note: In some SWAT+ revisions, the epco parameter was hard-coded and could not be modified effectively (see https://github.com/swat-model/swatplus/issues/28). In such cases, calibrating epco is ineffective, and Alternative A should be used.*
+(Adjust the parameter ranges, target WYR, and simulation settings below to suit your model and catchment characteristics.)
+
+```{r sc-step2b, echo = TRUE}
+# Parameter definition ----------------------------------------------------
+# Decide for calibration alternative 'A' (only esco) or 'B' (esco and epco).
+alternative <- 'B'
+
+# Set the number of steps in which the parameters esco/epco should be sampled
+# A low number of e.g. 5 to 10 is absolutely sufficient.
+n_step <- 5
+``` 
+
+```{r sc-step2b0, include= FALSE}
+# Load and prepare data ---------------------------------------------------
+
+# Optional reset of hydrology.hyd -----------------------------------------
+# In the case the water yield ratio calibration workflow should be redone after
+# the last step of this script was already executed and the hydrology.hyd was
+# overwritten the hydrology.hyd should be reset to its initial condition. 
+file.copy(
+  from = file.path(model_path, "hydrology.hyd"),
+  to = "./backup/hydrology.hyd",
+  overwrite = TRUE
+)
+
+# Parameter calibration ---------------------------------------------------
+
+# Alternative A: Calibrate esco -------------------------------------------
+if(alternative == 'A') {
+  # Sample the paramter esco with the defined number of steps.
+  par_esco_epco <- tibble('esco.hru | change = absval' =
+                            seq(0.05,0.95, length.out = n_step))
+
+# Alternative B: Calibrate esco and epco ----------------------------------
+} else if (alternative == 'B') {
+  # Define the esco and epco parameter ranges.
+  par_bnd <- tibble('esco.hru | change = absval' = seq(0.05, 0.95, length.out = n_step),
+                    'epco.hru | change = absval' = seq(0.05, 0.95, length.out = n_step))
+
+  # Sample the esco epco combinations with LHS sampling.
+  par_esco_epco <- expand.grid(par_bnd)
+}
+
+# The SWATrunR package is used to run simulations for the different parameter
+# samples. All simulation results will be saved in the folder './simulation'.
+# The simulation results will have a time stamp, so if the process is repeated
+# always the most recent simulations are used in the analysis.
+run_swatplus(project_path = model_path,
+             output = list(precip  =  define_output(file = 'basin_wb_aa',
+                                                    variable = 'precip',
+                                                    unit = 1),
+                           surq_cha = define_output(file = 'basin_wb_aa',
+                                                    variable = 'surq_cha',
+                                                    unit = 1),
+                           surq_res = define_output(file = 'basin_wb_aa',
+                                                    variable = 'surq_res',
+                                                    unit = 1),
+                           latq_cha = define_output(file = 'basin_wb_aa',
+                                                    variable = 'latq_cha',
+                                                    unit = 1),
+                           latq_res = define_output(file = 'basin_wb_aa',
+                                                    variable = 'latq_res',
+                                                    unit = 1),
+                           qtile =    define_output(file = 'basin_wb_aa',
+                                                    variable = 'qtile',
+                                                    unit = 1),
+                           flo =      define_output(file = 'basin_aqu_aa',
+                                                    variable = 'flo',
+                                                    unit = 1)
+             ),
+             parameter        = par_esco_epco,
+             start_date       = NULL, # Change if necessary.
+             end_date         = NULL, # Change if necessary.
+             add_date         = FALSE,
+             years_skip       = NULL, # Change if necessary.
+             n_thread         = n_cores,
+             save_path        = save_path,
+             save_file        = add_timestamp('sim_wbal'),
+             return_output    = FALSE,
+             time_out         = 3600 # seconds, change if run-time differs
+             )
+
+# Load the most recent simulation results of the water balance components.
+wbal_sims <- list.files(save_path, pattern = '[0-9]{12}_sim_wbal')
+wbal_path <- paste0(save_path, wbal_sims[length(wbal_sims)])
+wbal_sim  <- load_swat_run(wbal_path, add_date = FALSE)
+```
+```{r sc-step2b1, echo=TRUE}
+# Select esco/epco parameter values ---------------------------------------
+#
+# Based on the simulated water balance components for the different esco/epco
+# values a simulated water yield ratio is calculated and plotted over the
+# parameter values. The target water yield ratio is also shown in the plot to
+# support the selection of an appropriate range/value for esco and epco.
+plot_esco_epco(wbal_sim, wyr_target, rel_wyr_limit = 0.05)
+```
+
+```{r sc-step2b2, include= FALSE}
+# The esco/epco plot shows recommended values for the parameters to meet the
+# target water yield ratio. There are two options to define esco and epco for
+# further model use:
+# - Option 1: Writing esco and epco into the file hydrology.hyd
+#   If single values are selected for esco and/or epco those can be directly
+#   written into the file hydrology.hyd, which overwrites the initial values.
+#   In this case the new fixed parameter values can be either the starting
+#   point for further calibration or be removed in further calibration steps
+#   and fixing the parameters at the selected values.
+# - Option 2: Selecting parameter ranges for further use in calibration
+#   In this case, parameter ranges are selected from the plots and can e.g.
+#   be used in additional SWATrunR simulation runs for hard calibration.
+#
+# Before deciding which option is preferred, it is recommended to perform an
+# additional simulation with a target parameter set for esco/epco to check the
+# simulated water yield ratio and the simulated crop yields as e.g. epco can
+# affect the simulated plant growth.
+#
+
+par_check <- tibble('esco.hru | change = absval' = 0.02, # Adjust accordingly
+                    'epco.hru | change = absval' = 0.12) # Adjust accordingly
+
+
+## Rerun model for crop yields results
+run_swatplus(project_path = model_path,
+             output = list(precip  =  define_output(file = 'basin_wb_aa',
+                                                    variable = 'precip',
+                                                    unit = 1),
+                           surq_cha = define_output(file = 'basin_wb_aa',
+                                                    variable = 'surq_cha',
+                                                    unit = 1),
+                           surq_res = define_output(file = 'basin_wb_aa',
+                                                    variable = 'surq_res',
+                                                    unit = 1),
+                           latq_cha = define_output(file = 'basin_wb_aa',
+                                                    variable = 'latq_cha',
+                                                    unit = 1),
+                           latq_res = define_output(file = 'basin_wb_aa',
+                                                    variable = 'latq_res',
+                                                    unit = 1),
+                           qtile    = define_output(file = 'basin_wb_aa',
+                                                    variable = 'qtile',
+                                                    unit = 1),
+                           flo      = define_output(file = 'basin_aqu_aa',
+                                                    variable = 'flo',
+                                                    unit = 1),
+                           yld      = define_output(file = 'mgtout',
+                                                    variable = 'yld',
+                                                    label = crop_names),
+                           bms      = define_output(file = 'mgtout',
+                                                    variable = 'bioms',
+                                                    label = crop_names),
+                           phu      = define_output(file = 'mgtout',
+                                                    variable = 'phu',
+                                                    label = crop_names)
+             ),
+             parameter        = par_check,
+             start_date       = NULL, # Change if necessary.
+             end_date         = NULL, # Change if necessary.
+             # add_date         = FALSE,
+             years_skip       = NULL, # Change if necessary.
+             n_thread         = n_cores,
+             save_path        = save_path,
+             save_file        = add_timestamp('sim_check02'),
+             return_output    = FALSE,
+             time_out         = 3600 # seconds, change if run-time differs
+)
+
+# Load the most recent simulation results.
+check_sims <- list.files(save_path, pattern = '[0-9]{12}_sim_check02')
+check_path <- paste0(save_path, check_sims[length(check_sims)])
+check_sim  <- load_swat_run(check_path, add_date = FALSE)
+```
+
+```{r sc-step2b3, echo=TRUE}
+
+# Plot PHU, crop yields and biomass for final simulation run.
+plot_phu_yld_bms(check_sim, yield_obs)
+
+# Check the simulated water yield ratio with reference to the target wyr.
+calc_wyr(check_sim)
+
+```
+
+```{r sc-step2b4, include= FALSE}
+
+# Option 1: Re-writing SWAT+ parameter file hydrology.hyd
+hydrology_hyd <- SWATreadR::read_swat(paste0(model_path, '/hydrology.hyd'))
+
+hydrology_hyd$esco <- 0.02 # set value
+hydrology_hyd$epco <- 0.12 # set value if epco is considered
+
+SWATreadR::write_swat(hydrology_hyd, paste0(model_path, '/hydrology.hyd'), overwrite = TRUE)
+
+```
+## Hard calibration
+
+### Parameter definition
+
+This script provides a template for defining the parameter set used in SWAT+ simulations and must be adapted to  specific SWAT+ project. Code here is provided in the `01_define_parameter.R` template.
+
+
+```{r hc-step1, echo=TRUE}
+# Parameter definition ----------------------------------------------------
+# Number parameter combinations
+n_combinations <- 1000
+
+# Define parameter boundaries ---------------------------------------------
+# Suggested list and ranges of SWAT+ parameters for the calibration of
+# different output variables.
+# Parameters are roughly divided into groups by processes which they affect most.
+# Some groups should be considered optional.
+parameter_boundaries <- tibble(
+  # # snow (optional - use if average snow fall to precipitation ratio is
+  # # higher than 5%)
+  # 'snomelt_tmp.hru | change = absval' = c(-1.5, 1.5),
+  # 'snofall_tmp.hru | change = absval' = c(-1.5, 1.5),
+  # 'snomelt_lag.hru | change = absval' = c(0, 1),
+  # 'snomelt_min.hru | change = absval' = c(1, 3.5),
+  # 'snomelt_max.hru | change = absval' = c(3.5, 7),
+  # ET (note: it is suggested that a narrow range for esco selected in soft
+  # calibration of water balance is used instead of the wide (0,1) range)
+  'esco.hru | change = absval' = c(0.02, 0.08),
+  'epco.hru | change = absval' = c(0.06, 0.13),
+  'awc.sol | change = relchg' = c(0.05, 0.25),
+  #surface runoff
+  'cn2.hru | change = relchg' = c(-0.15, -0.08),
+  'cn3_swf.hru | change = absval' = c(0.68, 0.75), # Normalized range. Will be updated below
+  # 'ovn.hru | change  = relchg ' = c(-0.25, 0.25),
+  'surlag.bsn | change = absval' = c(1, 4),
+  # lateral flow (optional - use if lateral flow constitutes at least 5% of
+  # total water yield)
+  'lat_len.hru | change = abschg' = c(0, 20),
+  'latq_co.hru | change = absval' = c(0.5, 0.8), # Normalized range. Will be updated below
+  'bd.sol | change = relchg' = c(0.21, 0.25),
+  'k.sol | change = relchg' = c(0.5, 1.5),
+  # tile flow (optional - use if tile flow constitutes at least 5% of total
+  # water yield; note: tile_lag and tile_dtime should be active only if
+  # tile_drain is set to 0 in codes.bsn file))
+  # 'tile_dep.hru | change = relchg' = c(0.1, 0.3),
+  # 'tile_lag.hru | change = absval' = c(20, 25),
+  # 'tile_dtime.hru | change = absval' = c(50, 100),
+  # percolation/aquifer
+  'perco.hru | change = absval' = c(0.45, 0.65), # Normalized range. Will be updated below
+  'flo_min.aqu | change = abschg' = c(-1, 1),
+  'revap_co.aqu | change = absval' = c(0.07, 0.15),
+  'revap_min.aqu | change = abschg' = c(-1, 2),
+  'alpha.aqu | change = absval' = c(0.01, 0.08),
+  'sp_yld.aqu | change = absval' = c(0.01, 0.07),
+  'bf_max.aqu | change = absval' = c(0.5, 2),
+  # channel routing
+  'chn.rte | change = absval' = c(0.05, 0.1),
+  'chs.rte | change = relchg' = c(-0.3, 0.3),
+  'chk.rte | change = absval' = c(80, 100)
+  # # sediment routing
+  # 'cov.rte | change = absval' = c(0.005, 1),
+  # 'bedldcoef.rte | change = absval' = c(0.01, 1),
+  # 'cherod.rte | change = absval' = c(0.05, 1),
+  # # nitrogen parameters from here
+  # "n_updis.bsn | change = absval" = c(10, 80),
+  # "nperco.bsn | change = absval" = c(0.5, 1),
+  # "sdnco.bsn | change = absval" = c(0.75, 0.9),
+  # "hlife_n.aqu | change = absval" = c(0, 200),
+  # "no3_init.aqu | change = absval" = c(0, 30),
+  # "cmn.bsn | change = absval" = c(0.001, 0.0013),
+  # "rsdco.bsn | change = absval" = c(0.02, 0.1)
+  )
+
+# Sample parameter combinations -------------------------------------------
+parameter_set <- sample_lhs(parameter_boundaries, n_combinations)
+```
+
+### Output definition
+
+Defining the simulation outputs, which are returned in the SWAT+ runs. Code here is provided in the `02_define_output.R` template. 
+
+```{r hc-step2, echo = TRUE}
+# Parameter definition ----------------------------------------------------
+# Channel IDs for which simulation outputs are returned.
+cha_ids <- c(1)
+
+# Output definition -------------------------------------------------------
+outputs <- list(
+  # Daily discharge
+  flo_day = define_output(file = 'channel_sd_day',
+                          variable = 'flo_out',
+                          unit = cha_ids)
+)
+
+```
+
+### Performing runs
+
+Performing SWAT simulation runs with the defined parameter set and outputs. Code here is provided in the `03_run_swat.R` template.
+
+```{r hc-step3, include=FALSE}
+# Start date of simulation period
+start_date <- '2003-01-01'
+# End date of simulation period
+end_date <- '2012-12-31'
+# Start date for printing simulation outputs
+start_date_print <- '2006-01-01'
+
+# Name of the folder where simulation results will be saved incrementally.
+# To continue writing to existing saved runs, replace by the name of the
+# existing save_file.
+save_file_name <- paste0(format(Sys.time(), '%Y%m%d%H%M%S'), '_sim')
+
+# Perform simulation runs
+run_swatplus(project_path     = model_path,
+             output           = outputs,
+             parameter        = parameter_set,
+             start_date       = start_date,
+             end_date         = end_date,
+             start_date_print = start_date_print,
+             n_thread         = n_cores,
+             save_path        = save_path,
+             save_file        = save_file_name,
+             return_output    = FALSE,
+             split_units      = FALSE, # better set TRUE for large number of units
+             time_out         = 3600 # seconds, change if run-time differs
+             )
+
+
+```
+
+### Analyzing Results
+
+Analyzing simulation results and comparing them to observations. Code here is provided in the `04_analyze_results.R` template.
+ 
+```{r hc-step4, include = FALSE}
+# Parameter definition ----------------------------------------------------
+# Paths to simulation and observation data
+# E.g. load the simulations with the last time stamp, if default
+# save_file names in simulation runs is used.
+sims <- list.files(save_path, pattern = '[0-9]{12}')
+sim_path <- paste0(save_path, sims[length(sims)])
+
+# # E.g. path to in-stream nitrate observations
+# ntot_path <- './observation/ntot.csv'
+
+# Define time period to analyze (E.g. calibration or validation period)
+# Periods for different variables can be different, but calibration and
+# validation should not be mixed.
+# Discharge
+period_q <- c('2006-01-01', '2012-12-31')
+
+# Load and prepare simulation results -------------------------------------
+sim <- load_swat_run(sim_path)
+
+# Extract parameter set
+par_vals <- sim$parameter$values
+
+# Extract relevant output variables
+flow_sim <- filter_period(sim$simulation$flo_day, period_q)
+
+# E.g. if FDC segments should be evaluated, calculate the
+# FDC for the simulated discharges
+flow_fdc_sim <- calc_fdc(flow_sim)
+
+# Load and prepare observations ------------------------------------------
+flow_obs <- read_csv(flow_path) %>%
+  filter_period(., period_q)
+
+# E.g. if FDC segments should be evaluated, calculate the
+# FDC for the simulated discharges
+flow_fdc_obs <- calc_fdc(flow_obs)
+
+gof_flow <- calc_gof(sim = flow_sim, obs = flow_obs,
+                     funs = list(nse_q = NSE, kge_q = KGE, pb_q = pbias,
+                                 mae_q = mae))
+
+# Calculate RSR for different discharge FDC sections (as proposed in
+# Pfannerstill et al., 2014 (https://doi.org/10.1016/j.jhydrol.2013.12.044))
+gof_fdc <- calc_fdc_rsr(fdc_sim = flow_fdc_sim, fdc_obs = flow_fdc_obs,
+                        quantile_splits = c(5, 20, 30))
+
+# E.g. if all calculated GOF tables should be joined to one table
+gof_all <- list(gof_flow, gof_fdc) %>%
+  reduce(., left_join, by = 'run')
+
+# Visual analysis of goodness-of-fit --------------------------------------
+# A very useful tool to assess multiple criteria at the same time is to
+# plot a parameter identifiability plot.
+# I recommend to look at goodness-of-fit indices of different variables
+# at the same time to identify trade offs in parameter ranges. Too many
+# indices in one plot may be hard to assess. Therefore, a selection of
+# indices for plotting is recommended.
+gof_sel <- select(gof_all, run, nse_q, kge_q, pb_q, p_30_100)
+```
+
+```{r hc-step41, echo = TRUE}
+# It is always good to get a general overview of the summary statistics of the
+# calculated GOF indices.
+summary(gof_sel)
+
+plot_parameter_identifiability(parameters = par_vals,
+                               objectives = gof_sel,
+                               run_fraction = .2)
+
+# Another typical approach to analyze goodness-of-fit to parameter changes is
+# to plot dotty plots. Here is just one example, to get a full picture of
+# how to update parameter ranges the assessment of multiple dotty plots may
+# be neccesary.
+plot_dotty(par = par_vals, gof_all$nse_q,  y_label = "NSE value", n_col = 4)
+plot_dotty(par = par_vals, gof_all$kge_q,  y_label = "KGE value", n_col = 4)
+plot_dotty(par = par_vals, gof_all$pb_q,  y_label = "PBIAS value", n_col = 4)
+plot_dotty(par = par_vals, gof_all$p_30_100,  y_label = "P_30_100", n_col = 4)
+```
+
+```{r hc-step42, include = FALSE}
+# If the model performance must be improved and e.g. the parameter
+# identifiability plot clearly suggests to update parameter ranges for relevant
+# parameters it is recommended to go back to step 1, update the parameter
+# boundaries, perform simulations for the new parameter combinations and again
+# analyze them with this script.
+
+# Selection of parameter sets ---------------------------------------------
+# If the model performance is acceptable there are different approaches to select
+# acceptable parameter sets, e.g. by defining thresholds for goodness-of-fit
+# indices, or by ranking model runs. The following gives 3 examples to
+# identify an ensemble of acceptable parameter combinations.
+
+# Ranking simulations runs based on ranks or normalized values of
+# goodness-of-fit indices. Careful here that ranking is always done from smallest
+# to largest value. Therefore the indices must be modified before.
+gof_adj <- gof_sel %>%
+  mutate(nse_q = - nse_q,
+         pb_q = - abs(pb_q))
+
+# Ranking could be done with two different types of ranking either type = 'rank'
+# which uses absolute ranks, or with type = 'norm' which uses normalized
+# goodness-of-fit values and therefore accounts for differences in the
+# performances.
+gof_rank <- rank_gof(gof_adj, type = 'norm')
+# Here just the first 10 runs of the ranked GOF indices are selected.
+run_sel <- gof_rank$run[1:10]
+run_ids <- run_to_id(run_sel)
+```
+
+```{r hc-step43, echo = TRUE}
+# The second approach is to select parameter combinations based on threshold
+# values for GOF indices. Here e.g. for NSE and pbias for discharge and N loads.
+run_sel <- which(gof_sel$nse_q > 0.65 & abs(gof_sel$pb_q) < 10 & gof_sel$kge_q > 0.75 & gof_sel$p_30_100<0.4)
+run_ids <- run_to_id(run_sel)
+
+# View simulated time series ----------------------------------------------
+# The simulated time series should be plotted to analyze the strengths and
+# weaknesses of the model simulations. SWATtunR offers some interactive
+plot_timeseries(flow_sim, flow_obs, run_ids = 180)
+view_timeseries(flow_sim, flow_obs, run_ids = 180)
+
+
+pcp_file_path <- paste0(model_path, "/sta_id1.pcp")
+plot_pcp_vs_flow(pcp_file_path, flow_obs)
+
+```
+
+### Validation
+
+Validation of model performance using selected parameter sets. Code here is provided in the `05_validation.R` template.
+
+```{r hc-step5, include=FALSE}
+
+## Define the period for which validate the calibrated model
+period_valid <- c('2013-01-01', '2021-12-31')
+
+# Start date of the simulation for the validation period.
+# This should be at least 2 years before 'start_date_print' and the start of the
+# validation period to ensure the model reaches a steady state.
+start_date <- '2010-01-01'
+# End date of simulation of validation period
+end_date <- period_valid[2]
+# Start date for printing of validation simulation outputs
+start_date_print <- period_valid[1]
+
+# Name of the folder where simulation results will be saved incrementally.
+# To continue writing to existing saved runs, replace by the name of the
+# existing save_file.
+save_file_name <- paste0(format(Sys.time(), '%Y%m%d%H%M'), '_sim_val')
+
+## The main step in valitadion is to run only selected parameter sets
+parameter_set_valid <- parameter_set[run_ids, ]
+
+# Perform simulation runs
+run_swatplus(project_path     = model_path,
+             output           = outputs,
+             parameter        = parameter_set_valid,
+             start_date       = start_date,
+             end_date         = end_date,
+             start_date_print = start_date_print,
+             n_thread         = n_cores,
+             save_path        = save_path,
+             save_file        = save_file_name,
+             return_output    = FALSE,
+             split_units      = FALSE, # better set TRUE for large number of units
+             time_out         = 3600 # seconds, change if run-time differs
+)
+
+# Parameter definition ----------------------------------------------------
+# Paths to simulation and observation data
+# E.g. load the simulations with the last time stamp, if default
+# save_file names in simulation runs is used.
+sims <- list.files(save_path, pattern = '[0-9]{12}_sim_val')
+sim_path <- paste0(save_path, sims[length(sims)])
+
+# Load and prepare simulation results -------------------------------------
+sim <- load_swat_run(sim_path)
+
+# E.g. discharge observations
+flow_obs <- read_csv(flow_path) %>%
+  filter_period(., period_valid)
+
+flow_sim <- filter_period(sim$simulation$flo_day, period_valid)
+
+# E.g. if FDC segments should be evaluated, calculate the
+# FDC for the simulated discharges
+flow_fdc_sim <- calc_fdc(flow_sim)
+# E.g. if FDC segments should be evaluated, calculate the
+# FDC for the simulated discharges
+flow_fdc_obs <- calc_fdc(flow_obs)
+
+# Calculate goodness-of-fit values ----------------------------------------
+# E.g. to calculate typical indices such as NSE, KGE, pbias, etc. for discharge
+gof_flow <- calc_gof(sim = flow_sim, obs = flow_obs,
+                     funs = list(nse_q = NSE, kge_q = KGE, pb_q = pbias,
+                                 mae_q = mae))
+
+# Calculate RSR for different discharge FDC sections (as proposed in
+# Pfannerstill et al., 2014 (https://doi.org/10.1016/j.jhydrol.2013.12.044))
+gof_fdc <- calc_fdc_rsr(fdc_sim = flow_fdc_sim, fdc_obs = flow_fdc_obs,
+                        quantile_splits = c(5, 20, 30))
+
+# E.g. if all calculated GOF tables should be joined to one table
+gof_all <- list(gof_flow, gof_fdc) %>%
+  reduce(., left_join, by = 'run')
+
+# Select the GOF values of interest
+gof_sel_val <- select(gof_all, run, nse_q, kge_q, pb_q, p_30_100)
+
+```
+
+```{r hc-step51, echo = TRUE}
+
+# Print the mean GOF values for all runs
+gof_sel_val[names(gof_sel_val)[names(gof_sel_val) != "run"]] %>% summarise_all(mean)
+
+# For plotting options or extension to different variables, etc., see the the
+# 04_analyze_results.R script.
+```
+
+## Final result
+
+Figure showing the improvement in model performance metrics after calibration and performance during validation.
+
+```{r final, echo = FALSE}
+
+## Preparing calibration dataframe
+cal_df <- gof_sel[run_ids,] %>%
+  pivot_longer(-run,
+             names_to = "metric",
+             values_to = "value") %>%
+  select(-run) %>%
+  mutate(Source = "Calibration period") %>%
+  mutate(metric = case_when(
+    metric == "nse_q" ~ "NSE",
+    metric == "kge_q" ~ "KGE",
+    metric == "pb_q" ~ "PBIAS",
+    metric == "p_30_100" ~ "P_30_100"
+  ))
+
+## Initial values
+ref_lines <- data.frame(
+  metric = c("NSE", "KGE", "PBIAS", "P_30_100"),
+  hline_value = c(0.27, 0.21, 31.7, 2.21)
+)
+
+## Perfect values
+blue_lines <- data.frame(
+  metric = c("NSE", "KGE", "PBIAS", "P_30_100"),
+  hline_value = c(1, 1, 0, 0)
+)
+
+## Preparing validaiton dataframe
+val_df <- gof_sel_val %>%
+  select(-run) %>%
+  rename(NSE = nse_q,
+         KGE = kge_q,
+         PBIAS = pb_q,
+         P_30_100 = p_30_100) %>%
+  mutate(Source = "Validation period") %>%
+  pivot_longer(-Source,
+               names_to = "metric",
+               values_to = "value")
+
+
+ref_lines$LineType <- "Initial values"
+blue_lines$LineType <- "Perfect values"
+line_data <- rbind(ref_lines, blue_lines)
+
+## Preparing figure
+ggplot() +
+  geom_boxplot(data = cal_df, aes(y = value, fill = Source)) +
+  geom_boxplot(data = val_df, aes(x = metric, y = value, fill = Source)) +
+  labs(
+    y = "Value",
+    title = "Improvement in Model Performance Metrics",
+    fill = "Model performance",       # Legend title for boxplot
+    color = "Reference"  # Legend title for lines
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_blank(),     # removes text labels
+    axis.ticks.x = element_blank(),    # removes ticks
+    axis.title.x = element_blank()     # removes "Metric" label
+  ) +
+  ggtitle("Improvement in Model Performance Metrics After Calibration")+
+  geom_hline(data = line_data, aes(yintercept = hline_value, color = LineType),
+             linewidth = 1) +
+  scale_color_manual(values = c("Initial values" = "red", "Perfect values" = "blue"),
+                     name = "Reference lines") +
+  scale_fill_manual(
+    values = c("Calibration period" = "grey90", "Validation period" = "lightblue")
+  ) +
+  facet_wrap(~ metric, scales = "free", ncol = 4)
+```
