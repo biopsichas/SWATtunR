@@ -38,6 +38,8 @@ Then the `load_swat_run` function from the **SWATrunR** package is used to load 
 ```{r hc51, message = FALSE, warning = FALSE, eval = FALSE}
 # Load and prepare simulation results -------------------------------------
 sim <- load_swat_run(sim_path)
+# Check for failed runs
+failed_runs(sim)
 ```
 The third step involves preprocessing the simulation data to filter for relevant dates, prepare concentration values, and calculate flow duration curves (FDCs) if needed. The `filter_period()` function is used to restrict the simulation results to the defined periods, while the `calc_fdc()` function calculates the flow duration curves for the simulated discharges.
 

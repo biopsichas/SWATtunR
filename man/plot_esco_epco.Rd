@@ -4,7 +4,7 @@
 \alias{plot_esco_epco}
 \title{Plot esco (and epco) to identify appropriate parameter ranges.}
 \usage{
-plot_esco_epco(sim, wyr_target, rel_wyr_limit = 0.05)
+plot_esco_epco(sim, wyr_target, rel_wyr_limit = 0.05, extend_axis = FALSE)
 }
 \arguments{
 \item{sim}{The simulation results water balance data. Including:
@@ -22,6 +22,9 @@ plot_esco_epco(sim, wyr_target, rel_wyr_limit = 0.05)
 
 \item{rel_wyr_limit}{A numeric value specifying the relative range for
 acceptable error.}
+
+\item{extend_axis}{Logical, whether to extend the axis for better visualization.
+Active only when both esco and epco are used. Default is \code{extend_axis = FALSE}.}
 }
 \value{
 A ggplot object.

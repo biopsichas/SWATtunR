@@ -678,6 +678,8 @@ plot_dotty <- function(par, var, y_label = 'y', n_col = 3, y_lim = NULL,
 #' @param wyr_target A numeric value representing the target water yield ratio.
 #' @param rel_wyr_limit A numeric value specifying the relative range for
 #'   acceptable error.
+#' @param extend_axis Logical, whether to extend the axis for better visualization.
+#' Active only when both esco and epco are used. Default is \code{extend_axis = FALSE}.
 #'
 #' @importFrom ggplot2 ggplot geom_line geom_vline geom_text
 #' @importFrom stringr str_extract_all
@@ -685,7 +687,7 @@ plot_dotty <- function(par, var, y_label = 'y', n_col = 3, y_lim = NULL,
 #' @return A ggplot object.
 #' @export
 #'
-plot_esco_epco <- function(sim, wyr_target, rel_wyr_limit = 0.05) {
+plot_esco_epco <- function(sim, wyr_target, rel_wyr_limit = 0.05, extend_axis = FALSE) {
   ## Calculate the water yield ratio
   wyr_sim <- calc_wyr(sim)
 
@@ -732,6 +734,25 @@ plot_esco_epco <- function(sim, wyr_target, rel_wyr_limit = 0.05) {
     limit_in_range <- all(breaks_limit >= min(wyr_xyz$wyr)) &&
       all(breaks_limit <= max(wyr_xyz$wyr))
 
+    ## Extend the axis if required (only for esco + epco) for better visualization
+    if(extend_axis){
+      grid <- expand.grid(
+        esco = seq(0, 1, length.out = length(unique(wyr_xyz$esco))),
+        epco = seq(0, 1, length.out = length(unique(wyr_xyz$epco)))
+      )
+
+      esco_vals <- sort(unique(wyr_xyz$esco))
+      epco_vals <- sort(unique(wyr_xyz$epco))
+
+      nearest <- function(x, vals) {
+        vals[which.min(abs(vals - x))]
+      }
+
+      grid$esco_n <- vapply(grid$esco, nearest, numeric(1), esco_vals)
+      grid$epco_n <- vapply(grid$epco, nearest, numeric(1), epco_vals)
+
+      wyr_xyz <- left_join(grid, wyr_xyz, by = c("esco_n" = "esco", "epco_n" = "epco"))
+    }
     ## Ensamble the figure
     p <- ggplot(wyr_xyz) +
       geom_contour_filled(aes(x = esco, y = epco, z = wyr)) +

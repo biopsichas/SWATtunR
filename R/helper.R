@@ -503,6 +503,107 @@ remove_unsuccesful_runs <- function(sim){
   return(sim)
 }
 
+#' Identify and summarize failed SWAT+ runs
+#'
+#' @description
+#' Examines which simulation runs did not complete successfully by comparing
+#' parameter table rows against actually simulated runs. Prints summary
+#' information about failed parameter combinations.
+#'
+#' @param sim An object returned by `SWATrunR::run_swat()` or similar
+#'   (typically a list containing `parameter$values` and `simulation` results)
+#'
+#' @return Invisibly returns a data.frame containing the failed parameter
+#'   combinations (with added `row_index` column), or `NULL` when no failed
+#'   runs are detected.
+#'
+#' @examples
+#' \dontrun{
+#'   failed <- failed_runs(my_swatrunR_result)
+#'   # or just call for printing:
+#'   failed_runs(my_swatrunR_result)
+#' }
+#'
+#' @export
+#' @keywords helper
+
+failed_runs <- function(sim) {
+
+  # Input validation
+  if (!is.list(sim) || !all(c("parameter", "simulation") %in% names(sim)) ||
+      !is.data.frame(sim$parameter$values)) {
+    stop("Input does not look like a valid SWATrunR result object", call. = FALSE)
+  }
+
+  param_df <- sim$parameter$values
+
+  # Extract completed run indices
+  if (length(sim$simulation) == 0 || length(sim$simulation[[1]]) == 0) {
+    message("No simulation results found.")
+    return(invisible(NULL))
+  }
+
+  run_cols <- grep("^run_", names(sim$simulation[[1]]), value = TRUE)
+  if (length(run_cols) == 0L) {
+    message("No 'run_*' columns detected in simulation results.")
+    return(invisible(NULL))
+  }
+
+  run_idx <- as.integer(sub("^run_", "", run_cols))
+  run_idx <- run_idx[run_idx >= 1L & run_idx <= nrow(param_df)]  # safety
+
+  missing_idx <- setdiff(seq_len(nrow(param_df)), run_idx)
+
+  if (length(missing_idx) == 0L) {
+    message("No failed runs detected.")
+    return(invisible(NULL))
+  }
+
+  # Prepare failed rows
+  failed_df <- param_df[missing_idx, , drop = FALSE]
+  failed_df$row_index <- missing_idx
+
+  # Put row_index first, keep original order for the rest
+  failed_df <- failed_df[, c("row_index", setdiff(names(failed_df), "row_index"))]
+
+  # Helper: compute min/max only on original parameter columns
+  get_param_ranges <- function(x) {
+    if (nrow(x) == 0) return(NULL)
+
+    # Identify original parameter columns (exclude row_index)
+    param_cols <- setdiff(names(x), "row_index")
+
+    # Only numeric ones (usually all of them in SWAT+ sensitivity/ calib)
+    num_param_cols <- param_cols[vapply(x[param_cols], is.numeric, logical(1))]
+
+    if (length(num_param_cols) == 0) {
+      return(data.frame(parameter = character(), min = numeric(), max = numeric()))
+    }
+
+    stats <- rbind(
+      min = vapply(x[num_param_cols], min, numeric(1), na.rm = TRUE),
+      max = vapply(x[num_param_cols], max, numeric(1), na.rm = TRUE)
+    )
+  }
+
+  # Reporting
+  n_total <- nrow(param_df)
+  n_fail  <- length(missing_idx)
+
+  message(sprintf("\nFailed runs detected: %d / %d (%.1f%%)",
+                  n_fail, n_total, n_fail/n_total*100))
+
+  message("\nFailed parameter combinations:")
+  print(failed_df, row.names = FALSE, digits = 4, n = Inf)
+
+  message("\nParameter ranges || only failed runs:")
+  print(get_param_ranges(failed_df), digits = 4)
+
+  message("\nParameter ranges || all runs:")
+  print(get_param_ranges(param_df), digits = 4)
+
+  invisible(failed_df)
+}
 
 #' Add a running ID to duplicated names
 #'

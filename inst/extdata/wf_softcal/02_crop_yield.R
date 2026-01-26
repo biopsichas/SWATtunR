@@ -1,4 +1,4 @@
-# -------------------------------------------------------------------------
+#==============================================================================#
 # Step 2: Crop soft calibration (yields)
 #
 # This is a template and must be adjusted to the individual SWAT project.
@@ -13,7 +13,7 @@
 #
 # IMPORTANT: The `dmat_sel` object must be present in the environment,
 # carried over from the first crop calibration step (01_crop_phu.R).
-# -------------------------------------------------------------------------
+#==============================================================================#
 
 # Load required R packages ------------------------------------------------
 library(SWATtunR)
@@ -85,10 +85,11 @@ yld_path <- paste0('./simulation/', yld_sims[length(yld_sims)])
 yld_sim  <- load_swat_run(yld_path)
 # Remove days to maturity parameter columns before plotting.
 yld_sim$parameter$values <- yld_sim$parameter$values[, 1:ncol(par_bnd)]
-
+failed_runs(yld_sim)
 ## Plot dotty figures for the selected crops
 plot_dotty_yields(yld_sim, yield_obs)
 
+# USER DECISION STEP -----------------------------------------------------------
 # Fix the parameter changes you want to apply to the crops
 crop_par_sel <- tibble(
   plant_name                       = c("corn", "cots", "pnut"),

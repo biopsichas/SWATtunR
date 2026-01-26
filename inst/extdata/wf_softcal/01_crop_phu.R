@@ -1,4 +1,4 @@
-# -------------------------------------------------------------------------
+#==============================================================================#
 # Step 1: Crop Soft Calibration (PHU)
 #
 # This is a template and must be adjusted for the specific SWAT project.
@@ -9,7 +9,8 @@
 # The calibration is a two-stage process. In this first step, the days to maturity
 # (PHU – Potential Heat Units) of each crop are adjusted to align with crop
 # characteristics and the implemented management schedules.
-# -------------------------------------------------------------------------
+#==============================================================================#
+
 
 # Load required R packages ------------------------------------------------
 library(SWATtunR)
@@ -103,11 +104,14 @@ run_swatplus(project_path = model_path,
 dmat_sims <- list.files('./simulation/', pattern = '[0-9]{12}_sim_dmat')
 dmat_path <- paste0('./simulation/', dmat_sims[length(dmat_sims)])
 ylds_phu_dmat <- load_swat_run(dmat_path)
+failed_runs(ylds_phu_dmat)
 
 # Plot PHU, crop yields and biomass over adjusted days to maturity values.
 plot_phu_yld_bms(ylds_phu_dmat, yield_obs)
 
+# USER DECISION STEP -----------------------------------------------------------
 # Set days to maturity values for all selected crops based on the figure above.
+
 dmat_sel <- tibble(
   plant_name                       = c('corn', 'pnut'),
   'days_mat.pdb | change = absval' = c(  150,     150))

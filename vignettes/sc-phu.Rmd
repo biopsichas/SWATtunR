@@ -135,6 +135,8 @@ After the running the model it is important to load the results and visualize th
 dmat_sims <- list.files('./simulation/', pattern = '[0-9]{12}_sim_dmat')
 dmat_path <- paste0('./simulation/', dmat_sims[length(dmat_sims)])
 ylds_phu_dmat <- load_swat_run(dmat_path, add_date = FALSE)
+# Check for failed runs
+failed_runs(ylds_phu_dmat)
 
 # Plot PHU, crop yields and biomass over adjusted days to maturity values.
 plot_phu_yld_bms(ylds_phu_dmat, yield_obs)

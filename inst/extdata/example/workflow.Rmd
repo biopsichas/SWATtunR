@@ -415,6 +415,7 @@ wbal_sims <- list.files(save_path, pattern = '[0-9]{12}_sim_wbal')
 wbal_path <- paste0(save_path, wbal_sims[length(wbal_sims)])
 wbal_sim  <- load_swat_run(wbal_path, add_date = FALSE)
 ```
+
 ```{r sc-step2b1, echo=TRUE}
 # Select esco/epco parameter values ---------------------------------------
 #

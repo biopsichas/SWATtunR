@@ -67,6 +67,8 @@ yld_path <- paste0('./simulation/', yld_sims[length(yld_sims)])
 yld_sim  <- load_swat_run(yld_path, add_date = FALSE)
 # Remove days to maturity parameter columns before plotting.
 yld_sim$parameter$values <- yld_sim$parameter$values[, 1:4]
+# Check for failed runs
+failed_runs(yld_sim)
 
 ## Plot dotty figures for the selected crops
 plot_dotty_yields(yld_sim, yield_obs)

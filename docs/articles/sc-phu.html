@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.11</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.12</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -256,6 +256,8 @@ crop yields for each crop and <code>days_mat</code> value.</p>
 <span><span class="va">dmat_sims</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">'./simulation/'</span>, pattern <span class="op">=</span> <span class="st">'[0-9]{12}_sim_dmat'</span><span class="op">)</span></span>
 <span><span class="va">dmat_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'./simulation/'</span>, <span class="va">dmat_sims</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dmat_sims</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">ylds_phu_dmat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/load_swat_run.html" class="external-link">load_swat_run</a></span><span class="op">(</span><span class="va">dmat_path</span>, add_date <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co"># Check for failed runs</span></span>
+<span><span class="fu"><a href="../reference/failed_runs.html">failed_runs</a></span><span class="op">(</span><span class="va">ylds_phu_dmat</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Plot PHU, crop yields and biomass over adjusted days to maturity values.</span></span>
 <span><span class="fu"><a href="../reference/plot_phu_yld_bms.html">plot_phu_yld_bms</a></span><span class="op">(</span><span class="va">ylds_phu_dmat</span>, <span class="va">yield_obs</span><span class="op">)</span></span></code></pre></div>

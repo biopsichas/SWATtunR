@@ -1,6 +1,6 @@
-# -------------------------------------------------------------------------
+#==============================================================================#
 # Step 4: Analyze simulation results
-# -------------------------------------------------------------------------
+#==============================================================================#
 
 # Load required R packages ------------------------------------------------
 library(SWATrunR)
@@ -30,6 +30,7 @@ period_wq <- c('2016-01-01', '2017-12-31')
 
 # Load and prepare simulation results -------------------------------------
 sim <- load_swat_run(sim_path)
+failed_runs(sim)
 
 # Extract parameter set
 par_vals <- sim$parameter$values
@@ -158,4 +159,14 @@ run_ids <- run_to_id(run_sel)
 # The simulated time series should be plotted to analyze the strengths and
 # weaknesses of the model simulations. SWATtunR offers some interactive
 # plot view functions.
+
 view_timeseries(flow_sim, flow_obs, run_ids = run_ids)
+
+# USER DECISION STEP -----------------------------------------------------------
+# After analyzing the simulation results and selecting acceptable parameter
+# sets the user must decide if the model performance is acceptable or if
+# further calibration steps are necessary. If the model performance is
+# acceptable the selected parameter sets can be used for validation, uncertainty
+# analysis or scenario runs. If the model performance is not acceptable
+# the user should go back to template `01_define_parameter.R` and redefine
+# parameter ranges or include additional parameters.

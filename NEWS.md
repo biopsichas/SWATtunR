@@ -1,3 +1,10 @@
+# SWATtunR 0.3.12
+
+* Updated `plot_esco_epco()` to include additional option for plotting - full parameter range plotting.
+* Added function `failed_runs()` to identify and print failed model runs and parameters ranges. 
+* Minor updates in vignettes and templates.
+* **workflow.R** script added into the example *inst/extdata/example* to replicate results from the article.
+
 # SWATtunR 0.3.11
 
 * Added `plot_cal_val()` function to visualize calibration and validation results.

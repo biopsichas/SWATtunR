@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">SWATtunR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.11</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.12</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -124,7 +124,9 @@ up these parameters.</p>
 simulation results from the defined <code>simulation</code> folder.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load and prepare simulation results -------------------------------------</span></span>
-<span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/load_swat_run.html" class="external-link">load_swat_run</a></span><span class="op">(</span><span class="va">sim_path</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SWATrunR/man/load_swat_run.html" class="external-link">load_swat_run</a></span><span class="op">(</span><span class="va">sim_path</span><span class="op">)</span></span>
+<span><span class="co"># Check for failed runs</span></span>
+<span><span class="fu"><a href="../reference/failed_runs.html">failed_runs</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></code></pre></div>
 <p>The third step involves preprocessing the simulation data to filter
 for relevant dates, prepare concentration values, and calculate flow
 duration curves (FDCs) if needed. The <code><a href="../reference/filter_period.html">filter_period()</a></code>

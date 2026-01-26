@@ -1,4 +1,4 @@
-# -------------------------------------------------------------------------
+#==============================================================================#
 # Step 2: Water yield soft calibration
 #
 # This is a template and must be adjusted to the individual SWAT project.
@@ -9,7 +9,7 @@
 # aware that the parameter epco is/was hard coded in some revisions of SWAT+
 # (see issue in https://github.com/swat-model/swatplus/issues/28). In such case
 # the calibration of epco is pointless.
-# -------------------------------------------------------------------------
+#==============================================================================#
 
 # Load required R packages ------------------------------------------------
 library(SWATtunR)
@@ -118,6 +118,7 @@ run_swatplus(project_path = model_path,
 wbal_sims <- list.files('./simulation/', pattern = '[0-9]{12}_sim_wbal')
 wbal_path <- paste0('./simulation/', wbal_sims[length(wbal_sims)])
 wbal_sim  <- load_swat_run(wbal_path, add_date = FALSE)
+failed_runs(wbal_sim)
 
 # Select esco/epco parameter values ---------------------------------------
 #
@@ -125,8 +126,11 @@ wbal_sim  <- load_swat_run(wbal_path, add_date = FALSE)
 # values a simulated water yield ratio is calculated and plotted over the
 # parameter values. The target water yield ratio is also shown in the plot to
 # support the selection of an appropriate range/value for esco and epco.
+
 plot_esco_epco(wbal_sim, wyr_target, rel_wyr_limit = 0.05)
 
+# USER DECISION STEP -----------------------------------------------------------
+#
 # The esco/epco plot shows recommended values for the parameters to meet the
 # target water yield ratio. There are two options to define esco and epco for
 # further model use:

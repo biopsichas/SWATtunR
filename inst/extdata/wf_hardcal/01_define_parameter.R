@@ -1,4 +1,4 @@
-# -------------------------------------------------------------------------
+#==============================================================================#
 # Step 1: Define the parameter set which is used in the SWAT simulations
 #
 # This is a template and must be adjusted to the individual SWAT project.
@@ -8,7 +8,7 @@
 # If you prefer to use only one global value for those parameters remove
 # the lines 83 and following from this script and adjust the parameter
 # values of those 3 parameters in the parameter_boundaries table.
-# -------------------------------------------------------------------------
+#==============================================================================#
 
 # Load required R packages ------------------------------------------------
 library(SWATtunR)

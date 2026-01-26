@@ -154,6 +154,8 @@ Based on the simulated water balance components for the different `esco` and `ep
 wbal_sims <- list.files('./simulation/', pattern = '[0-9]{12}_sim_wbal')
 wbal_path <- paste0('./simulation/', wbal_sims[length(wbal_sims)])
 wbal_sim  <- load_swat_run(wbal_path, add_date = FALSE)
+# Check for failed runs
+failed_runs(wbal_sim)
 
 # Plot the water balance components and the water yield ratio
 plot_esco_epco(wbal_sim, 0.28, rel_wyr_limit = 0.05)
