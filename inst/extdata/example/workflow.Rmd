@@ -68,7 +68,7 @@ install_and_load_github("SWATrunR", "chrisschuerz/SWATreadR")
 model_path <- 'swatplus_rev60_demo/swatplus_rev60_demo'
 
 # Set the number of cores for parallel model execution
-n_cores <- 16 # Inf uses all cores. Set lower value if preferred.
+n_cores <- 10 # Inf uses all cores. Set lower value if preferred.
 
 # Path to the observed crop yields.
 # This file must be updated with case study specific records!
@@ -77,7 +77,7 @@ yield_obs_path <- 'crop.csv'
 # Target water yield ratio. This value must be provided by user, based e.g. on
 # analyses of the discharge hydrograph, or study site specific expert knowledge.
 # The value must be provided as a fraction in the range [0,1].
-wyr_target <- 0.3
+wyr_target <- 0.28
 
 # E.g. path to discharge observations
 flow_path <- 'q.csv'
@@ -180,10 +180,27 @@ ylds_phu_dmat <- load_swat_run(dmat_path)
 ```
 
 ```{r sc-step12, echo = TRUE}
-
 # Plot PHU, crop yields and biomass over adjusted days to maturity values.
-plot_phu_yld_bms(ylds_phu_dmat, yield_obs)
+# create the plot object
+p <- plot_phu_yld_bms(ylds_phu_dmat, yield_obs)
+```
 
+```{r sc-step12-save, include = FALSE}
+# save as JPEG
+if (dir.exists("figures")) {
+  unlink("figures", recursive = TRUE)
+}
+
+dir.create("figures")
+
+ggsave("figures/Fig10.png", plot = p,
+       device = ragg::agg_png,
+       width = 10, height = 7, units = "in",
+       dpi = 300)
+```
+
+```{r sc-step12-choose, echo = TRUE}
+# !!!USER DECISION STEP!!!
 # Set days to maturity values for all selected crops based on the figure above.
 dmat_sel <- tibble(
   plant_name                       = c('corn', 'cots', 'pnut'),
@@ -210,7 +227,7 @@ Step 2 involves soft calibration of crop parameters related to PHU (Potential He
 par_bnd <- tibble('lai_pot.pdb | change = relchg'  = c(-0.3, 0.3),
                   'harv_idx.pdb | change = relchg' = c(-0.3, 0.3),
                   'tmp_base.pdb | change = abschg' = c(-1.5, 1.5),
-                  'bm_e.pdb | change = relchg'     = c(-0.3, 0.1))
+                  'bm_e.pdb | change = relchg'     = c(-0.3, 0.3))
 
 ## The number of samples can be adjusted based on the available computational resources.
 ## Recommended number of samples is 50-100.
@@ -235,6 +252,7 @@ run_swatplus(project_path = model_path,
              save_path        = save_path,
              save_file        = add_timestamp('sim_yld'),
              return_output    = FALSE,
+             keep_folder      = TRUE,
              time_out         = 3600 # seconds, change if run-time differs
              )
 
@@ -250,17 +268,26 @@ yld_sim$parameter$values <- yld_sim$parameter$values[, 1:ncol(par_bnd)]
 ```{r sc-step2a1, echo = TRUE}
 
 ## Plot dotty figures for the selected crops
-plot_dotty_yields(yld_sim, yield_obs)
+p <- plot_dotty_yields(yld_sim, yield_obs)
+```
 
+```{r sc-step2a1-save, include = FALSE}
+ggsave("figures/Fig11.png", plot = p,
+       device = ragg::agg_png,
+       width = 10, height = 7, units = "in",
+       dpi = 300)
+```
+
+```{r sc-step2a1-choose, echo = TRUE}
+# !!!USER DECISION STEP!!!
 # Fix the parameter changes you want to apply to the crops
 crop_par_sel <- tibble(
   plant_name                       = c("corn", "cots", "pnut"),
-  'bm_e.pdb | change = relchg'     = c(  -0.2,   -0.3,   0.1),
-  'harv_idx.pdb | change = relchg' = c(  -0.15,  -0.3,   0.3),
-  'lai_pot.pdb | change = relchg'  = c(  -0.2,   -0.3,   0.3),
+  'bm_e.pdb | change = relchg'     = c(  -0.2,   -0.25,   0.3),
+  'harv_idx.pdb | change = relchg' = c(  -0.15,  -0.25,   0.3),
+  'lai_pot.pdb | change = relchg'  = c(  -0.2,   -0.25,   0.3),
   'tmp_base.pdb | change = abschg' = c(   1.5,    1.5,  -1.0))
 ```
-
 
 ```{r sc-step2a2, include = FALSE}
 # Check if user defined days to maturity values for all crops.
@@ -305,7 +332,14 @@ check_sim  <- load_swat_run(check_path)
 
 ```{r sc-step2a3, echo = TRUE}
 # Plot PHU, crop yields and biomass for final simulation run.
-plot_phu_yld_bms(check_sim, yield_obs)
+p <- plot_phu_yld_bms(check_sim, yield_obs)
+```
+
+```{r sc-step2a3-save, include = FALSE}
+ggsave("figures/Fig12.png", plot = p,
+       device = ragg::agg_png,
+       width = 10, height = 7, units = "in",
+       dpi = 300)
 ```
 
 ```{r sc-step2a4, include = FALSE}
@@ -423,10 +457,18 @@ wbal_sim  <- load_swat_run(wbal_path, add_date = FALSE)
 # values a simulated water yield ratio is calculated and plotted over the
 # parameter values. The target water yield ratio is also shown in the plot to
 # support the selection of an appropriate range/value for esco and epco.
-plot_esco_epco(wbal_sim, wyr_target, rel_wyr_limit = 0.05)
+p <- plot_esco_epco(wbal_sim, wyr_target, rel_wyr_limit = 0.05)
+```
+
+```{r sc-step2b1-save, include = FALSE}
+ggsave("figures/Fig13.png", plot = p,
+       device = ragg::agg_png,
+       width = 10, height = 7, units = "in",
+       dpi = 300)
 ```
 
 ```{r sc-step2b2, include= FALSE}
+# !!!USER DECISION STEP!!!
 # The esco/epco plot shows recommended values for the parameters to meet the
 # target water yield ratio. There are two options to define esco and epco for
 # further model use:
@@ -446,8 +488,8 @@ plot_esco_epco(wbal_sim, wyr_target, rel_wyr_limit = 0.05)
 # affect the simulated plant growth.
 #
 
-par_check <- tibble('esco.hru | change = absval' = 0.02, # Adjust accordingly
-                    'epco.hru | change = absval' = 0.12) # Adjust accordingly
+par_check <- tibble('esco.hru | change = absval' = 0.09, # Adjust accordingly
+                    'epco.hru | change = absval' = 0.25) # Adjust accordingly
 
 
 ## Rerun model for crop yields results
@@ -502,22 +544,26 @@ check_sim  <- load_swat_run(check_path, add_date = FALSE)
 ```
 
 ```{r sc-step2b3, echo=TRUE}
-
 # Plot PHU, crop yields and biomass for final simulation run.
-plot_phu_yld_bms(check_sim, yield_obs)
-
+p <- plot_phu_yld_bms(check_sim, yield_obs)
 # Check the simulated water yield ratio with reference to the target wyr.
 calc_wyr(check_sim)
+```
 
+```{r sc-step2b3-save, include = FALSE}
+ggsave("figures/Fig14.png", plot = p,
+       device = ragg::agg_png,
+       width = 10, height = 7, units = "in",
+       dpi = 300)
 ```
 
 ```{r sc-step2b4, include= FALSE}
-
+# Write selected esco and epco into hydrology.hyd --------------------------
 # Option 1: Re-writing SWAT+ parameter file hydrology.hyd
 hydrology_hyd <- SWATreadR::read_swat(paste0(model_path, '/hydrology.hyd'))
 
-hydrology_hyd$esco <- 0.02 # set value
-hydrology_hyd$epco <- 0.12 # set value if epco is considered
+hydrology_hyd$esco <- 0.09 # set value
+hydrology_hyd$epco <- 0.25 # set value if epco is considered
 
 SWATreadR::write_swat(hydrology_hyd, paste0(model_path, '/hydrology.hyd'), overwrite = TRUE)
 
@@ -532,7 +578,8 @@ This script provides a template for defining the parameter set used in SWAT+ sim
 ```{r hc-step1, echo=TRUE}
 # Parameter definition ----------------------------------------------------
 # Number parameter combinations
-n_combinations <- 1000
+# n_combinations <- 5000
+n_combinations <- 500 # For faster runs
 
 # Define parameter boundaries ---------------------------------------------
 # Suggested list and ranges of SWAT+ parameters for the calibration of
@@ -549,20 +596,20 @@ parameter_boundaries <- tibble(
   # 'snomelt_max.hru | change = absval' = c(3.5, 7),
   # ET (note: it is suggested that a narrow range for esco selected in soft
   # calibration of water balance is used instead of the wide (0,1) range)
-  'esco.hru | change = absval' = c(0.02, 0.08),
-  'epco.hru | change = absval' = c(0.06, 0.13),
-  'awc.sol | change = relchg' = c(0.05, 0.25),
+  'esco.hru | change = absval' = c(0.04, 0.12),
+  'epco.hru | change = absval' = c(0.05, 0.12),
+  'awc.sol | change = relchg' = c(-0.1, 0.1),
   #surface runoff
-  'cn2.hru | change = relchg' = c(-0.15, -0.08),
-  'cn3_swf.hru | change = absval' = c(0.68, 0.75), # Normalized range. Will be updated below
+  'cn2.hru | change = relchg' = c(-0.17, -0.1),
+  'cn3_swf.hru | change = absval' = c(0.55, 0.75), # Normalized range. Will be updated below
   # 'ovn.hru | change  = relchg ' = c(-0.25, 0.25),
-  'surlag.bsn | change = absval' = c(1, 4),
+  'surlag.hru | change = absval' = c(0.6, 2),
   # lateral flow (optional - use if lateral flow constitutes at least 5% of
   # total water yield)
   'lat_len.hru | change = abschg' = c(0, 20),
-  'latq_co.hru | change = absval' = c(0.5, 0.8), # Normalized range. Will be updated below
-  'bd.sol | change = relchg' = c(0.21, 0.25),
-  'k.sol | change = relchg' = c(0.5, 1.5),
+  'latq_co.hru | change = absval' = c(0.4, 0.7), # Normalized range. Will be updated below
+  'bd.sol | change = relchg' = c(0.23, 0.28),
+  'k.sol | change = relchg' = c(1, 1.75),
   # tile flow (optional - use if tile flow constitutes at least 5% of total
   # water yield; note: tile_lag and tile_dtime should be active only if
   # tile_drain is set to 0 in codes.bsn file))
@@ -570,17 +617,17 @@ parameter_boundaries <- tibble(
   # 'tile_lag.hru | change = absval' = c(20, 25),
   # 'tile_dtime.hru | change = absval' = c(50, 100),
   # percolation/aquifer
-  'perco.hru | change = absval' = c(0.45, 0.65), # Normalized range. Will be updated below
+  'perco.hru | change = absval' = c(0.3, 0.55), # Normalized range. Will be updated below
   'flo_min.aqu | change = abschg' = c(-1, 1),
-  'revap_co.aqu | change = absval' = c(0.07, 0.15),
-  'revap_min.aqu | change = abschg' = c(-1, 2),
+  #'revap_co.aqu | change = absval' = c(0.07, 0.15),
+  #'revap_min.aqu | change = abschg' = c(-1, 2),
   'alpha.aqu | change = absval' = c(0.01, 0.08),
-  'sp_yld.aqu | change = absval' = c(0.01, 0.07),
-  'bf_max.aqu | change = absval' = c(0.5, 2),
+  #'sp_yld.aqu | change = absval' = c(0.01, 0.07),
+  #'bf_max.aqu | change = absval' = c(0.5, 2),
   # channel routing
-  'chn.rte | change = absval' = c(0.05, 0.1),
-  'chs.rte | change = relchg' = c(-0.3, 0.3),
-  'chk.rte | change = absval' = c(80, 100)
+  'chn.rte | change = absval' = c(0.08, 0.12),
+  'chs.rte | change = relchg' = c(0, 0.35),
+  'chk.rte | change = absval' = c(90, 100)
   # # sediment routing
   # 'cov.rte | change = absval' = c(0.005, 1),
   # 'bedldcoef.rte | change = absval' = c(0.01, 1),
@@ -594,6 +641,7 @@ parameter_boundaries <- tibble(
   # "cmn.bsn | change = absval" = c(0.001, 0.0013),
   # "rsdco.bsn | change = absval" = c(0.02, 0.1)
   )
+
 
 # Sample parameter combinations -------------------------------------------
 parameter_set <- sample_lhs(parameter_boundaries, n_combinations)
@@ -649,7 +697,6 @@ run_swatplus(project_path     = model_path,
              split_units      = FALSE, # better set TRUE for large number of units
              time_out         = 3600 # seconds, change if run-time differs
              )
-
 
 ```
 
@@ -723,18 +770,19 @@ gof_sel <- select(gof_all, run, nse_q, kge_q, pb_q, p_30_100)
 # calculated GOF indices.
 summary(gof_sel)
 
-plot_parameter_identifiability(parameters = par_vals,
+p <- plot_parameter_identifiability(parameters = par_vals,
                                objectives = gof_sel,
                                run_fraction = .2)
+p
+```
 
-# Another typical approach to analyze goodness-of-fit to parameter changes is
-# to plot dotty plots. Here is just one example, to get a full picture of
-# how to update parameter ranges the assessment of multiple dotty plots may
-# be neccesary.
-plot_dotty(par = par_vals, gof_all$nse_q,  y_label = "NSE value", n_col = 4)
-plot_dotty(par = par_vals, gof_all$kge_q,  y_label = "KGE value", n_col = 4)
-plot_dotty(par = par_vals, gof_all$pb_q,  y_label = "PBIAS value", n_col = 4)
-plot_dotty(par = par_vals, gof_all$p_30_100,  y_label = "P_30_100", n_col = 4)
+```{r hc-step41-save, include = FALSE}
+ggsave("figures/Fig15.png", 
+       plot = p,
+       device = ragg::agg_png,
+       width = 10, height = 7, units = "in",
+       dpi = 300)
+
 ```
 
 ```{r hc-step42, include = FALSE}
@@ -770,19 +818,60 @@ run_ids <- run_to_id(run_sel)
 ```{r hc-step43, echo = TRUE}
 # The second approach is to select parameter combinations based on threshold
 # values for GOF indices. Here e.g. for NSE and pbias for discharge and N loads.
-run_sel <- which(gof_sel$nse_q > 0.65 & abs(gof_sel$pb_q) < 10 & gof_sel$kge_q > 0.75 & gof_sel$p_30_100<0.4)
+run_sel <- which(gof_sel$nse_q > 0.65 & abs(gof_sel$pb_q) < 10 & gof_sel$kge_q > 0.75 & gof_sel$p_30_100<0.15)
 run_ids <- run_to_id(run_sel)
 
 # View simulated time series ----------------------------------------------
 # The simulated time series should be plotted to analyze the strengths and
 # weaknesses of the model simulations. SWATtunR offers some interactive
-plot_timeseries(flow_sim, flow_obs, run_ids = 180)
-view_timeseries(flow_sim, flow_obs, run_ids = 180)
+p <- plot_timeseries(flow_sim, flow_obs, run_ids = run_ids)
+p
+```
 
+```{r hc-step43-save, include = FALSE}
+ggsave(
+  "figures/Fig17.png",
+  plot = p,
+  device = ragg::agg_png,
+  width = 10, height = 7, units = "in",
+  dpi = 300
+)
+```
 
+```{r hc-step43-view, echo = TRUE}
+view_timeseries(flow_sim, flow_obs, run_ids = run_ids)
+
+# Plot precipitation vs flow ----------------------------------------------
+# To evaluate, if observed flow matches well to observed precipitation data.
 pcp_file_path <- paste0(model_path, "/sta_id1.pcp")
 plot_pcp_vs_flow(pcp_file_path, flow_obs)
+```
 
+
+```{r hc-step41-interpret, echo = TRUE}
+# Another typical approach to analyze goodness-of-fit to parameter changes is
+# to plot dotty plots. Here is just one example, to get a full picture of
+# how to update parameter ranges the assessment of multiple dotty plots may
+# be neccesary.
+plot_dotty(par = par_vals, gof_all$kge_q,  y_label = "KGE value", n_col = 4, run_ids = run_ids)
+plot_dotty(par = par_vals, gof_all$pb_q,  y_label = "PBIAS value", n_col = 4, run_ids = run_ids)
+plot_dotty(par = par_vals, gof_all$p_30_100,  y_label = "P_30_100", n_col = 4, run_ids = run_ids)
+
+p <- plot_dotty(par = par_vals, gof_all$nse_q,  y_label = "NSE value", n_col = 4, run_ids = run_ids)
+p
+
+# !!!USER DECISION STEP!!!
+# If model performance results satisfy users, they should proceed to the validation step.
+```
+
+```{r hc-step41-interpret-save, include = FALSE}
+ggsave(
+  "figures/Fig16.png",
+  plot = p,
+  device = ragg::agg_png,
+  width = 10, height = 7, units = "in",
+  dpi = 300
+)
 ```
 
 ### Validation
@@ -790,7 +879,6 @@ plot_pcp_vs_flow(pcp_file_path, flow_obs)
 Validation of model performance using selected parameter sets. Code here is provided in the `05_validation.R` template.
 
 ```{r hc-step5, include=FALSE}
-
 ## Define the period for which validate the calibrated model
 period_valid <- c('2013-01-01', '2021-12-31')
 
@@ -883,7 +971,6 @@ gof_sel_val[names(gof_sel_val)[names(gof_sel_val) != "run"]] %>% summarise_all(m
 Figure showing the improvement in model performance metrics after calibration and performance during validation.
 
 ```{r final, echo = FALSE}
-
 ## Preparing calibration dataframe
 cal_df <- gof_sel[run_ids,] %>%
   pivot_longer(-run,
@@ -928,7 +1015,7 @@ blue_lines$LineType <- "Perfect values"
 line_data <- rbind(ref_lines, blue_lines)
 
 ## Preparing figure
-ggplot() +
+p <- ggplot() +
   geom_boxplot(data = cal_df, aes(y = value, fill = Source)) +
   geom_boxplot(data = val_df, aes(x = metric, y = value, fill = Source)) +
   labs(
@@ -952,4 +1039,19 @@ ggplot() +
     values = c("Calibration period" = "grey90", "Validation period" = "lightblue")
   ) +
   facet_wrap(~ metric, scales = "free", ncol = 4)
+```
+
+```{r final-plot, echo = TRUE}
+p
+```
+
+```{r final-plot-save, include = FALSE}
+ggsave(
+  "figures/Fig18.png",
+  plot = p,
+  device = ragg::agg_png,
+  width = 10, height = 7, units = "in",
+  dpi = 300,
+  bg = "white"
+)
 ```
